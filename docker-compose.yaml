@@ -1,17 +1,17 @@
 services:
   postgres:
     image: postgres:16.3
-    container_name: alexandria-web-service-db-test
+    container_name: publisher-web-service-db-test
     hostname: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: alexandria_web_service_db_test
+      POSTGRES_DB: publisher_web_service_db_test
     ports:
       - "5432:5432"
   infrastructure:
-    image: ghcr.io/code-sherpas/alexandria-infrastructure:latest
-    container_name: alexandria-infrastructure
+    image: ghcr.io/wozut/publisher-infrastructure:latest
+    container_name: publisher-infrastructure
     hostname: infrastructure
     environment:
       PORT: 8080
@@ -19,13 +19,7 @@ services:
       DATABASE_PORT: 5432
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: alexandria_web_service_db_test
+      POSTGRES_DB: publisher_web_service_db_test
     depends_on:
       postgres:
         condition: service_started
-  alexandria-ml:
-    image: ghcr.io/code-sherpas/alexandria-accelerate-assessment:latest
-    container_name: alexandria-ml-test
-    hostname: alexandria-ml
-    ports:
-      - "8000:8000"
