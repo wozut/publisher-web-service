@@ -11,12 +11,12 @@ jobs:
 
     env:
       REGISTRY: ghcr.io
-      IMAGE_LATEST_URL: ghcr.io/code-sherpas/alexandria-web-service:latest
-      IMAGE_COMMIT_SHA_URL: ghcr.io/code-sherpas/alexandria-web-service:${{ github.sha }}
+      IMAGE_LATEST_URL: ghcr.io/wozut/publisher-web-service:latest
+      IMAGE_COMMIT_SHA_URL: ghcr.io/wozut/publisher-web-service:${{ github.sha }}
 
     environment:
       name: production
-      url: https://api.code-sherpas.rocks
+      url: https://api.wozut.com
 
     permissions:
       contents: read
