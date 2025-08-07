@@ -1,0 +1,40 @@
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  jpa:
+    properties:
+      hibernate:
+        show-sql: ${HIBERNATE_SHOW_SQL:true}
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${POSTGRES_DB:alexandria_web_service_db_test}
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:password}
+#web-application:
+#  base-url: ${WEB_APPLICATION_BASE_URL:http://local.alexandria.code-sherpas.rocks:3000}
+#  dashboard-path: /dashboard
+#  report-path: /report
+tcla-model:
+  base-url: ${TCLA_MODEL_BASE_URL:http://localhost:8000}
+typeform:
+  base-url: ${TYPEFORM_BASE_URL:https://api.typeform.com}
+  access-token: ${TYPEFORM_ACCESS_TOKEN:}
+  workspace: ${TYPEFORM_WORKSPACE:}
+  show-typeform-branding: ${TYPEFORM_SHOW_TYPEFORM_BRANDING:true}
+mailjet:
+  base-url: ${MAILJET_BASE_URL:https://api.mailjet.com/v3.1}
+  api-key: ${MAILJET_API_KEY:}
+  secret-key: ${MAILJET_SECRET_KEY:}
+  sandbox-mode: ${MAILJET_SANDBOX_MODE:true}
+auth0:
+  client-id: ${AUTH0_CLIENT_ID:NribhyXpWqIWIi5XQaztfmDcf9xbfdqi}
+  client-secret: ${AUTH0_CLIENT_SECRET:7aUciY_X6nzSzrAzYYHnMRpTJE4UPL66Q_CLnSkDR6NJ5AxpW2M8ha62kIqiUVtF}
+  domain: ${AUTH0_DOMAIN:alexandria-test.eu.auth0.com}
+  management-api-audience: ${AUTH0_MANAGEMENT_API_AUDIENCE:https://${auth0.domain}/api/v2/}
+  get-access-token-url: ${AUTH0_GET_ACCESS_TOKEN_URL:https://${auth0.domain}/oauth/token}
+  audience: ${AUTH0_AUDIENCE:https://alexandria-web-service.onrender.com}
+  domain-with-scheme: ${AUTH0_DOMAIN_WITH_SCHEME:https://${auth0.domain}}

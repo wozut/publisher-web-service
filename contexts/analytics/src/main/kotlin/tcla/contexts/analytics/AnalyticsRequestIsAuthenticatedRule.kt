@@ -1,0 +1,18 @@
+package tcla.contexts.analytics
+
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
+import jakarta.inject.Named
+import tcla.contexts.authentication.core.RequestInfo
+
+@Named
+class AnalyticsRequestIsAuthenticatedRule {
+    fun ensure(): Either<NonEmptyList<Failure>, String> =
+        when (val requesterId = RequestInfo.getRequesterId()) {
+            null -> Failure.RequestNotAuthenticated.nel().left()
+            else -> requesterId.right()
+        }
+}

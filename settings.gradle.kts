@@ -1,0 +1,26 @@
+rootProject.name = "alexandria-web-service"
+include(
+    "platform",
+    "spring-boot",
+    "api-gateway",
+    "message-broker",
+    "contexts:authentication:core",
+    "contexts:tcla:web-api:spring-web",
+    "contexts:tcla:core",
+    "contexts:tcla:database:spring-data-jpa",
+    "contexts:tcla:model",
+    "contexts:tcla:typeform",
+    "contexts:accounts:core",
+    "contexts:accounts:web-api:spring-web",
+    "contexts:accounts:auth0",
+    "contexts:communications:core",
+    "contexts:analytics",
+    "libraries:jsonserialization",
+    "libraries:transactional",
+    "libraries:uuid-validation",
+    "libraries:json-api",
+    "libraries:search",
+    "libraries:time",
+    "libraries:ok-http",
+    "libraries:logging"
+)

@@ -1,0 +1,73 @@
+name: On push to main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_to_production:
+    runs-on: ubuntu-latest
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_LATEST_URL: ghcr.io/code-sherpas/alexandria-web-service:latest
+      IMAGE_COMMIT_SHA_URL: ghcr.io/code-sherpas/alexandria-web-service:${{ github.sha }}
+
+    environment:
+      name: production
+      url: https://api.code-sherpas.rocks
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Gradle build
+        run: ./gradlew build -x check
+
+#      - name: Get Grafana agent
+#        run: |
+#          curl -O -L https://github.com/grafana/grafana-opentelemetry-java/releases/latest/download/grafana-opentelemetry-java.jar
+
+      - name: Build Docker images
+        run: |
+          docker build \
+          --build-arg JAR_FILE=spring-boot/build/libs/spring-boot.jar \
+          -t ${{ env.IMAGE_LATEST_URL }} \
+          -t ${{ env.IMAGE_COMMIT_SHA_URL }} \
+          --platform=linux/amd64 \
+          .
+
+#          --build-arg GRAFANA_AGENT_FILE=grafana-opentelemetry-java.jar \
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image with "commit sha" version
+        run: docker push ${{ env.IMAGE_COMMIT_SHA_URL }}
+
+      - name: Push image with "latest" version
+        run: docker push ${{ env.IMAGE_LATEST_URL }}
+
+      - name: Trigger deploy in Render
+        run: |
+          status_code="$(curl --silent --output /dev/null --get -w "%{http_code}" --data-urlencode "imgURL=${{ env.IMAGE_COMMIT_SHA_URL }}" ${{ secrets.RENDER_DEPLOY_WEBHOOK }})"
+          echo $status_code
+          expected_status_code="200"
+          if [ $status_code != $expected_status_code ]; then
+          exit 1
+          fi

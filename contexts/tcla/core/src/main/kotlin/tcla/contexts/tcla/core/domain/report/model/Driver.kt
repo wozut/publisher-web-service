@@ -1,0 +1,28 @@
+package tcla.contexts.tcla.core.domain.report.model
+
+sealed class Driver(val id: String, val name: String, val cluster: Cluster) {
+    data object TeamComplexity: Driver(id = "team-complexity", name = DriverTexts.teamComplexity.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object TeamCompetence: Driver(id = "team-competence", name = DriverTexts.teamCompetence.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object RoleClarity: Driver(id = "role-clarity", name = DriverTexts.roleClarity.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object RoleFit: Driver(id = "role-fit", name = DriverTexts.roleFit.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object RoleLoad: Driver(id = "role-load", name = DriverTexts.roleLoad.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object TeamInteraction: Driver(id = "team-interaction", name = DriverTexts.teamInteraction.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object TeamAlignment: Driver(id = "team-alignment", name = DriverTexts.teamAlignment.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object MemberPsychologicalSafety: Driver(id = "member-psychological-safety", name = DriverTexts.memberPsychologicalSafety.capitalized, cluster = Cluster.TeamCharacteristics)
+    data object ProblemDefinition: Driver(id = "problem-definition", name = DriverTexts.problemDefinition.capitalized, cluster = Cluster.TaskCharacteristics)
+    data object SolutionAlignment: Driver(id = "solution-alignment", name = DriverTexts.solutionAlignment.capitalized, cluster = Cluster.TaskCharacteristics)
+    data object TaskComplexity: Driver(id = "task-complexity", name = DriverTexts.taskComplexity.capitalized, cluster = Cluster.TaskCharacteristics)
+    data object ContextualComplexity: Driver(id = "contextual-complexity", name = DriverTexts.contextualComplexity.capitalized, cluster = Cluster.TaskCharacteristics)
+    data object Metrics: Driver(id = "metrics", name = DriverTexts.metrics.capitalized, cluster = Cluster.TaskCharacteristics)
+    data object UseOfInformation: Driver(id = "use-of-information", name = DriverTexts.useOfInformation.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object Process: Driver(id = "process", name = DriverTexts.process.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object Consistency: Driver(id = "consistency", name = DriverTexts.consistency.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object Pace: Driver(id = "pace", name = DriverTexts.pace.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object Performance: Driver(id = "performance", name = DriverTexts.performance.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object Resilience: Driver(id = "resilience", name = DriverTexts.resilience.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object IterativeWorking: Driver(id = "iterative-working", name = DriverTexts.iterativeWorking.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object ContinuousLearning: Driver(id = "continuous-learning", name = DriverTexts.continuousLearning.capitalized, cluster = Cluster.WorkPracticesAndProcesses)
+    data object ToolSuitability: Driver(id = "tool-suitability", name = DriverTexts.toolSuitability.capitalized, cluster = Cluster.WorkEnvironmentAndTools)
+    data object ToolPerformance: Driver(id = "tool-performance", name = DriverTexts.toolPerformance.capitalized, cluster = Cluster.WorkEnvironmentAndTools)
+    data object Environment: Driver(id = "environment", name = DriverTexts.environment.capitalized, cluster = Cluster.WorkEnvironmentAndTools)
+}
