@@ -1,4 +1,4 @@
-rootProject.name = "alexandria-web-service"
+rootProject.name = "publisher-web-service"
 include(
     "platform",
     "spring-boot",
