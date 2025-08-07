@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.2
-FROM eclipse-temurin:17.0.8.1_1-jre-jammy
+FROM eclipse-temurin:21.0.8_9-jre-noble
 
 VOLUME /tmp
 ARG JAR_FILE
