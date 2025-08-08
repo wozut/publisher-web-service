@@ -39,8 +39,8 @@ jobs:
           docker compose up -d postgres
           until docker compose exec -i postgres pg_isready ; do sleep 1 ; done
 
-      - name: Run database migrations
-        run: docker compose up infrastructure
+#      - name: Run database migrations
+#        run: docker compose up infrastructure
 
       - name: Gradle build
         run: ./gradlew build
