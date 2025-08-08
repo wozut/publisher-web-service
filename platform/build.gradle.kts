@@ -5,7 +5,7 @@ plugins {
 javaPlatform.allowDependencies()
 
 dependencies {
-    api(platform("io.arrow-kt:arrow-stack:1.2.1"))
+    api(platform("io.arrow-kt:arrow-stack:2.1.2"))
 
     constraints {
         api("io.arrow-kt:arrow-core")

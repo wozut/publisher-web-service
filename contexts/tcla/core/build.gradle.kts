@@ -2,7 +2,7 @@ plugins {
     id("kotlin-library-conventions")
     id("org.springframework.boot") version "3.5.4" apply false
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("plugin.spring") version "1.9.25"
 }
 
 dependencyManagement {
@@ -33,7 +33,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-java:7.14.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
 
-    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:1.2.1"))
+    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
     testFixturesImplementation("io.arrow-kt:arrow-core")
 }
 
