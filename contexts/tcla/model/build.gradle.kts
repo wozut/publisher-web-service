@@ -16,7 +16,7 @@ dependencies {
     implementation("jakarta.inject:jakarta.inject-api")
     implementation(project(":libraries:ok-http"))
     implementation(project(":libraries:logging"))
-    implementation("org.apache.poi:poi:5.2.3")
-    implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("org.apache.poi:poi:5.4.1")
+    implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation(project(":contexts:tcla:core"))
 }
