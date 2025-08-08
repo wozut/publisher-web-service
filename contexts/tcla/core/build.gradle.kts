@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-
 plugins {
     id("kotlin-library-conventions")
     id("org.springframework.boot") version "3.5.4" apply false
@@ -13,7 +11,9 @@ dependencyManagement {
     }
 }
 
-archivesName = "tcla.core"
+base {
+    archivesName.set("tcla.core")
+}
 
 dependencies {
     implementation("jakarta.inject:jakarta.inject-api")

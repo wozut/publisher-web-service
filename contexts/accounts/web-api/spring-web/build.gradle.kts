@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-
 plugins {
     id("kotlin-library-conventions")
     id("org.springframework.boot") version "3.5.4" apply false
@@ -13,7 +11,10 @@ dependencyManagement {
     }
 }
 
-archivesName = "accounts.spring-web"
+base {
+    archivesName.set("accounts.spring-web")
+}
+
 
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin"){
