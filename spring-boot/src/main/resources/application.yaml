@@ -11,7 +11,7 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${POSTGRES_DB:alexandria_web_service_db_test}
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${POSTGRES_DB:publisher_web_service_db_test}
     username: ${POSTGRES_USER:admin}
     password: ${POSTGRES_PASSWORD:password}
 #web-application:
