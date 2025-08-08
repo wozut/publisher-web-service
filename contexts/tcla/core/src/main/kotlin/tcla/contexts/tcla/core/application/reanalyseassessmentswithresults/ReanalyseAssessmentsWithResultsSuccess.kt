@@ -1,0 +1,3 @@
+package tcla.contexts.tcla.core.application.reanalyseassessmentswithresults
+
+data object ReanalyseAssessmentsWithResultsSuccess

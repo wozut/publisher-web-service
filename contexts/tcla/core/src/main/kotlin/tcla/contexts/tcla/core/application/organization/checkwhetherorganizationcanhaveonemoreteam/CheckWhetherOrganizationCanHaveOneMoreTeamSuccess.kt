@@ -1,0 +1,3 @@
+package tcla.contexts.tcla.core.application.organization.checkwhetherorganizationcanhaveonemoreteam
+
+data class CheckWhetherOrganizationCanHaveOneMoreTeamSuccess(val result: Boolean)

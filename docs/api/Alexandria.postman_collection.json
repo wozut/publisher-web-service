@@ -1,0 +1,1188 @@
+{
+	"info": {
+		"_postman_id": "b436fbf5-0cd8-4dd5-b255-3fd3156c32b5",
+		"name": "Alexandria",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44367183"
+	},
+	"item": [
+		{
+			"name": "Onboarding",
+			"item": [
+				{
+					"name": "Find Onboarding",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/onboardings/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"onboardings",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{onboarding_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Onboarding",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"onboarding\",\n        \"attributes\": {\n            \"userHasSeenDemo\": true\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/onboardings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"onboardings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Find Account",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/accounts/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{account_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"id\": \"{{account_id}}\",\n        \"type\": \"account\",\n        \"attributes\": {\n            \"name\": \"John\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/accounts/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{account_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Assessments",
+			"item": [
+				{
+					"name": "Find Assessment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/assessments/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assessments",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{assessment_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check whether an assessment can be created",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/check-whether-assessment-can-be-created/:teamId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"check-whether-assessment-can-be-created",
+								":teamId"
+							],
+							"variable": [
+								{
+									"key": "teamId",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reanalyse assessments with results",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/reanalyse-assessments-with-results",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reanalyse-assessments-with-results"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Assessment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"assessment\",\n        \"attributes\": {\n            \"title\": \"Assessment 1\",\n            \"responseAcceptanceIntervalStartDate\": \"2024-11-04T19:31:00Z\",\n            \"responseAcceptanceIntervalEndDate\": \"2024-11-06T19:31:30Z\",\n            \"includeQuestionsOfInterest\": {\n                \"gender\": false,\n                \"workFamiliarity\": false,\n                \"teamFamiliarity\": false,\n                \"modeOfWorking\": false\n            },\n            \"teamId\": \"{{team_id}}\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/assessments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assessments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Assessment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"id\": \"{{assessment_id}}\",\n        \"type\": \"assessment\",\n        \"attributes\": {\n            \"title\": \"Assessment 1\",\n            \"responseAcceptanceIntervalStartDate\": \"2023-11-04T19:31:00Z\",\n            \"responseAcceptanceIntervalEndDate\": \"2023-11-04T19:39:20Z\",\n            \"currentStep\": \"canceled\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/assessments/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assessments",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{assessment_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Assessments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/assessments?filter%5Bteam%5D={{team_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assessments"
+							],
+							"query": [
+								{
+									"key": "filter%5Bteam%5D",
+									"value": "{{team_id}}"
+								},
+								{
+									"key": "filter%5Bowner%5D",
+									"value": "{{owner_id}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Search Reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports?filter%5Bassessment%5D={{assessment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports"
+							],
+							"query": [
+								{
+									"key": "filter%5Bassessment%5D",
+									"value": "{{assessment_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Actions",
+			"item": [
+				{
+					"name": "Create Action",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"action\",\n        \"attributes\": {\n            \"assessmentId\": \"{{assessment_id}}\",\n            \"title\": \"Reduce team complexity driver\",\n            \"targetQuestionsToThinkAbout\": [\"16b39b8e-f4de-4021-95c7-ec530137e9e2\",\"b8f2ea5c-4b31-4e55-8b70-f3da8ef44489\"],\n            \"targetTclDrivers\": [\"3c2f2271-0551-454c-ac7b-74e2909b7159\",\"583d82c7-96a3-4b6f-a71e-e45f46a949f7\"],\n            \"description\": \"action description\",\n            \"context\": \"action context\",\n            \"challenges\": \"action challenges\",\n            \"goals\": \"action goals\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/actions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Actions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"action\",\n        \"attributes\": {\n            \"assessmentId\": \"{{assessment_id}}\",\n            \"title\": \"Reduce team complexity driver\",\n            \"targetQuestionsToThinkAbout\": [\"16b39b8e-f4de-4021-95c7-ec530137e9e2\",\"b8f2ea5c-4b31-4e55-8b70-f3da8ef44489\"],\n            \"targetTclDrivers\": [\"3c2f2271-0551-454c-ac7b-74e2909b7159\",\"583d82c7-96a3-4b6f-a71e-e45f46a949f7\"],\n            \"description\": \"action description\",\n            \"context\": \"action context\",\n            \"challenges\": \"action challenges\",\n            \"goals\": \"action goals\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/actions?filter%5Bassessment%5D={{assessment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actions"
+							],
+							"query": [
+								{
+									"key": "filter%5Bassessment%5D",
+									"value": "{{assessment_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Action",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actions/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{action_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Action",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"id\": \"{{action_id}}\",\n        \"type\": \"action\",\n        \"attributes\": {\n            \"title\": \"Reduce team complexity driver\",\n            \"targetQuestionsToThinkAbout\": [\"16b39b8e-f4de-4021-95c7-ec530137e9e2\",\"b8f2ea5c-4b31-4e55-8b70-f3da8ef44489\"],\n            \"targetTclDrivers\": [\"3c2f2271-0551-454c-ac7b-74e2909b7159\",\"583d82c7-96a3-4b6f-a71e-e45f46a949f7\"],\n            \"description\": \"action description\",\n            \"context\": \"action context\",\n            \"challenges\": \"action challenges\",\n            \"goals\": \"action goals\",\n            \"isArchived\": false\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/actions/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{action_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Surveys",
+			"item": [
+				{
+					"name": "Find Survey",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/surveys/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"surveys",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{survey_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Teams",
+			"item": [
+				{
+					"name": "Search Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/teams?filter%5Bowner%5D={{owner_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams"
+							],
+							"query": [
+								{
+									"key": "filter%5Bowner%5D",
+									"value": "{{owner_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Team",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"team\",\n        \"attributes\": {\n            \"name\": \"Avengers\",\n            \"timeZone\": \"Africa/Abidjan\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Team",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"team\",\n        \"attributes\": {\n            \"name\": \"Avengers\",\n            \"timeZone\": \"Africa/Abidjan\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/{{team_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								"{{team_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Team",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"id\": \"{{team_id}}\",\n        \"type\": \"team\",\n        \"attributes\": {\n            \"name\": \"Team 1\",\n            \"timeZone\": \"Europe/London\",\n            \"isArchived\": false\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time Zones",
+			"item": [
+				{
+					"name": "Search Time Zones",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/time-zones",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"time-zones"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Team Members",
+			"item": [
+				{
+					"name": "Search Team Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/team-members?filter%5Bteam%5D={{team_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"team-members"
+							],
+							"query": [
+								{
+									"key": "filter%5Bteam%5D",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Team Members",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"team-member\",\n        \"attributes\": {\n            \"name\": \"David Gracia 1\",\n            \"email\": \"david.gracia@code-sherpas.rocks\",\n            \"teamId\": \"{{team_id}}\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/team-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"team-members"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Team Members",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"team-member\",\n        \"attributes\": {\n            \"name\": \"John Doe\",\n            \"email\": \"name@mail.com\",\n            \"teamId\": \"{{team_id}}\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/team-members/{{team_member_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"team-members",
+								"{{team_member_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Team",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/teams/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Organizations",
+			"item": [
+				{
+					"name": "Create Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"organization\",\n        \"attributes\": {\n            \"name\": \"Acme\",\n            \"industry\": \"IT\",\n            \"size\": \"1-10 employees\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Organizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations?filter%5Bowner%5D={{owner_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations"
+							],
+							"query": [
+								{
+									"key": "filter%5Bowner%5D",
+									"value": "{{owner_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TCL Driver Scores",
+			"item": [
+				{
+					"name": "Search TCL Driver Scores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tcl-driver-scores",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tcl-driver-scores"
+							],
+							"query": [
+								{
+									"key": "filter%5Bassessment%5D",
+									"value": "{{assessment_id}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TCL Drivers",
+			"item": [
+				{
+					"name": "Search TCL Drivers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tcl-drivers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tcl-drivers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TCL Model",
+			"item": [
+				{
+					"name": "Run TCL Analysis",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tcl_data_csv",
+									"type": "file",
+									"src": "/sample_data/single_squad_input_data_no_qoi_no end_single_answer.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/tcl-analysis",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"tcl-analysis"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Team Owners",
+			"item": [
+				{
+					"name": "Search Team Owners",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/team-owners?filter%5Bassessment%5D={{assessment_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"team-owners"
+							],
+							"query": [
+								{
+									"key": "filter%5Bassessment%5D",
+									"value": "{{assessment_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Responses",
+			"item": [
+				{
+					"name": "Search Responses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/responses?filter%5Bsurvey%5D={{questionnaire_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"responses"
+							],
+							"query": [
+								{
+									"key": "filter%5Bsurvey%5D",
+									"value": "{{questionnaire_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Access Token (Step 1) (in browser)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://alexandria-test.eu.auth0.com/authorize?response_type=code&code_challenge=ASEH4cD51v6nC2AOQ4RbX-I8QIc4fVS-CJz9YzCyG4I&code_challenge_method=S256&client_id=vclsDEnanyYp4W09vA6VcVnXkiGqKsDd&redirect_uri=http://local.alexandria.code-sherpas.rocks:3000/auth/callback&scope=openid profile email&audience=https://alexandria-web-service.onrender.com&state=8723rfb2387g327hgf32",
+					"protocol": "https",
+					"host": [
+						"alexandria-test",
+						"eu",
+						"auth0",
+						"com"
+					],
+					"path": [
+						"authorize"
+					],
+					"query": [
+						{
+							"key": "response_type",
+							"value": "code"
+						},
+						{
+							"key": "code_challenge",
+							"value": "ASEH4cD51v6nC2AOQ4RbX-I8QIc4fVS-CJz9YzCyG4I"
+						},
+						{
+							"key": "code_challenge_method",
+							"value": "S256"
+						},
+						{
+							"key": "client_id",
+							"value": "vclsDEnanyYp4W09vA6VcVnXkiGqKsDd"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "http://local.alexandria.code-sherpas.rocks:3000/auth/callback"
+						},
+						{
+							"key": "scope",
+							"value": "openid profile email"
+						},
+						{
+							"key": "audience",
+							"value": "https://alexandria-web-service.onrender.com"
+						},
+						{
+							"key": "state",
+							"value": "8723rfb2387g327hgf32"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Access Token (Step 2)",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://alexandria-test.eu.auth0.com/oauth/token?grant_type=authorization_code&client_id=vclsDEnanyYp4W09vA6VcVnXkiGqKsDd&code=OWWLYnXVTjqKDFYf94XX4XAF15uFuuBHh5gmEU75W_5-1&redirect_uri=http://local.alexandria.code-sherpas.rocks:3000/auth/callback&code_verifier=812TKxe0h1YTy-MZ3KA1dghuq2Lmi-tX3PBBeyun5ZOqeu4H1IwRxVyw5z4J5TTspFUC6aGUgWFLGMdyDmm3cEHzm3XJCQh4eJPnk70eFGQYH-SBi1UQdNMT4TQ7j5tJ",
+					"protocol": "https",
+					"host": [
+						"alexandria-test",
+						"eu",
+						"auth0",
+						"com"
+					],
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code"
+						},
+						{
+							"key": "client_id",
+							"value": "vclsDEnanyYp4W09vA6VcVnXkiGqKsDd"
+						},
+						{
+							"key": "code",
+							"value": "OWWLYnXVTjqKDFYf94XX4XAF15uFuuBHh5gmEU75W_5-1"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "http://local.alexandria.code-sherpas.rocks:3000/auth/callback"
+						},
+						{
+							"key": "code_verifier",
+							"value": "812TKxe0h1YTy-MZ3KA1dghuq2Lmi-tX3PBBeyun5ZOqeu4H1IwRxVyw5z4J5TTspFUC6aGUgWFLGMdyDmm3cEHzm3XJCQh4eJPnk70eFGQYH-SBi1UQdNMT4TQ7j5tJ"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "survey_id",
+			"value": "8af3d69f-ea80-4c3e-b785-ee4e68a0c0cf",
+			"type": "string"
+		},
+		{
+			"key": "assessment_id",
+			"value": "8cf08b0f-5771-46de-b5cc-f787b88aa39c"
+		},
+		{
+			"key": "local_base_url",
+			"value": "http://localhost:8080",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "prod_base_url",
+			"value": "https://api.alexandria.com",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "account_id",
+			"value": "mine"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "owner_id",
+			"value": "me",
+			"type": "string"
+		},
+		{
+			"key": "team_id",
+			"value": "1b3b331c-751d-499f-91e3-5ab5d223a166"
+		},
+		{
+			"key": "organization_id",
+			"value": "4b938f2e-9d14-4f05-a32d-0e567c2c7b69",
+			"type": "string"
+		},
+		{
+			"key": "team_member_id",
+			"value": "d0d3db09-dc90-409c-bab9-c0fb2781ff94",
+			"type": "string"
+		},
+		{
+			"key": "action_id",
+			"value": "863c0a7f-bb25-4f4b-b56d-8c69134b3fb6"
+		},
+		{
+			"key": "onboarding_id",
+			"value": "mine",
+			"type": "string"
+		}
+	]
+}

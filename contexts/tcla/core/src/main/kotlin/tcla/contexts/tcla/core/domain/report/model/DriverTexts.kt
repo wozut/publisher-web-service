@@ -1,0 +1,28 @@
+package tcla.contexts.tcla.core.domain.report.model
+
+object DriverTexts {
+    val teamComplexity = TextVariants(capitalized = "Team Complexity")
+    val teamCompetence = TextVariants(capitalized = "Team Competence")
+    val roleClarity = TextVariants(capitalized = "Role Clarity")
+    val roleFit = TextVariants(capitalized = "Role Fit")
+    val roleLoad = TextVariants(capitalized = "Role Load")
+    val teamAlignment = TextVariants(capitalized = "Team Alignment")
+    val teamInteraction = TextVariants(capitalized = "Team Interaction")
+    val memberPsychologicalSafety = TextVariants(capitalized = "Member Psychological Safety")
+    val problemDefinition = TextVariants(capitalized = "Problem Definition")
+    val solutionAlignment = TextVariants(capitalized = "Solution Alignment")
+    val taskComplexity = TextVariants(capitalized = "Task Complexity")
+    val contextualComplexity = TextVariants(capitalized = "Contextual Complexity")
+    val metrics = TextVariants(capitalized = "Metrics")
+    val useOfInformation = TextVariants(capitalized = "Use Of Information")
+    val process = TextVariants(capitalized = "Process")
+    val consistency = TextVariants(capitalized = "Consistency")
+    val pace = TextVariants(capitalized = "Pace")
+    val performance = TextVariants(capitalized = "Performance")
+    val resilience = TextVariants(capitalized = "Resilience")
+    val iterativeWorking = TextVariants(capitalized = "Iterative Working")
+    val continuousLearning = TextVariants(capitalized = "Continuous Learning")
+    val toolSuitability = TextVariants(capitalized = "Tool Suitability")
+    val toolPerformance = TextVariants(capitalized = "Tool Performance")
+    val environment = TextVariants(capitalized = "Environment")
+}

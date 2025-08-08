@@ -1,0 +1,3 @@
+package tcla.contexts.tcla.core.application.questionstothinkaboutmap.search
+
+class SearchQuestionsToThinkAboutMapsQuery
