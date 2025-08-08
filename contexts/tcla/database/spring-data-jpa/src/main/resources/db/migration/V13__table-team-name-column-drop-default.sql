@@ -1,0 +1,2 @@
+ALTER TABLE tcla.team
+    ALTER COLUMN name DROP DEFAULT;
