@@ -9,7 +9,7 @@ dependencies {
 
     constraints {
         api("io.arrow-kt:arrow-core")
-        api("com.google.code.gson:gson:2.10.1")
+        api("com.google.code.gson:gson:2.13.1")
         api("jakarta.inject:jakarta.inject-api:2.0.1")
         api("org.slf4j:slf4j-api:2.0.9")
 
