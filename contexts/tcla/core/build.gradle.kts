@@ -29,9 +29,9 @@ dependencies {
     api(project(":libraries:time"))
 
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("io.cucumber:cucumber-java8:7.14.0")
-    testImplementation("io.cucumber:cucumber-java:7.14.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
+    testImplementation("io.cucumber:cucumber-java8:7.27.0")
+    testImplementation("io.cucumber:cucumber-java:7.27.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.0")
 
     testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
     testFixturesImplementation("io.arrow-kt:arrow-core")
