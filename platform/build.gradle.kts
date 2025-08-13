@@ -16,6 +16,6 @@ dependencies {
         api("org.junit.jupiter:junit-jupiter:5.9.1")
         api("org.junit.platform:junit-platform-suite:1.10.0")
         api("org.assertj:assertj-core:3.24.2")
-        api("io.mockk:mockk:1.13.5")
+        api("io.mockk:mockk:1.14.5")
     }
 }
