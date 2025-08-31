@@ -14,7 +14,7 @@ dependencyManagement {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.auth0:java-jwt:4.5.0")
-    implementation("com.auth0:jwks-rsa:0.22.1")
+    implementation("com.auth0:jwks-rsa:0.23.0")
     implementation(project(":contexts:authentication:core"))
 
     testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
