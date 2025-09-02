@@ -13,7 +13,7 @@ dependencyManagement {
 
 
 base {
-    archivesName.set("tcla.web-api.spring-web")
+    archivesName.set("real-time-collaboration.web-api.rsocket")
 }
 
 
@@ -25,19 +25,13 @@ dependencies {
         because("required by Spring")
     }
 
-    implementation("org.springframework.boot:spring-boot-starter-web")
-
-    implementation("com.google.code.gson:gson")
-
-    implementation(project(":libraries:jsonserialization"))
-    implementation(project(":libraries:json-api"))
-    implementation(project(":libraries:search"))
-    implementation(project(":contexts:tcla:core"))
+    implementation("org.springframework.boot:spring-boot-starter-rsocket")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation(testFixtures(project(":contexts:tcla:core")))
-    testImplementation(testFixtures(project(":libraries:time")))
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 }
