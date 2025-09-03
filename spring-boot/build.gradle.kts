@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":contexts:communications:core"))
     implementation(project(":contexts:analytics"))
     implementation(project(":contexts:real-time-collaboration:web-api:rsocket"))
+    implementation(project(":contexts:real-time-collaboration:web-api:websocket"))
     implementation(project(":libraries:transactional"))
 
     implementation(project(":libraries:ok-http"))

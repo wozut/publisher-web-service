@@ -16,6 +16,7 @@ include(
     "contexts:communications:core",
     "contexts:analytics",
     "contexts:real-time-collaboration:web-api:rsocket",
+    "contexts:real-time-collaboration:web-api:websocket",
     "libraries:jsonserialization",
     "libraries:transactional",
     "libraries:uuid-validation",
