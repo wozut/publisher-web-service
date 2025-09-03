@@ -15,6 +15,7 @@ include(
     "contexts:accounts:auth0",
     "contexts:communications:core",
     "contexts:analytics",
+    "contexts:real-time-collaboration:web-api:rsocket",
     "libraries:jsonserialization",
     "libraries:transactional",
     "libraries:uuid-validation",
