@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 class WebSocketConfiguration(
     private val jwtAuthenticationInterceptor: JwtAuthenticationInterceptor
 ) : WebSocketMessageBrokerConfigurer {
-    
+
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker("/topic", "/queue")
         registry.setApplicationDestinationPrefixes("/app")
@@ -31,7 +31,7 @@ class WebSocketConfiguration(
             .setAllowedOriginPatterns("*")
             .withSockJS()
     }
-    
+
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
         registration.interceptors(jwtAuthenticationInterceptor)
     }
@@ -39,11 +39,11 @@ class WebSocketConfiguration(
 
 @Component
 class JwtAuthenticationInterceptor : ChannelInterceptor {
-    
+
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
         println("preSend Thread name: ${Thread.currentThread().name}")
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
-        
+
         if (StompCommand.CONNECT == accessor?.command) {
             println("preSend CONNECT")
 
@@ -75,10 +75,10 @@ class JwtAuthenticationInterceptor : ChannelInterceptor {
             println("preSend SEND")
             println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
         }
-        
+
         return message
     }
-    
+
     private fun validateJwtToken(token: String) {
         // TODO: Implement JWT validation logic
         if (token.isBlank()) {

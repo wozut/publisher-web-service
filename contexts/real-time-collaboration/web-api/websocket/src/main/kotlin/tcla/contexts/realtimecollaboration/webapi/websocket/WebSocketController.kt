@@ -34,24 +34,24 @@ class CollaborativeDocumentController(
         println("update Thread name: ${Thread.currentThread().name}")
         val userId = headerAccessor.sessionAttributes["userId"] as? String
         val updatedDocument = documentStateService.updateDocument(
-            documentId, 
+            documentId,
             documentChange.content,
             userId!!
         )
-        
+
         val changeNotification = DocumentChange(
             documentId = documentId,
             content = updatedDocument.content,
             userId = userId,
             version = updatedDocument.version
         )
-        
+
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/changes",
             changeNotification
         )
     }
-    
+
     @MessageMapping("/document/{documentId}/join")
     fun joinDocument(
         @DestinationVariable documentId: String,
@@ -61,13 +61,13 @@ class CollaborativeDocumentController(
         println("join Thread name: ${Thread.currentThread().name}")
         println("joinDocument requesterId: ${userId}")
         documentStateService.addCollaborator(documentId, userId!!)
-        
+
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/collaborators",
             mapOf("action" to "join", "userId" to userId)
         )
     }
-    
+
     @MessageMapping("/document/{documentId}/leave")
     fun leaveDocument(
         @DestinationVariable documentId: String,
@@ -76,7 +76,7 @@ class CollaborativeDocumentController(
         val userId = headerAccessor.sessionAttributes["userId"] as? String
         println("leave Thread name: ${Thread.currentThread().name}")
         documentStateService.removeCollaborator(documentId, userId!!)
-        
+
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/collaborators",
             mapOf("action" to "leave", "userId" to userId)
