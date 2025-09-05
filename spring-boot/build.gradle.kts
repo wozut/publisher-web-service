@@ -2,7 +2,7 @@ plugins {
     id("kotlin-application-conventions")
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "1.9.25"
+    kotlin("plugin.spring") version "2.2.10"
     kotlin("plugin.jpa") version "1.9.25"
 //    id("io.sentry.jvm.gradle") version "4.1.0"
 }
