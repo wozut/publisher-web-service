@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo "Running pre-push hook..."
+
+echo "Building project with Gradle..."
+./gradlew build
+
+echo "Building Docker image..."
+docker build \
+  --build-arg JAR_FILE=spring-boot/build/libs/spring-boot.jar \
+  -t latest \
+  --platform=linux/amd64 \
+  .
+
+echo "Pre-push hook completed successfully!"
