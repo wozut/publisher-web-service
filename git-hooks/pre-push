@@ -25,7 +25,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
     fi
 
     echo "📝 Found $commits_to_push commit(s) to push. Continuing with checks..."
-    
+
     # Check if branch is up-to-date with remote
     echo "🌐 Checking if branch is up-to-date with remote..."
     git fetch origin "$protected_branch" --quiet
@@ -46,7 +46,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
         exit 1
     fi
     echo "✅ Build successful"
-    
+
     # Build Docker image
     echo "🐳 Building Docker image..."
     if ! docker build \
@@ -58,7 +58,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
         exit 1
     fi
     echo "✅ Docker build successful"
-    
+
     echo "🎉 All pre-push checks passed! Push to main allowed."
 else
     echo "ℹ️  Skipping pre-push checks (not pushing to main branch)"
