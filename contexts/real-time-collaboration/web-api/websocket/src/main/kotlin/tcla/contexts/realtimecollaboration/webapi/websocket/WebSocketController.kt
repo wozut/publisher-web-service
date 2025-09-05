@@ -1,12 +1,11 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
-import java.security.Principal
+import tcla.contexts.authentication.core.RequestInfo
 
 @Controller
 class CollaborativeDocumentController(
@@ -16,10 +15,9 @@ class CollaborativeDocumentController(
 
     @SubscribeMapping("/document/{documentId}")
     fun subscribeToDocument(
-        @DestinationVariable documentId: String,
-        principal: Principal
+        @DestinationVariable documentId: String
     ): Document {
-        val userId = principal.name
+        val userId = RequestInfo.getRequesterId()!!
         documentStateService.addCollaborator(documentId, userId)
         return documentStateService.getDocument(documentId)
     }
@@ -28,19 +26,17 @@ class CollaborativeDocumentController(
     fun updateDocument(
         @DestinationVariable documentId: String,
         documentChange: DocumentChange,
-        principal: Principal
     ) {
-        val userId = principal.name
         val updatedDocument = documentStateService.updateDocument(
             documentId, 
-            documentChange.content, 
-            userId
+            documentChange.content,
+            RequestInfo.getRequesterId()!!
         )
         
         val changeNotification = DocumentChange(
             documentId = documentId,
             content = updatedDocument.content,
-            userId = userId,
+            userId = RequestInfo.getRequesterId()!!,
             version = updatedDocument.version
         )
         
@@ -53,28 +49,24 @@ class CollaborativeDocumentController(
     @MessageMapping("/document/{documentId}/join")
     fun joinDocument(
         @DestinationVariable documentId: String,
-        principal: Principal
     ) {
-        val userId = principal.name
-        documentStateService.addCollaborator(documentId, userId)
+        documentStateService.addCollaborator(documentId, RequestInfo.getRequesterId()!!)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/collaborators",
-            mapOf("action" to "join", "userId" to userId)
+            mapOf("action" to "join", "userId" to RequestInfo.getRequesterId()!!)
         )
     }
     
     @MessageMapping("/document/{documentId}/leave")
     fun leaveDocument(
         @DestinationVariable documentId: String,
-        principal: Principal
     ) {
-        val userId = principal.name
-        documentStateService.removeCollaborator(documentId, userId)
+        documentStateService.removeCollaborator(documentId, RequestInfo.getRequesterId()!!)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/collaborators",
-            mapOf("action" to "leave", "userId" to userId)
+            mapOf("action" to "leave", "userId" to RequestInfo.getRequesterId()!!)
         )
     }
 }

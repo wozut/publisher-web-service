@@ -12,9 +12,8 @@ import org.springframework.messaging.support.MessageHeaderAccessor
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
+import tcla.contexts.authentication.core.RequestInfo
 
 
 @Configuration
@@ -30,7 +29,8 @@ class WebSocketConfiguration(
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/collaborative-editor")
-            .setAllowedOriginPatterns("*")
+//            .setAllowedOriginPatterns("*")
+            .setAllowedOrigins("*")
     }
     
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
@@ -45,36 +45,28 @@ class JwtAuthenticationInterceptor : ChannelInterceptor {
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
         
         if (StompCommand.CONNECT == accessor?.command) {
+            println("user id: ${RequestInfo.getRequesterId()}")
             val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
 
             if (authorization?.startsWith("Bearer ") == true) {
                 val token = authorization.substring(7)
                 try {
-                    val authentication = validateJwtToken(token)
-                    accessor.user = authentication
-                    SecurityContextHolder.getContext().authentication = authentication
+                    validateJwtToken(token)
                 } catch (e: Exception) {
-                    throw IllegalArgumentException("Invalid JWT token", e)
+                    throw RuntimeException("Invalid JWT token")
                 }
             } else {
-                throw IllegalArgumentException("Missing Authorization header")
+                throw RuntimeException("Missing Authorization header")
             }
         }
         
         return message
     }
     
-    private fun validateJwtToken(token: String): Authentication {
-        return JwtAuthentication(token)
+    private fun validateJwtToken(token: String) {
+        // TODO: Implement JWT validation logic
+        if (token.isBlank()) {
+            throw IllegalArgumentException("Token is blank")
+        }
     }
-}
-
-class JwtAuthentication(private val token: String) : Authentication {
-    override fun getName(): String = token
-    override fun getAuthorities() = emptyList<Nothing>()
-    override fun getCredentials() = token
-    override fun getDetails() = null
-    override fun getPrincipal() = token
-    override fun isAuthenticated() = true
-    override fun setAuthenticated(isAuthenticated: Boolean) {}
 }
