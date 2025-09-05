@@ -15,6 +15,7 @@ if [ -f "$PROJECT_HOOKS_DIR/pre-push" ]; then
 exec ./git-hooks/pre-push "$@"
 EOF
     chmod +x "$HOOKS_DIR/pre-push"
+    chmod +x "$PROJECT_HOOKS_DIR/pre-push"
     echo "✅ Pre-push hook installed"
 else
     echo "❌ Pre-push hook not found in $PROJECT_HOOKS_DIR"
