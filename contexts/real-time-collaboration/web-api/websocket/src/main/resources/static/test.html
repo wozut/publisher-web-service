@@ -182,12 +182,12 @@
                     addMessage('Collaborator ' + collaboratorUpdate.action + ': ' + collaboratorUpdate.userId);
                 });
                 
-                // Subscribe to document data
-                stompClient.subscribe('/app/document/' + docId, function (message) {
-                    const document = JSON.parse(message.body);
-                    addMessage('Received document: ' + document.id + ' (version ' + document.version + ')');
-                    document.getElementById('documentContent').value = document.content;
-                    updateCollaboratorsList(document.collaborators);
+                // Subscribe to document data - this will be sent automatically when subscribing
+                stompClient.subscribe('/document/' + docId, function (message) {
+                    const doc = JSON.parse(message.body);
+                    addMessage('Received document: ' + doc.id + ' (version ' + doc.version + ')');
+                    document.getElementById('documentContent').value = doc.content;
+                    updateCollaboratorsList(doc.collaborators || []);
                 });
                 
             }, function (error) {
@@ -231,8 +231,8 @@
                 const change = {
                     documentId: docId,
                     content: content,
-                    userId: 'test-user',
-                    version: 0
+                    userId: 'test-user',  // This will be overridden by server using JWT token
+                    version: 0  // Server will increment this
                 };
                 
                 stompClient.send("/app/document/" + docId + "/update", {}, JSON.stringify(change));
@@ -242,8 +242,16 @@
         
         function updateCollaboratorsList(collaborators) {
             const collaboratorsList = document.getElementById('collaboratorsList');
-            if (collaborators && collaborators.length > 0) {
+            if (collaborators && Array.isArray(collaborators) && collaborators.length > 0) {
                 collaboratorsList.textContent = collaborators.join(', ');
+            } else if (collaborators && typeof collaborators === 'object') {
+                // Handle Set-like object from server
+                const collaboratorsArray = Object.keys(collaborators);
+                if (collaboratorsArray.length > 0) {
+                    collaboratorsList.textContent = collaboratorsArray.join(', ');
+                } else {
+                    collaboratorsList.textContent = 'None';
+                }
             } else {
                 collaboratorsList.textContent = 'None';
             }
