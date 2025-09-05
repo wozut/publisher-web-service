@@ -1,17 +1,35 @@
 #!/bin/bash
 
-set -e
+# Pre-push hook that runs quality checks only when pushing to main branch
 
-echo "Running pre-push hook..."
+protected_branch='main'
+current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-echo "Building project with Gradle..."
-./gradlew build
-
-echo "Building Docker image..."
-docker build \
-  --build-arg JAR_FILE=spring-boot/build/libs/spring-boot.jar \
-  -t latest \
-  --platform=linux/amd64 \
-  .
-
-echo "Pre-push hook completed successfully!"
+# Only run checks if pushing to main branch
+if [ "$current_branch" = "$protected_branch" ]; then
+    echo "🔍 Running pre-push checks for main branch..."
+    
+    # Run build
+    echo "🔨 Building project with Gradle..."
+    if ! ./gradlew build; then
+        echo "❌ Build failed. Please fix build errors before pushing."
+        exit 1
+    fi
+    echo "✅ Build successful"
+    
+    # Build Docker image
+    echo "🐳 Building Docker image..."
+    if ! docker build \
+      --build-arg JAR_FILE=spring-boot/build/libs/spring-boot.jar \
+      -t latest \
+      --platform=linux/amd64 \
+      .; then
+        echo "❌ Docker build failed. Please fix Docker build errors before pushing."
+        exit 1
+    fi
+    echo "✅ Docker build successful"
+    
+    echo "🎉 All pre-push checks passed! Push to main allowed."
+else
+    echo "ℹ️  Skipping pre-push checks (not pushing to main branch)"
+fi
