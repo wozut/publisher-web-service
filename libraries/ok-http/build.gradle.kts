@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    api(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+    api(platform("com.squareup.okhttp3:okhttp-bom:5.1.0"))
     api("com.squareup.okhttp3:okhttp")
 }
