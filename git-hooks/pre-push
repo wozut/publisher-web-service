@@ -8,6 +8,18 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 # Only run checks if pushing to main branch
 if [ "$current_branch" = "$protected_branch" ]; then
     echo "🔍 Running pre-push checks for main branch..."
+
+    # Check if there are commits to push
+    echo "📊 Checking if there are commits to push..."
+    git fetch origin "$protected_branch" --quiet
+    commits_to_push=$(git rev-list --count origin/"$protected_branch"..HEAD)
+
+    if [ "$commits_to_push" -eq 0 ]; then
+        echo "ℹ️  No commits to push. Skipping pre-push checks."
+        exit 0
+    fi
+
+    echo "📝 Found $commits_to_push commit(s) to push. Continuing with checks..."
     
     # Check if branch is up-to-date with remote
     echo "🌐 Checking if branch is up-to-date with remote..."
