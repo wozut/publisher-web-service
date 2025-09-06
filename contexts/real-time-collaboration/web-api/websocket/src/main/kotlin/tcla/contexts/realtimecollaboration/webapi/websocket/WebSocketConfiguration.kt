@@ -47,21 +47,23 @@ class JwtAuthenticationInterceptor : ChannelInterceptor {
         if (StompCommand.CONNECT == accessor?.command) {
             println("preSend CONNECT")
 
-            val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
+//            val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
+            val userId = accessor.getNativeHeader("UserId")?.firstOrNull()
 
+            accessor.sessionAttributes["userId"] = userId
 
-            if (authorization?.startsWith("Bearer ") == true) {
-                val token = authorization.substring(7)
-                accessor.sessionAttributes["userId"] = token
-                println("preSend Authorization: $token")
-                try {
-//                    validateJwtToken(token)
-                } catch (e: Exception) {
-                    throw RuntimeException("Invalid JWT token")
-                }
-            } else {
-                throw RuntimeException("Missing Authorization header")
-            }
+//            if (authorization?.startsWith("Bearer ") == true) {
+//                val token = authorization.substring(7)
+//                accessor.sessionAttributes["userId"] = token
+//                println("preSend Authorization: $token")
+//                try {
+////                    validateJwtToken(token)
+//                } catch (e: Exception) {
+//                    throw RuntimeException("Invalid JWT token")
+//                }
+//            } else {
+//                throw RuntimeException("Missing Authorization header")
+//            }
         }
 
         if(StompCommand.SUBSCRIBE == accessor?.command) {

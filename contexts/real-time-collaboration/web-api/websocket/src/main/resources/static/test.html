@@ -160,7 +160,8 @@
             stompClient = Stomp.over(socket);
             
             const headers = {
-                'Authorization': token.startsWith('Bearer ') ? token : 'Bearer ' + token
+                'Authorization': token.startsWith('Bearer ') ? token : 'Bearer ' + token,
+                'UserId': "userid-1"
             };
             
             stompClient.connect(headers, function (frame) {
