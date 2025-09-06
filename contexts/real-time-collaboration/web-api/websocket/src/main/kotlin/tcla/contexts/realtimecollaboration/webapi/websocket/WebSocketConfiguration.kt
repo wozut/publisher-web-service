@@ -13,7 +13,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 import org.springframework.stereotype.Component
-import tcla.contexts.authentication.core.RequestInfo
 
 
 @Configuration
@@ -29,8 +28,8 @@ class WebSocketConfiguration(
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/collaborative-editor")
-//            .setAllowedOriginPatterns("*")
-            .setAllowedOrigins("*")
+            .setAllowedOriginPatterns("*")
+            .withSockJS()
     }
     
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
@@ -42,22 +41,37 @@ class WebSocketConfiguration(
 class JwtAuthenticationInterceptor : ChannelInterceptor {
     
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
+        println("preSend Thread name: ${Thread.currentThread().name}")
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
         
         if (StompCommand.CONNECT == accessor?.command) {
-            println("user id: ${RequestInfo.getRequesterId()}")
+            println("preSend CONNECT")
+
             val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
+
 
             if (authorization?.startsWith("Bearer ") == true) {
                 val token = authorization.substring(7)
+                accessor.sessionAttributes["userId"] = token
+                println("preSend Authorization: $token")
                 try {
-                    validateJwtToken(token)
+//                    validateJwtToken(token)
                 } catch (e: Exception) {
                     throw RuntimeException("Invalid JWT token")
                 }
             } else {
                 throw RuntimeException("Missing Authorization header")
             }
+        }
+
+        if(StompCommand.SUBSCRIBE == accessor?.command) {
+            println("preSend SUBSCRIBE")
+            println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
+        }
+
+        if(StompCommand.SEND == accessor?.command) {
+            println("preSend SEND")
+            println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
         }
         
         return message
