@@ -2,6 +2,11 @@
 
 # Pre-push hook that runs quality checks only when pushing to main branch
 
+# Load SDKMAN environment for proper Java setup
+if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+fi
+
 protected_branch='main'
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
@@ -36,7 +41,6 @@ if [ "$current_branch" = "$protected_branch" ]; then
 
     # Run build
     echo "🔨 Building project with Gradle..."
-    java -version
     if ! ./gradlew build; then
         echo "❌ Build failed. Please fix build errors before pushing."
         exit 1
