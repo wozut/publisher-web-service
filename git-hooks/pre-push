@@ -36,7 +36,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
 
     # Run build
     echo "🔨 Building project with Gradle..."
-    if ! ./gradlew build; then
+    if ! ./gradlew build -x setupGitHooks; then
         echo "❌ Build failed. Please fix build errors before pushing."
         exit 1
     fi
