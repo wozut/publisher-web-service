@@ -27,7 +27,7 @@ class WebSocketConfiguration(
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/collaborative-editor")
+        registry.addEndpoint("/collaborative-session")
             .setAllowedOriginPatterns("*")
             .withSockJS()
     }
