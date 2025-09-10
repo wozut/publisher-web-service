@@ -1,3 +1,5 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
-data class CollaboratorJoined(val collaboratorId: String)
+import java.util.UUID
+
+data class CollaboratorJoined(val collaboratorId: UUID)

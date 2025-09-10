@@ -29,7 +29,7 @@ class CollaborativeDocumentController(
 
         simpMessagingTemplate.convertAndSend(
             "/topic/collaborator-joined",
-            CollaboratorJoined(collaboratorId = userId)
+            CollaboratorJoined(collaboratorId = uuid)
         )
         return collaborativeSessionState
     }
@@ -39,13 +39,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         cursorPositionChanged: CursorPositionChanged
     ) {
-
         val userId = extractUserId(headerAccessor)
-
-
+        
         simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
+            "/topic/document/${cursorPositionChanged.collaborativeSessionId}/cursor-position-changed",
+            cursorPositionChanged.copy(collaboratorId = fromString(userId!!))
         )
     }
 
@@ -54,25 +52,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textAdded: TextAdded,
     ) {
-        println("update Thread name: ${Thread.currentThread().name}")
-
         val userId = extractUserId(headerAccessor)
-        val updatedDocument = documentStateService.updateDocument(
-            documentId,
-            documentChange.content,
-            userId!!
-        )
-
-        val changeNotification = DocumentChange(
-            documentId = documentId,
-            content = updatedDocument.content,
-            userId = userId,
-            version = updatedDocument.version
-        )
-
+        
         simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
+            "/topic/document/${textAdded.collaborativeSessionId}/text-added",
+            textAdded.copy(collaboratorId = fromString(userId!!))
         )
     }
 
@@ -81,39 +65,24 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textRemoved: TextRemoved,
     ) {
-        println("update Thread name: ${Thread.currentThread().name}")
         val userId = extractUserId(headerAccessor)
-        val updatedDocument = documentStateService.updateDocument(
-            documentId,
-            documentChange.content,
-            userId!!
-        )
-
-        val changeNotification = DocumentChange(
-            documentId = documentId,
-            content = updatedDocument.content,
-            userId = userId,
-            version = updatedDocument.version
-        )
-
+        
         simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
+            "/topic/document/${textRemoved.collaborativeSessionId}/text-removed",
+            textRemoved.copy(collaboratorId = fromString(userId!!))
         )
     }
 
     @MessageMapping("/text-selected")
-    fun textDeselected(
+    fun textSelected(
         headerAccessor: SimpMessageHeaderAccessor,
         textSelected: TextSelected
     ) {
-
         val userId = extractUserId(headerAccessor)
-
-
+        
         simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
+            "/topic/document/${textSelected.collaborativeSessionId}/text-selected",
+            textSelected.copy(collaboratorId = fromString(userId!!))
         )
     }
 
@@ -122,13 +91,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textDeselected: TextDeselected
     ) {
-
         val userId = extractUserId(headerAccessor)
-
-
+        
         simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
+            "/topic/document/${textDeselected.collaborativeSessionId}/text-deselected",
+            textDeselected.copy(collaboratorId = fromString(userId!!))
         )
     }
 }
