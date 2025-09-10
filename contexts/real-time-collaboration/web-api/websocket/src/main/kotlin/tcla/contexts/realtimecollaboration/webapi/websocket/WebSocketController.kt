@@ -25,7 +25,7 @@ class CollaborativeDocumentController(
         val uuid = fromString(userId!!)
         println("subscribeToDocument userId: $uuid")
         addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = getUpdatesRequest.documentId)
-        val collaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
+        val collaborativeSessionState: CollaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
 
         simpMessagingTemplate.convertAndSend(
             "/topic/collaborator-joined",
@@ -51,11 +51,11 @@ class CollaborativeDocumentController(
 
     @MessageMapping("/text-added")
     fun textAdded(
-        @DestinationVariable documentId: String,
         headerAccessor: SimpMessageHeaderAccessor,
         textAdded: TextAdded,
     ) {
         println("update Thread name: ${Thread.currentThread().name}")
+
         val userId = extractUserId(headerAccessor)
         val updatedDocument = documentStateService.updateDocument(
             documentId,
