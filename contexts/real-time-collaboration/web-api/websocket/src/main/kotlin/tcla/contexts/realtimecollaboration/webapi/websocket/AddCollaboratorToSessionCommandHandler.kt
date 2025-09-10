@@ -5,12 +5,12 @@ import java.util.*
 
 @Component
 class AddCollaboratorToSessionCommandHandler(
-    private val collaborationSessionStateRepository: CollaborationSessionStateRepository
+    private val collaborativeSessionStateRepository: CollaborativeSessionStateRepository
 ) {
     fun execute(collaboratorId: UUID, documentId: UUID) {
-        if(!collaborationSessionStateRepository.existsByDocumentId(documentId)) {
-            collaborationSessionStateRepository.create(
-                CollaborationSessionState(
+        if(!collaborativeSessionStateRepository.existsByDocumentId(documentId)) {
+            collaborativeSessionStateRepository.create(
+                CollaborativeSessionState(
                     id = UUID.randomUUID(),
                     documentState = DocumentState(documentId = documentId, content = ""),
                     collaboratorStates = setOf()
@@ -18,13 +18,13 @@ class AddCollaboratorToSessionCommandHandler(
             )
         }
 
-        val collaborationSessionState: CollaborationSessionState = collaborationSessionStateRepository.findByDocumentId(documentId)
-        collaborationSessionState.addCollaboratorState(CollaboratorState(
+        val collaborativeSessionState: CollaborativeSessionState = collaborativeSessionStateRepository.findByDocumentId(documentId)
+        collaborativeSessionState.addCollaboratorState(CollaboratorState(
             collaboratorId = collaboratorId,
             cursorPosition = 0,
             selectedText = null
         ))
-        collaborationSessionStateRepository.saveChanges(collaborationSessionState)
+        collaborativeSessionStateRepository.saveChanges(collaborativeSessionState)
     }
 
 }

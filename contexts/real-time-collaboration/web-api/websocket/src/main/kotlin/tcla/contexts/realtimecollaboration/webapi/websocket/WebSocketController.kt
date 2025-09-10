@@ -12,7 +12,7 @@ import java.util.UUID.fromString
 class CollaborativeDocumentController(
     private val documentStateService: DocumentStateService,
     private val simpMessagingTemplate: SimpMessagingTemplate,
-    private val findingCollaborationSessionStateByDocumentIdQueryHandler: FindCollaborationSessionStateByDocumentIdQueryHandler,
+    private val findCollaborativeSessionStateByDocumentIdQueryHandler: FindCollaborativeSessionStateByDocumentIdQueryHandler,
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
 
@@ -20,18 +20,33 @@ class CollaborativeDocumentController(
     fun getUpdates(
         headerAccessor: SimpMessageHeaderAccessor,
         getUpdatesRequest: GetUpdatesRequest
-    ): CollaborationSessionState {
+    ): CollaborativeSessionState {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
         println("subscribeToDocument userId: $uuid")
         addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = getUpdatesRequest.documentId)
-        val collaborationSessionState = findingCollaborationSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
+        val collaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
 
         simpMessagingTemplate.convertAndSend(
             "/topic/collaborator-joined",
             CollaboratorJoined(collaboratorId = userId)
         )
-        return collaborationSessionState
+        return collaborativeSessionState
+    }
+
+    @MessageMapping("/cursor-position-changed")
+    fun cursorPositionChanged(
+        headerAccessor: SimpMessageHeaderAccessor,
+        cursorPositionChanged: CursorPositionChanged
+    ) {
+
+        val userId = extractUserId(headerAccessor)
+
+
+        simpMessagingTemplate.convertAndSend(
+            "/topic/document/$documentId/changes",
+            changeNotification
+        )
     }
 
     @MessageMapping("/text-added")
@@ -80,21 +95,6 @@ class CollaborativeDocumentController(
             userId = userId,
             version = updatedDocument.version
         )
-
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/$documentId/changes",
-            changeNotification
-        )
-    }
-
-    @MessageMapping("/cursor-position-changed")
-    fun cursorPositionChanged(
-        headerAccessor: SimpMessageHeaderAccessor,
-        cursorPositionChanged: CursorPositionChanged
-    ) {
-
-        val userId = extractUserId(headerAccessor)
-
 
         simpMessagingTemplate.convertAndSend(
             "/topic/document/$documentId/changes",
