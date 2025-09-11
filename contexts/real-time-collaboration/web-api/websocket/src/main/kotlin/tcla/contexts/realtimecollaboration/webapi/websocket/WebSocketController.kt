@@ -3,7 +3,6 @@ package tcla.contexts.realtimecollaboration.webapi.websocket
 import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.messaging.rsocket.annotation.ConnectMapping
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -22,27 +21,19 @@ class CollaborativeDocumentController(
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
 
-    @ConnectMapping
-    fun onConnect(
-        headerAccessor: SimpMessageHeaderAccessor
-    ) {
-        val userId = extractUserId(headerAccessor)
-        println("onConnect. userId: $userId")
-    }
-
     @SubscribeMapping("/updates")
     fun onSubscribeToUpdates(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload getUpdatesRequest: GetUpdatesRequest
+        @Payload subscribeToUpdatesRequest: SubscribeToUpdatesRequest
     ): CollaborativeSessionState {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
         println("onSubscribeToUpdates userId: $uuid")
-        addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = getUpdatesRequest.documentId)
-        val collaborativeSessionState: CollaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
+        addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = subscribeToUpdatesRequest.documentId)
+        val collaborativeSessionState: CollaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(subscribeToUpdatesRequest.documentId)
 
         simpMessagingTemplate.convertAndSend(
-            "/topic/collaborator-joined",
+            "/topic/updates",
             CollaboratorJoined(collaboratorId = uuid)
         )
         return collaborativeSessionState
