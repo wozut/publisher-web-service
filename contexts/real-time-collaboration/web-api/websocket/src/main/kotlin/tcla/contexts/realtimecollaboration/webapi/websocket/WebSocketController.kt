@@ -1,7 +1,8 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.handler.annotation.Payload
+import org.springframework.messaging.rsocket.annotation.ConnectMapping
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -16,10 +17,18 @@ class CollaborativeDocumentController(
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
 
-    @SubscribeMapping("/get-updates")
-    fun getUpdates(
+    @ConnectMapping
+    fun onConnect(
+        headerAccessor: SimpMessageHeaderAccessor
+    ) {
+        val userId = extractUserId(headerAccessor)
+        println("onConnect. userId: $userId")
+    }
+
+    @SubscribeMapping("/updates")
+    fun onSubscribeToUpdates(
         headerAccessor: SimpMessageHeaderAccessor,
-        getUpdatesRequest: GetUpdatesRequest
+        @Payload getUpdatesRequest: GetUpdatesRequest
     ): CollaborativeSessionState {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
