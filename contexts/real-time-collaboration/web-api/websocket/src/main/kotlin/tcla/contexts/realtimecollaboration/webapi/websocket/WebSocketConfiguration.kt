@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 @Configuration
 @EnableWebSocketMessageBroker
 class WebSocketConfiguration(
-    private val jwtAuthenticationInterceptor: JwtAuthenticationInterceptor
+    private val clientInboundChannelInterceptor: ClientInboundChannelInterceptor
 ) : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
@@ -33,12 +33,12 @@ class WebSocketConfiguration(
     }
 
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        registration.interceptors(jwtAuthenticationInterceptor)
+        registration.interceptors(clientInboundChannelInterceptor)
     }
 }
 
 @Component
-class JwtAuthenticationInterceptor : ChannelInterceptor {
+class ClientInboundChannelInterceptor : ChannelInterceptor {
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
         println("preSend Thread name: ${Thread.currentThread().name}")
@@ -47,6 +47,7 @@ class JwtAuthenticationInterceptor : ChannelInterceptor {
         if (StompCommand.CONNECT == accessor?.command) {
             println("preSend CONNECT")
 
+            // TODO: validate authentication here
 //            val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
             val userId = accessor.getNativeHeader("UserId")?.firstOrNull()
 
@@ -74,6 +75,20 @@ class JwtAuthenticationInterceptor : ChannelInterceptor {
         if(StompCommand.SEND == accessor?.command) {
             println("preSend SEND")
             println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
+        }
+
+        if(StompCommand.UNSUBSCRIBE == accessor?.command) {
+            println("preSend UNSUBSCRIBE")
+            val userId = accessor.sessionAttributes?.get("userId") as? String
+            println("User $userId unsubscribed from subscription: ${accessor.subscriptionId}")
+            // Ejecutar lógica cuando se desuscribe
+        }
+
+        if(StompCommand.DISCONNECT == accessor?.command) {
+            println("preSend DISCONNECT")  
+            val userId = accessor.sessionAttributes?.get("userId") as? String
+            println("User $userId disconnected")
+            // Ejecutar lógica cuando se desconecta
         }
 
         return message

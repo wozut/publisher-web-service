@@ -1,5 +1,6 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
+import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.rsocket.annotation.ConnectMapping
@@ -7,6 +8,10 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Controller
+import org.springframework.web.socket.messaging.SessionConnectedEvent
+import org.springframework.web.socket.messaging.SessionDisconnectEvent
+import org.springframework.web.socket.messaging.SessionSubscribeEvent
+import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import java.util.UUID.fromString
 
 @Controller
@@ -32,7 +37,7 @@ class CollaborativeDocumentController(
     ): CollaborativeSessionState {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
-        println("subscribeToDocument userId: $uuid")
+        println("onSubscribeToUpdates userId: $uuid")
         addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = getUpdatesRequest.documentId)
         val collaborativeSessionState: CollaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(getUpdatesRequest.documentId)
 
@@ -106,6 +111,43 @@ class CollaborativeDocumentController(
             "/topic/document/${textDeselected.collaborativeSessionId}/text-deselected",
             textDeselected.copy(collaboratorId = fromString(userId!!))
         )
+    }
+
+    // common logic
+    @EventListener
+    fun handleSessionConnected(event: SessionConnectedEvent) {
+        println("SessionConnectedEvent")
+        // Aquí puedes ejecutar lógica cuando se conecta una sesión
+    }
+
+    // common logic
+    @EventListener  
+    fun handleSessionDisconnect(event: SessionDisconnectEvent) {
+//        val userId = event.sessionAttributes["userId"] as? String
+//        val uuid = userId?.let { fromString(it) }
+        
+        println("SessionDisconnectEvent: ${event.sessionId}")
+    }
+
+    // common logic
+    @EventListener
+    fun handleSessionSubscribe(event: SessionSubscribeEvent) {
+        val destination = event.message.headers["simpDestination"] as? String
+//        val userId = event.sessionAttributes["userId"] as? String
+
+
+        println("SessionSubscribeEvent: $destination")
+        // Ejecutar lógica cuando se suscribe a un topic específico
+    }
+
+    // common logic
+    @EventListener
+    fun handleSessionUnsubscribe(event: SessionUnsubscribeEvent) {
+        val subscriptionId = event.message.headers["simpSubscriptionId"] as? String
+//        val userId = event.sessionAttributes["userId"] as? String
+        
+        println("SessionUnsubscribeEvent: $subscriptionId")
+
     }
 }
 
