@@ -1,4 +1,4 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.events
 
 import java.util.UUID
 

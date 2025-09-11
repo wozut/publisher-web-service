@@ -1,8 +1,8 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
 import org.springframework.context.event.EventListener
+import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -11,32 +11,37 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorJoined
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextDeselected
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextRemoved
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextSelected
 import java.util.UUID.fromString
 
 @Controller
 class CollaborativeDocumentController(
     private val documentStateService: DocumentStateService,
     private val simpMessagingTemplate: SimpMessagingTemplate,
-    private val findCollaborativeSessionStateByDocumentIdQueryHandler: FindCollaborativeSessionStateByDocumentIdQueryHandler,
+    private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
 
-    @SubscribeMapping("/updates")
+    @SubscribeMapping("/updates/{documentId}")
     fun onSubscribeToUpdates(
+        @DestinationVariable documentId: String,
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload subscribeToUpdatesRequest: SubscribeToUpdatesRequest
-    ): CollaborativeSessionState {
+//        @Payload subscribeToUpdatesRequest: SubscribeToUpdatesRequest
+    ): CollaborativeSession {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
+        val documentUuid = fromString(documentId)
         println("onSubscribeToUpdates userId: $uuid")
-        addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = subscribeToUpdatesRequest.documentId)
-        val collaborativeSessionState: CollaborativeSessionState = findCollaborativeSessionStateByDocumentIdQueryHandler.execute(subscribeToUpdatesRequest.documentId)
 
-        simpMessagingTemplate.convertAndSend(
-            "/topic/updates",
-            CollaboratorJoined(collaboratorId = uuid)
-        )
-        return collaborativeSessionState
+        addCollaboratorToSessionCommandHandler.execute(collaboratorId = uuid, documentId = documentUuid)
+        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(documentUuid)
+
+        return collaborativeSession
     }
 
     @MessageMapping("/cursor-position-changed")
