@@ -11,6 +11,10 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQueryHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.*
 import java.util.UUID.fromString
 
@@ -33,8 +37,10 @@ class CollaborativeDocumentController(
         val documentUuid = fromString(documentId)
         println("onSubscribeToUpdates userId: $uuid")
 
-        addCollaboratorToSessionCommandHandler.execute(userId = uuid, collaboratorId = uuid, documentId = documentUuid)
-        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(documentUuid)
+        val command = AddCollaboratorToSessionCommand(userId = uuid, collaboratorId = uuid, documentId = documentUuid)
+        addCollaboratorToSessionCommandHandler.execute(command)
+        val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
+        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
 
         return collaborativeSession
     }
