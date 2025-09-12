@@ -9,7 +9,7 @@ class AddCollaboratorToSessionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository,
 ) {
-    fun execute(collaboratorId: UUID, documentId: UUID) {
+    fun execute(userId: UUID, collaboratorId: UUID, documentId: UUID) {
         if(!collaborativeSessionRepository.existsByDocumentId(documentId)) {
             val collaborativeSession = CollaborativeSession(
                 id = UUID.randomUUID(),
@@ -24,6 +24,7 @@ class AddCollaboratorToSessionCommandHandler(
         val nextSequenceNumber = collaborativeEventRepository.nextSequenceNumber()
 
         collaborativeSession.addCollaboratorState(CollaboratorState(
+            userId = userId,
             collaboratorId = collaboratorId,
             cursorPosition = null,
             selectedText = null
