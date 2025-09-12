@@ -11,12 +11,7 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorJoined
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextDeselected
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextRemoved
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextSelected
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.*
 import java.util.UUID.fromString
 
 @Controller

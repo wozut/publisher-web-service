@@ -42,14 +42,14 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
         println("preSend Thread name: ${Thread.currentThread().name}")
-        val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
+        val accessor: StompHeaderAccessor? = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
 
         if (StompCommand.CONNECT == accessor?.command) {
             println("preSend CONNECT")
 
             // TODO: validate authentication here
 //            val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
-            val userId = accessor.getNativeHeader("UserId")?.firstOrNull()
+            val userId: String? = accessor.getNativeHeader("UserId")?.firstOrNull()
 
             accessor.sessionAttributes["userId"] = userId
 
@@ -92,12 +92,5 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
         }
 
         return message
-    }
-
-    private fun validateJwtToken(token: String) {
-        // TODO: Implement JWT validation logic
-        if (token.isBlank()) {
-            throw IllegalArgumentException("Token is blank")
-        }
     }
 }
