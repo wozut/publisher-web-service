@@ -32,8 +32,8 @@ class CollaborativeDocumentController(
         @DestinationVariable documentId: String,
         headerAccessor: SimpMessageHeaderAccessor,
     ): CollaborativeSession {
-        val userId = extractUserId(headerAccessor)
-        val uuid = fromString(userId!!)
+        val requesterId = extractRequesterId(headerAccessor)
+        val uuid = fromString(requesterId!!)
 
         val documentUuid = fromString(documentId)
         println("onSubscribeToUpdates userId: $uuid")
@@ -51,8 +51,8 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         @Payload cursorPositionChanged: CursorPositionChanged
     ) {
-        val userId = extractUserId(headerAccessor)
-        val uuid = fromString(userId!!)
+        val requesterId = extractRequesterId(headerAccessor)
+        val uuid = fromString(requesterId!!)
         
 
     }
@@ -62,11 +62,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textAdded: TextAdded,
     ) {
-        val userId = extractUserId(headerAccessor)
+        val requesterId = extractRequesterId(headerAccessor)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/${textAdded.collaborativeSessionId}/text-added",
-            textAdded.copy(collaboratorId = fromString(userId!!))
+            textAdded.copy(collaboratorId = fromString(requesterId!!))
         )
     }
 
@@ -75,11 +75,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textRemoved: TextRemoved,
     ) {
-        val userId = extractUserId(headerAccessor)
+        val requesterId = extractRequesterId(headerAccessor)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/${textRemoved.collaborativeSessionId}/text-removed",
-            textRemoved.copy(collaboratorId = fromString(userId!!))
+            textRemoved.copy(collaboratorId = fromString(requesterId!!))
         )
     }
 
@@ -88,11 +88,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textSelected: TextSelected
     ) {
-        val userId = extractUserId(headerAccessor)
+        val requesterId = extractRequesterId(headerAccessor)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/${textSelected.collaborativeSessionId}/text-selected",
-            textSelected.copy(collaboratorId = fromString(userId!!))
+            textSelected.copy(collaboratorId = fromString(requesterId!!))
         )
     }
 
@@ -101,11 +101,11 @@ class CollaborativeDocumentController(
         headerAccessor: SimpMessageHeaderAccessor,
         textDeselected: TextDeselected
     ) {
-        val userId = extractUserId(headerAccessor)
+        val requesterId = extractRequesterId(headerAccessor)
         
         simpMessagingTemplate.convertAndSend(
             "/topic/document/${textDeselected.collaborativeSessionId}/text-deselected",
-            textDeselected.copy(collaboratorId = fromString(userId!!))
+            textDeselected.copy(collaboratorId = fromString(requesterId!!))
         )
     }
 
@@ -147,5 +147,5 @@ class CollaborativeDocumentController(
     }
 }
 
-private fun extractUserId(headerAccessor: SimpMessageHeaderAccessor): String? =
+private fun extractRequesterId(headerAccessor: SimpMessageHeaderAccessor): String? =
     headerAccessor.sessionAttributes["userId"] as? String
