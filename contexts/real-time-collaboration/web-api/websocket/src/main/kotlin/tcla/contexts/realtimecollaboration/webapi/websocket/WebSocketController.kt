@@ -64,10 +64,7 @@ class CollaborativeDocumentController(
     ) {
         val requesterId = extractRequesterId(headerAccessor)
         
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/${textAdded.collaborativeSessionId}/text-added",
-            textAdded.copy(collaboratorId = fromString(requesterId!!))
-        )
+
     }
 
     @MessageMapping("/text-removed")
@@ -76,11 +73,7 @@ class CollaborativeDocumentController(
         textRemoved: TextRemoved,
     ) {
         val requesterId = extractRequesterId(headerAccessor)
-        
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/${textRemoved.collaborativeSessionId}/text-removed",
-            textRemoved.copy(collaboratorId = fromString(requesterId!!))
-        )
+
     }
 
     @MessageMapping("/text-selected")
@@ -90,10 +83,7 @@ class CollaborativeDocumentController(
     ) {
         val requesterId = extractRequesterId(headerAccessor)
         
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/${textSelected.collaborativeSessionId}/text-selected",
-            textSelected.copy(collaboratorId = fromString(requesterId!!))
-        )
+
     }
 
     @MessageMapping("/text-deselected")
@@ -102,11 +92,7 @@ class CollaborativeDocumentController(
         textDeselected: TextDeselected
     ) {
         val requesterId = extractRequesterId(headerAccessor)
-        
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/${textDeselected.collaborativeSessionId}/text-deselected",
-            textDeselected.copy(collaboratorId = fromString(requesterId!!))
-        )
+
     }
 
     // common logic
