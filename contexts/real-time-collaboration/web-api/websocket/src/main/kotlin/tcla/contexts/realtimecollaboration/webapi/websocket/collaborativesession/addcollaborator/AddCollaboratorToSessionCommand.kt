@@ -2,4 +2,4 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import java.util.UUID
 
-data class AddCollaboratorToSessionCommand(val userId: UUID, val collaboratorId: UUID, val documentId: UUID)
+data class AddCollaboratorToSessionCommand(val requesterId: UUID, val collaboratorId: UUID, val documentId: UUID)

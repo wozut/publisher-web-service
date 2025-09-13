@@ -30,7 +30,7 @@ class AddCollaboratorToSessionCommandHandler(
 
         collaborativeSession.addCollaboratorState(
             CollaboratorState(
-                userId = command.userId,
+                userId = command.requesterId,
                 collaboratorId = command.collaboratorId,
                 cursorPosition = null,
                 selectedText = null

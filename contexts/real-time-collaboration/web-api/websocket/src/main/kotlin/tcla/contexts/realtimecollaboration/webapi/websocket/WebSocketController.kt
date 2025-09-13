@@ -36,9 +36,9 @@ class CollaborativeDocumentController(
         val uuid = fromString(requesterId!!)
 
         val documentUuid = fromString(documentId)
-        println("onSubscribeToUpdates userId: $uuid")
+        println("onSubscribeToUpdates requesterId: $uuid")
 
-        val command = AddCollaboratorToSessionCommand(userId = uuid, collaboratorId = uuid, documentId = documentUuid)
+        val command = AddCollaboratorToSessionCommand(requesterId = uuid, collaboratorId = uuid, documentId = documentUuid)
         addCollaboratorToSessionCommandHandler.execute(command)
         val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
         val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
