@@ -22,7 +22,6 @@ import java.util.UUID.fromString
 
 @Controller
 class CollaborativeDocumentController(
-    private val simpMessagingTemplate: SimpMessagingTemplate,
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
