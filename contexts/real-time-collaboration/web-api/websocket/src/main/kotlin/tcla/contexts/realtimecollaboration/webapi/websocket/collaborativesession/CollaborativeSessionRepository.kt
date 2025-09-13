@@ -1,4 +1,4 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 
 import org.springframework.stereotype.Repository
 import java.util.UUID

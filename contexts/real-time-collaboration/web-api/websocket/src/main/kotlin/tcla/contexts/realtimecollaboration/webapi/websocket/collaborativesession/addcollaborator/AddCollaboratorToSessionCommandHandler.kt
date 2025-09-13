@@ -2,8 +2,8 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeSession
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeSessionRepository
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
 import tcla.contexts.realtimecollaboration.webapi.websocket.DocumentState
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorJoined

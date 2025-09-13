@@ -1,5 +1,7 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 
+import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
+import tcla.contexts.realtimecollaboration.webapi.websocket.DocumentState
 import java.util.*
 
 data class CollaborativeSession(

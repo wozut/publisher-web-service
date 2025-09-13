@@ -3,6 +3,7 @@ package tcla.contexts.realtimecollaboration.webapi.websocket
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaborativeEvent
 
 @Component

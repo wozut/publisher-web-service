@@ -1,9 +1,8 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid
 
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeSession
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeSessionRepository
-import java.util.UUID
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 
 @Component
 class FindCollaborativeSessionByDocumentIdQueryHandler(

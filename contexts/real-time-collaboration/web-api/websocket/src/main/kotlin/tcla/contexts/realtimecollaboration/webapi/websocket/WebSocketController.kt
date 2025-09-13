@@ -3,6 +3,7 @@ package tcla.contexts.realtimecollaboration.webapi.websocket
 import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -11,6 +12,7 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
@@ -29,10 +31,10 @@ class CollaborativeDocumentController(
     fun onSubscribeToUpdates(
         @DestinationVariable documentId: String,
         headerAccessor: SimpMessageHeaderAccessor,
-//        @Payload subscribeToUpdatesRequest: SubscribeToUpdatesRequest
     ): CollaborativeSession {
         val userId = extractUserId(headerAccessor)
         val uuid = fromString(userId!!)
+
         val documentUuid = fromString(documentId)
         println("onSubscribeToUpdates userId: $uuid")
 
@@ -44,17 +46,15 @@ class CollaborativeDocumentController(
         return collaborativeSession
     }
 
-    @MessageMapping("/cursor-position-changed")
+    @MessageMapping("/collaborative-session/{collaborativeSessionId}/cursor-position-changed")
     fun cursorPositionChanged(
         headerAccessor: SimpMessageHeaderAccessor,
-        cursorPositionChanged: CursorPositionChanged
+        @Payload cursorPositionChanged: CursorPositionChanged
     ) {
         val userId = extractUserId(headerAccessor)
+        val uuid = fromString(userId!!)
         
-        simpMessagingTemplate.convertAndSend(
-            "/topic/document/${cursorPositionChanged.collaborativeSessionId}/cursor-position-changed",
-            cursorPositionChanged.copy(collaboratorId = fromString(userId!!))
-        )
+
     }
 
     @MessageMapping("/text-added")
