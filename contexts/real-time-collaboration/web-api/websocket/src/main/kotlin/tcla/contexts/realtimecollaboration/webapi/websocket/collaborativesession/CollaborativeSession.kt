@@ -25,4 +25,9 @@ data class CollaborativeSession(
         if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
         return this
     }
+
+    fun addText(collaboratorId: UUID, position: Long, text: String): CollaborativeSession {
+        val updatedDocumentState = documentState.addText(position, text)
+        return copy(documentState = updatedDocumentState)
+    }
 }

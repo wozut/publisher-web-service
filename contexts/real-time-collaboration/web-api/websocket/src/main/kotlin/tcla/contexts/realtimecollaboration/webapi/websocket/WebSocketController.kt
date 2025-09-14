@@ -14,6 +14,8 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
@@ -25,7 +27,8 @@ import java.util.UUID.fromString
 class CollaborativeDocumentController(
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
-    private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler
+    private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
+    private val addTextCommandHandler: AddTextCommandHandler
 ) {
 
     //TODO: change to "/updates/{collaborativeSessionId}"
@@ -69,6 +72,7 @@ class CollaborativeDocumentController(
         changeCursorPositionCommandHandler.execute(command = command)
     }
 
+    @Synchronized
     @MessageMapping("/add-text")
     fun addText(
         headerAccessor: SimpMessageHeaderAccessor,
@@ -78,7 +82,14 @@ class CollaborativeDocumentController(
         val collaborativeSessionUuid = fromString(addTextRequest.collaborativeSessionId)
         val collaboratorUuid = fromString(addTextRequest.collaboratorId)
 
-
+        val command = AddTextCommand(
+            requesterId = requesterUuid,
+            collaborativeSessionId = collaborativeSessionUuid,
+            collaboratorId = collaboratorUuid,
+            position = addTextRequest.position,
+            text = addTextRequest.text
+        )
+        addTextCommandHandler.execute(command = command)
     }
 
     @MessageMapping("/remove-text")

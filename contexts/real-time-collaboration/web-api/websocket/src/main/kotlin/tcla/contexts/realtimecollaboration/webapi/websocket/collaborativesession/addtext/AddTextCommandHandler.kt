@@ -1,32 +1,34 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition
+package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext
 
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
 
 @Component
-class ChangeCursorPositionCommandHandler(
+class AddTextCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository
 ) {
-    fun execute(command: ChangeCursorPositionCommand) {
+    fun execute(command: AddTextCommand) {
         if (command.requesterId != command.collaboratorId) throw IllegalArgumentException()
         val collaborativeSession = collaborativeSessionRepository.findById(command.collaborativeSessionId)
 
-        var updatedCollaborativeSession = collaborativeSession.changeCursorPosition(
+        var updatedCollaborativeSession = collaborativeSession.addText(
             collaboratorId = command.collaboratorId,
-            newPosition = command.newPosition
+            position = command.position,
+            text = command.text
         ).incrementLastCollaborativeEventSequenceNumber()
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
-        val cursorPositionChanged = CursorPositionChanged(
+        val textAdded = TextAdded(
             collaborativeSessionId = updatedCollaborativeSession.id,
             collaboratorId = command.collaboratorId,
             sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
             broadcasted = false,
-            newPosition = command.newPosition
+            position = command.position,
+            text = command.text
         )
-        collaborativeEventRepository.create(cursorPositionChanged)
+        collaborativeEventRepository.create(textAdded)
     }
 }
