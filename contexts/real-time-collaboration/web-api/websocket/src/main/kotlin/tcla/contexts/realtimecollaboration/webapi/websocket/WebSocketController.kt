@@ -69,12 +69,14 @@ class CollaborativeDocumentController(
         changeCursorPositionCommandHandler.execute(command = command)
     }
 
-    @MessageMapping("/text-added")
+    @MessageMapping("/add-text")
     fun textAdded(
         headerAccessor: SimpMessageHeaderAccessor,
-        textAdded: TextAdded,
+        @Payload changeCursorPositionRequest: AddTextRequest,
     ) {
-        val requesterId = extractRequesterId(headerAccessor)
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
+        val collaborativeSessionUuid = fromString(changeCursorPositionRequest.collaborativeSessionId)
+        val collaboratorUuid = fromString(changeCursorPositionRequest.collaboratorId)
 
 
     }
