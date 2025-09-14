@@ -52,7 +52,7 @@ class CollaborativeDocumentController(
 
     @Synchronized
     @MessageMapping("/change-cursor-position")
-    fun cursorPositionChanged(
+    fun changeCursorPosition(
         headerAccessor: SimpMessageHeaderAccessor,
         @Payload changeCursorPositionRequest: ChangeCursorPositionRequest,
     ) {
@@ -70,7 +70,7 @@ class CollaborativeDocumentController(
     }
 
     @MessageMapping("/add-text")
-    fun textAdded(
+    fun addText(
         headerAccessor: SimpMessageHeaderAccessor,
         @Payload addTextRequest: AddTextRequest,
     ) {
@@ -81,29 +81,26 @@ class CollaborativeDocumentController(
 
     }
 
-    @MessageMapping("/text-removed")
-    fun textRemoved(
+    @MessageMapping("/remove-text")
+    fun removeText(
         headerAccessor: SimpMessageHeaderAccessor,
-        textRemoved: TextRemoved,
     ) {
         val requesterId = extractRequesterId(headerAccessor)
 
     }
 
-    @MessageMapping("/text-selected")
-    fun textSelected(
+    @MessageMapping("/select-text")
+    fun selectText(
         headerAccessor: SimpMessageHeaderAccessor,
-        textSelected: TextSelected
     ) {
         val requesterId = extractRequesterId(headerAccessor)
 
 
     }
 
-    @MessageMapping("/text-deselected")
-    fun textDeselected(
+    @MessageMapping("/deselect-text")
+    fun deselectText(
         headerAccessor: SimpMessageHeaderAccessor,
-        textDeselected: TextDeselected
     ) {
         val requesterId = extractRequesterId(headerAccessor)
 
