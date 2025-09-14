@@ -72,11 +72,11 @@ class CollaborativeDocumentController(
     @MessageMapping("/add-text")
     fun textAdded(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload changeCursorPositionRequest: AddTextRequest,
+        @Payload addTextRequest: AddTextRequest,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(changeCursorPositionRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(changeCursorPositionRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(addTextRequest.collaborativeSessionId)
+        val collaboratorUuid = fromString(addTextRequest.collaboratorId)
 
 
     }
