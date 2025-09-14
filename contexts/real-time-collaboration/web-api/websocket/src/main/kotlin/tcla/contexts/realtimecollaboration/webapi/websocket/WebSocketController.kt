@@ -20,7 +20,6 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQueryHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.*
 import java.util.UUID.fromString
 
 @Controller
