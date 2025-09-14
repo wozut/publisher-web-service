@@ -15,7 +15,7 @@ class AddCollaboratorToSessionCommandHandler(
     private val collaborativeEventRepository: CollaborativeEventRepository,
 ) {
     fun execute(command: AddCollaboratorToSessionCommand) {
-        if(!collaborativeSessionRepository.existsByDocumentId(command.documentId)) {
+        if (!collaborativeSessionRepository.existsByDocumentId(command.documentId)) {
             val collaborativeSession = CollaborativeSession(
                 id = UUID.randomUUID(),
                 documentState = DocumentState(documentId = command.documentId, content = ""),
@@ -25,25 +25,27 @@ class AddCollaboratorToSessionCommandHandler(
             collaborativeSessionRepository.create(collaborativeSession)
         }
 
-        val collaborativeSession: CollaborativeSession = collaborativeSessionRepository.findByDocumentId(command.documentId)
+        val collaborativeSession: CollaborativeSession =
+            collaborativeSessionRepository.findByDocumentId(command.documentId)
         val nextSequenceNumber = collaborativeEventRepository.nextSequenceNumber()
 
-        collaborativeSession.addCollaboratorState(
-            CollaboratorState(
-                userId = command.requesterId,
-                collaboratorId = command.collaboratorId,
-                cursorPosition = null,
-                selectedText = null
-            )
+        val collaboratorState = CollaboratorState(
+            userId = command.requesterId,
+            collaboratorId = command.collaboratorId,
+            cursorPosition = null,
+            selectedText = null
         )
-        collaborativeSession.setLastCollaborativeEventSequenceNumber(nextSequenceNumber)
 
-        collaborativeSessionRepository.saveChanges(collaborativeSession)
+        var updatedCollaborativeSession = collaborativeSession
+            .addCollaboratorState(collaboratorState)
+            .setLastCollaborativeEventSequenceNumber(nextSequenceNumber)
+
+        updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
 
         collaborativeEventRepository.create(
             CollaboratorJoined(
                 collaboratorId = command.collaboratorId,
-                collaborativeSessionId = collaborativeSession.id,
+                collaborativeSessionId = updatedCollaborativeSession.id,
                 sequenceNumber = nextSequenceNumber,
                 broadcasted = false,
             )

@@ -12,4 +12,8 @@ data class CollaborativeSession(
 ) {
     fun addCollaboratorState(collaboratorState: CollaboratorState) = copy(collaboratorStates = collaboratorStates + collaboratorState)
     fun setLastCollaborativeEventSequenceNumber(sequenceNumber: Long) = copy(lastCollaborativeEventSequenceNumber = sequenceNumber)
+    fun changeCursorPosition(newPosition: Long) {
+
+
+    }
 }
