@@ -13,6 +13,7 @@ class BroadcastPendingMessages(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
 ) {
     @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = java.util.concurrent.TimeUnit.MILLISECONDS)
+    @Synchronized
     fun execute() {
         val oldestPendingEvent: CollaborativeEvent? = collaborativeEventRepository.findOldestByBroadcasted(false)
         if (oldestPendingEvent == null) return

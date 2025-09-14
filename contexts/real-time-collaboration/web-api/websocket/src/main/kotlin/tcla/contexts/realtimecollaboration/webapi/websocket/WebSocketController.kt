@@ -4,6 +4,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
+import org.springframework.messaging.rsocket.annotation.ConnectMapping
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.annotation.SubscribeMapping
@@ -26,6 +27,8 @@ class CollaborativeDocumentController(
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
 ) {
 
+    //TODO: change to "/updates/{collaborativeSessionId}"
+    @Synchronized
     @SubscribeMapping("/updates/{documentId}")
     fun onSubscribeToUpdates(
         @DestinationVariable documentId: String,
