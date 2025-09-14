@@ -7,15 +7,12 @@ private val collaborativeEvents: MutableList<CollaborativeEvent> = mutableListOf
 
 @Repository
 class CollaborativeEventRepository {
-    val lastSequenceNumber: Long = 0L
 
-    fun nextSequenceNumber(): Long = lastSequenceNumber + 1L
 
     fun create(collaborativeEvent: CollaborativeEvent) {
         if (collaborativeEvents.any { it.sequenceNumber == collaborativeEvent.sequenceNumber }) throw IllegalArgumentException(
             "CollaborativeEvent already exists"
         )
-        if(collaborativeEvent.sequenceNumber != lastSequenceNumber + 1L) throw IllegalArgumentException()
 
         if (!collaborativeEvents.add(collaborativeEvent)) throw IllegalStateException("Failed to create CollaborativeEvent")
     }
@@ -29,7 +26,7 @@ class CollaborativeEventRepository {
             "CollaborativeEvent not found"
         )
 
-        collaborativeEvents.removeIf { it.sequenceNumber == collaborativeEvent.sequenceNumber }
+        collaborativeEvents.removeIf { it.collaborativeSessionId == collaborativeEvent.collaborativeSessionId && it.sequenceNumber == collaborativeEvent.sequenceNumber }
         if (!collaborativeEvents.add(collaborativeEvent)) throw IllegalStateException("Failed to save changes")
         return collaborativeEvent
     }

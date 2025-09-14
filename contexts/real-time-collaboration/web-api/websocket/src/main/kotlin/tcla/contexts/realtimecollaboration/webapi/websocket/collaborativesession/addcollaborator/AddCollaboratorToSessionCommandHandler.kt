@@ -2,32 +2,27 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
+import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
-import tcla.contexts.realtimecollaboration.webapi.websocket.DocumentState
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CreateCollaborativeSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorJoined
-import java.util.UUID
 
 @Component
 class AddCollaboratorToSessionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository,
+    private val createCollaborativeSession: CreateCollaborativeSession
 ) {
     fun execute(command: AddCollaboratorToSessionCommand) {
-        if (!collaborativeSessionRepository.existsByDocumentId(command.documentId)) {
-            val collaborativeSession = CollaborativeSession(
-                id = UUID.randomUUID(),
-                documentState = DocumentState(documentId = command.documentId, content = ""),
-                collaboratorStates = setOf(),
-                lastCollaborativeEventSequenceNumber = 0L
-            )
-            collaborativeSessionRepository.create(collaborativeSession)
+        if(command.requesterId != command.collaboratorId) throw IllegalArgumentException()
+
+        if (!collaborativeSessionRepository.existsByDocumentId(documentId = command.documentId)) {
+            createCollaborativeSession.execute(documentId = command.documentId)
         }
 
         val collaborativeSession: CollaborativeSession =
             collaborativeSessionRepository.findByDocumentId(command.documentId)
-        val nextSequenceNumber = collaborativeEventRepository.nextSequenceNumber()
 
         val collaboratorState = CollaboratorState(
             userId = command.requesterId,
@@ -38,7 +33,7 @@ class AddCollaboratorToSessionCommandHandler(
 
         var updatedCollaborativeSession = collaborativeSession
             .addCollaboratorState(collaboratorState)
-            .setLastCollaborativeEventSequenceNumber(nextSequenceNumber)
+            .incrementLastCollaborativeEventSequenceNumber()
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
 
@@ -46,7 +41,7 @@ class AddCollaboratorToSessionCommandHandler(
             CollaboratorJoined(
                 collaboratorId = command.collaboratorId,
                 collaborativeSessionId = updatedCollaborativeSession.id,
-                sequenceNumber = nextSequenceNumber,
+                sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
                 broadcasted = false,
             )
         )

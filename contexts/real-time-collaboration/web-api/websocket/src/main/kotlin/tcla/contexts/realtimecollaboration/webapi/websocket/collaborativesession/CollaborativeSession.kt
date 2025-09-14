@@ -7,13 +7,22 @@ import java.util.*
 data class CollaborativeSession(
     val id: UUID,
     val documentState: DocumentState,
-    val collaboratorStates: Set<CollaboratorState>,
+    val collaboratorStates: MutableSet<CollaboratorState>,
     val lastCollaborativeEventSequenceNumber: Long
 ) {
-    fun addCollaboratorState(collaboratorState: CollaboratorState) = copy(collaboratorStates = collaboratorStates + collaboratorState)
-    fun setLastCollaborativeEventSequenceNumber(sequenceNumber: Long) = copy(lastCollaborativeEventSequenceNumber = sequenceNumber)
-    fun changeCursorPosition(newPosition: Long) {
+    fun addCollaboratorState(collaboratorState: CollaboratorState): CollaborativeSession {
+        if (!collaboratorStates.add(collaboratorState)) throw IllegalArgumentException()
+        return this
+    }
 
+    fun incrementLastCollaborativeEventSequenceNumber(): CollaborativeSession =
+        copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
 
+    fun changeCursorPosition(collaboratorId: UUID, newPosition: Long): CollaborativeSession {
+        val collaboratorState: CollaboratorState = collaboratorStates.first { it.collaboratorId == collaboratorId }
+        if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
+        val updatedCollaboratorState = collaboratorState.changeCursorPosition(newPosition)
+        if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
+        return this
     }
 }

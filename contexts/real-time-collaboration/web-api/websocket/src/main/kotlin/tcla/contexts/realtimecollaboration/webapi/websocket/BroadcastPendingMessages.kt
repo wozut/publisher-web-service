@@ -18,14 +18,14 @@ class BroadcastPendingMessages(
         val oldestPendingEvent: CollaborativeEvent? = collaborativeEventRepository.findOldestByBroadcasted(false)
         if (oldestPendingEvent == null) return
 
-        oldestPendingEvent.markAsBroadcasted()
-        collaborativeEventRepository.saveChanges(oldestPendingEvent)
+        var updatedEvent = oldestPendingEvent.markAsBroadcasted()
+        updatedEvent = collaborativeEventRepository.saveChanges(updatedEvent)
 
-        val collaborativeSession = collaborativeSessionRepository.findById(oldestPendingEvent.collaborativeSessionId)
+        val collaborativeSession = collaborativeSessionRepository.findById(updatedEvent.collaborativeSessionId)
 
         simpMessagingTemplate.convertAndSend(
             "/topic/updates/${collaborativeSession.documentState.documentId}",
-            oldestPendingEvent
+            updatedEvent
         )
     }
 }

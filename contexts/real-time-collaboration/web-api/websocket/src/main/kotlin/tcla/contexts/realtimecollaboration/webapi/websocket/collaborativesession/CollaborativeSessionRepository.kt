@@ -13,10 +13,10 @@ class CollaborativeSessionRepository {
     fun findById(id: UUID): CollaborativeSession = collaborativeSessions.first { it.id == id }
 
     fun saveChanges(collaborativeSession: CollaborativeSession): CollaborativeSession {
-        if(collaborativeSessions.none { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession not found")
+        if (collaborativeSessions.none { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession not found")
 
         collaborativeSessions.removeIf { it.id == collaborativeSession.id }
-        if(!collaborativeSessions.add(collaborativeSession)) throw IllegalStateException("Failed to save changes")
+        if (!collaborativeSessions.add(collaborativeSession)) throw IllegalStateException("Failed to save changes")
         return collaborativeSession
     }
 
@@ -25,7 +25,8 @@ class CollaborativeSessionRepository {
     }
 
     fun create(collaborativeSession: CollaborativeSession) {
-        if(collaborativeSessions.any { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession already exists")
-        if(!collaborativeSessions.add(collaborativeSession)) throw IllegalStateException("Failed to create CollaborativeSession")
+        if (collaborativeSessions.any { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession already exists")
+
+        if (!collaborativeSessions.add(collaborativeSession)) throw IllegalStateException("Failed to create CollaborativeSession")
     }
 }
