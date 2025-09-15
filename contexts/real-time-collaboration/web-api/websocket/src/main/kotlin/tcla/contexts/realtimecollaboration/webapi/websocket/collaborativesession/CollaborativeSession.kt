@@ -26,7 +26,7 @@ data class CollaborativeSession(
         return this
     }
 
-    fun addText(collaboratorId: UUID, position: Long, text: String): CollaborativeSession {
+    fun addText(position: Long, text: String): CollaborativeSession {
         val updatedDocumentState = documentState.addText(position, text)
         return copy(documentState = updatedDocumentState)
     }
