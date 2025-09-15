@@ -12,28 +12,25 @@ data class CollaborativeSession(
 ) {
     fun addCollaboratorState(collaboratorState: CollaboratorState): CollaborativeSession {
         if (!collaboratorStates.add(collaboratorState)) throw IllegalArgumentException()
-        return this
+        return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
-
-    fun incrementLastCollaborativeEventSequenceNumber(): CollaborativeSession =
-        copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
 
     fun changeCursorPosition(collaboratorId: UUID, newPosition: Long): CollaborativeSession {
         val collaboratorState: CollaboratorState = collaboratorStates.first { it.collaboratorId == collaboratorId }
         if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
         val updatedCollaboratorState = collaboratorState.changeCursorPosition(newPosition)
         if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
-        return this
+        return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
     fun addText(position: Long, text: String): CollaborativeSession {
         val updatedDocumentState = documentState.addText(position, text)
-        return copy(documentState = updatedDocumentState)
+        return copy(documentState = updatedDocumentState, lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
     fun removeText(position: Long, length: Long): CollaborativeSession {
         val updatedDocumentState = documentState.removeText(position, length)
-        return copy(documentState = updatedDocumentState)
+        return copy(documentState = updatedDocumentState, lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
     fun selectText(collaboratorId: UUID, position: Long, length: Long): CollaborativeSession {
@@ -41,6 +38,6 @@ data class CollaborativeSession(
         if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
         val updatedCollaboratorState = collaboratorState.selectText(position, length)
         if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
-        return this
+        return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 }

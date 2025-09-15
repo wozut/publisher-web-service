@@ -17,7 +17,7 @@ class RemoveTextCommandHandler(
         var updatedCollaborativeSession = collaborativeSession.removeText(
             position = command.position,
             length = command.length
-        ).incrementLastCollaborativeEventSequenceNumber()
+        )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
         val textRemoved = TextRemoved(

@@ -18,7 +18,7 @@ class SelectTextCommandHandler(
             collaboratorId = command.collaboratorId,
             position = command.position,
             length = command.length
-        ).incrementLastCollaborativeEventSequenceNumber()
+        )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
         val textSelected = TextSelected(

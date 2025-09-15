@@ -17,7 +17,7 @@ class AddTextCommandHandler(
         var updatedCollaborativeSession = collaborativeSession.addText(
             position = command.position,
             text = command.text
-        ).incrementLastCollaborativeEventSequenceNumber()
+        )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
         val textAdded = TextAdded(

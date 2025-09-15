@@ -17,7 +17,7 @@ class ChangeCursorPositionCommandHandler(
         var updatedCollaborativeSession = collaborativeSession.changeCursorPosition(
             collaboratorId = command.collaboratorId,
             newPosition = command.newPosition
-        ).incrementLastCollaborativeEventSequenceNumber()
+        )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
         val cursorPositionChanged = CursorPositionChanged(

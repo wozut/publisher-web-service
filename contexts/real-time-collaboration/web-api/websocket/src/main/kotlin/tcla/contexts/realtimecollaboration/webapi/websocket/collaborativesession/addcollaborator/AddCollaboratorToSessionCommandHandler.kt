@@ -33,7 +33,6 @@ class AddCollaboratorToSessionCommandHandler(
 
         var updatedCollaborativeSession = collaborativeSession
             .addCollaboratorState(collaboratorState)
-            .incrementLastCollaborativeEventSequenceNumber()
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
 
