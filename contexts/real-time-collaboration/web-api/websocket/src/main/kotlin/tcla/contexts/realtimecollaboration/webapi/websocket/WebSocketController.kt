@@ -160,14 +160,14 @@ class CollaborativeDocumentController(
 
     // common logic
     @EventListener
-    fun handleSessionConnected(event: SessionConnectedEvent) {
+    fun onSessionConnected(event: SessionConnectedEvent) {
         println("SessionConnectedEvent")
         // Aquí puedes ejecutar lógica cuando se conecta una sesión
     }
 
     // common logic
     @EventListener
-    fun handleSessionDisconnect(event: SessionDisconnectEvent) {
+    fun onSessionDisconnect(event: SessionDisconnectEvent) {
 //        val userId = event.sessionAttributes["userId"] as? String
 //        val uuid = userId?.let { fromString(it) }
 
@@ -176,7 +176,7 @@ class CollaborativeDocumentController(
 
     // common logic
     @EventListener
-    fun handleSessionSubscribe(event: SessionSubscribeEvent) {
+    fun onSessionSubscribe(event: SessionSubscribeEvent) {
         val destination = event.message.headers["simpDestination"] as? String
 //        val userId = event.sessionAttributes["userId"] as? String
 
@@ -187,7 +187,7 @@ class CollaborativeDocumentController(
 
     // common logic
     @EventListener
-    fun handleSessionUnsubscribe(event: SessionUnsubscribeEvent) {
+    fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
         val subscriptionId = event.message.headers["simpSubscriptionId"] as? String
 //        val userId = event.sessionAttributes["userId"] as? String
 
