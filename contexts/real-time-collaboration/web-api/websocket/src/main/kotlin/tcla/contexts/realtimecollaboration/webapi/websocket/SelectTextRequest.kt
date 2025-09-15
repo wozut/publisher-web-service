@@ -1,6 +1,8 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
-data class SelectedText(
+data class SelectTextRequest(
+    val collaborativeSessionId: String,
+    val collaboratorId: String,
     val position: Long,
     val length: Long
 )

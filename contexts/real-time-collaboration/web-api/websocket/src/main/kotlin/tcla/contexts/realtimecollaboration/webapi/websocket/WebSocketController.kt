@@ -117,8 +117,9 @@ class CollaborativeDocumentController(
     @MessageMapping("/select-text")
     fun selectText(
         headerAccessor: SimpMessageHeaderAccessor,
+        @Payload selectTextRequest: SelectTextRequest,
     ) {
-        val requesterId = extractRequesterId(headerAccessor)
+        val requesterUuid = extractRequesterId(headerAccessor)
 
 
     }
