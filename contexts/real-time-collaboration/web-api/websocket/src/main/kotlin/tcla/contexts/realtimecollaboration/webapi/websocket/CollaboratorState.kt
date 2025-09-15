@@ -9,4 +9,6 @@ data class CollaboratorState(
     val selectedText: SelectedText?
 ) {
     fun changeCursorPosition(newPosition: Long) = copy(cursorPosition = newPosition)
+
+    fun selectText(position: Long, length: Long) = copy(selectedText = SelectedText(position, length))
 }

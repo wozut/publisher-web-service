@@ -35,4 +35,12 @@ data class CollaborativeSession(
         val updatedDocumentState = documentState.removeText(position, length)
         return copy(documentState = updatedDocumentState)
     }
+
+    fun selectText(collaboratorId: UUID, position: Long, length: Long): CollaborativeSession {
+        val collaboratorState: CollaboratorState = collaboratorStates.first { it.collaboratorId == collaboratorId }
+        if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
+        val updatedCollaboratorState = collaboratorState.selectText(position, length)
+        if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
+        return this
+    }
 }
