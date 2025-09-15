@@ -46,6 +46,14 @@ data class CollaborativeSession(
         return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
+    fun deselectText(collaboratorId: UUID): CollaborativeSession {
+        val collaboratorState: CollaboratorState = collaboratorStates.first { it.collaboratorId == collaboratorId }
+        if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
+        val updatedCollaboratorState = collaboratorState.deselectText()
+        if (!collaboratorStates.add(updatedCollaboratorState)) throw IllegalStateException()
+        return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
+    }
+
     private fun ensureSelectedTextConsistency(
         selectedText: SelectedText
     ) {

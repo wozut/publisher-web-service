@@ -11,4 +11,6 @@ data class CollaboratorState(
     fun changeCursorPosition(newPosition: Long) = copy(cursorPosition = newPosition)
 
     fun selectText(position: Long, length: Long) = copy(selectedText = SelectedText(position, length))
+
+    fun deselectText() = copy(selectedText = null)
 }

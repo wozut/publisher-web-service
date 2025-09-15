@@ -20,6 +20,8 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext.RemoveTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectTextCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
@@ -33,7 +35,8 @@ class CollaborativeDocumentController(
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
     private val removeTextCommandHandler: RemoveTextCommandHandler,
-    private val selectTextCommandHandler: SelectTextCommandHandler
+    private val selectTextCommandHandler: SelectTextCommandHandler,
+    private val deselectTextCommandHandler: DeselectTextCommandHandler
 ) {
 
     //TODO: change to "/updates/{collaborativeSessionId}"
@@ -137,13 +140,22 @@ class CollaborativeDocumentController(
         selectTextCommandHandler.execute(command = command)
     }
 
+    @Synchronized
     @MessageMapping("/deselect-text")
     fun deselectText(
         headerAccessor: SimpMessageHeaderAccessor,
         @Payload deselectTextRequest: DeselectTextRequest,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
+        val collaborativeSessionUuid = fromString(deselectTextRequest.collaborativeSessionId)
+        val collaboratorUuid = fromString(deselectTextRequest.collaboratorId)
 
+        val command = DeselectTextCommand(
+            requesterId = requesterUuid,
+            collaborativeSessionId = collaborativeSessionUuid,
+            collaboratorId = collaboratorUuid
+        )
+        deselectTextCommandHandler.execute(command = command)
     }
 
     // common logic
