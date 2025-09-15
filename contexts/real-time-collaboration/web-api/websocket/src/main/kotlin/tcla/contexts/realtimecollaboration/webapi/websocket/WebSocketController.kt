@@ -140,8 +140,9 @@ class CollaborativeDocumentController(
     @MessageMapping("/deselect-text")
     fun deselectText(
         headerAccessor: SimpMessageHeaderAccessor,
+        @Payload deselectTextRequest: DeselectTextRequest,
     ) {
-        val requesterId = extractRequesterId(headerAccessor)
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
 
     }
 
