@@ -30,4 +30,9 @@ data class CollaborativeSession(
         val updatedDocumentState = documentState.addText(position, text)
         return copy(documentState = updatedDocumentState)
     }
+
+    fun removeText(position: Long, length: Long): CollaborativeSession {
+        val updatedDocumentState = documentState.removeText(position, length)
+        return copy(documentState = updatedDocumentState)
+    }
 }
