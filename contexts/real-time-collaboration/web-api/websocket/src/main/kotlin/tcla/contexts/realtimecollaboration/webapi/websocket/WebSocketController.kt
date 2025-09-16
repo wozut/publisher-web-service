@@ -12,8 +12,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addcollaborator.AddCollaboratorToSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinToSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinToSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext.RemoveTextCommand
@@ -33,7 +33,7 @@ import java.util.UUID.fromString
 @Controller
 class CollaborativeDocumentController(
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
-    private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
+    private val joinToSessionCommandHandler: JoinToSessionCommandHandler,
     private val removeCollaboratorFromSessionCommandHandler: RemoveCollaboratorFromSessionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
@@ -56,8 +56,8 @@ class CollaborativeDocumentController(
         println("onSubscribeToUpdates requesterId: $uuid")
 
         val command =
-            AddCollaboratorToSessionCommand(requesterId = uuid, collaboratorId = uuid, documentId = documentUuid)
-        addCollaboratorToSessionCommandHandler.execute(command)
+            JoinToSessionCommand(requesterId = uuid, documentId = documentUuid)
+        joinToSessionCommandHandler.execute(command)
         val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
         val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
 

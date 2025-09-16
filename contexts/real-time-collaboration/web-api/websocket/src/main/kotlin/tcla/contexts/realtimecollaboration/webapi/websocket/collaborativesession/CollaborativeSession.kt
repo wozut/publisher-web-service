@@ -12,6 +12,7 @@ data class CollaborativeSession(
     val lastCollaborativeEventSequenceNumber: Long
 ) {
     fun addCollaboratorState(collaboratorState: CollaboratorState): CollaborativeSession {
+        if(collaboratorStates.any { it.userId == collaboratorState.userId }) throw IllegalArgumentException()
         if(collaboratorState.cursorPosition != null) ensureCursorPositionConsistency(collaboratorState.cursorPosition)
         if(collaboratorState.selectedText != null) ensureSelectedTextConsistency(collaboratorState.selectedText)
         if (!collaboratorStates.add(collaboratorState)) throw IllegalArgumentException()
