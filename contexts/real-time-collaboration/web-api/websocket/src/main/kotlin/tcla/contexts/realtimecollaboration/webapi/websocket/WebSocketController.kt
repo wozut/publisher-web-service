@@ -12,8 +12,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinToSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinToSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join.JoinSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext.RemoveTextCommand
@@ -22,8 +22,8 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removecollaborator.RemoveCollaboratorFromSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removecollaborator.RemoveCollaboratorFromSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.leave.LeaveSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.leave.LeaveSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
@@ -33,8 +33,8 @@ import java.util.UUID.fromString
 @Controller
 class CollaborativeDocumentController(
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
-    private val joinToSessionCommandHandler: JoinToSessionCommandHandler,
-    private val removeCollaboratorFromSessionCommandHandler: RemoveCollaboratorFromSessionCommandHandler,
+    private val joinSessionCommandHandler: JoinSessionCommandHandler,
+    private val leaveSessionCommandHandler: LeaveSessionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
     private val removeTextCommandHandler: RemoveTextCommandHandler,
@@ -56,8 +56,8 @@ class CollaborativeDocumentController(
         println("onSubscribeToUpdates requesterId: $uuid")
 
         val command =
-            JoinToSessionCommand(requesterId = uuid, documentId = documentUuid)
-        joinToSessionCommandHandler.execute(command)
+            JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
+        joinSessionCommandHandler.execute(command)
         val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
         val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
 
@@ -188,24 +188,20 @@ class CollaborativeDocumentController(
     // common logic
     @EventListener
     fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
-        val destination = event.message.headers["simpDestination"] as? String
-        val userId = event.user?.name
+        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val destination = headerAccessor.destination
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
+        println("SessionUnsubscribeEvent: destination=$destination, requesterUuid=$requesterUuid")
 
-        println("SessionUnsubscribeEvent: destination=$destination, userId=$userId")
-
-        // Check if unsubscribing from updates destination
-        if (destination != null && destination.startsWith("/topic/updates/") && userId != null) {
+        if (destination != null && destination.startsWith("/topic/updates/") && requesterUuid != null) {
             val documentId = destination.removePrefix("/topic/updates/")
-
-            val uuid = fromString(userId)
+            
             val documentUuid = fromString(documentId)
-            val command = RemoveCollaboratorFromSessionCommand(
-                requesterId = uuid,
-                collaboratorId = uuid,
+            val command = LeaveSessionCommand(
+                requesterId = requesterUuid,
                 documentId = documentUuid
             )
-            removeCollaboratorFromSessionCommandHandler.execute(command)
-
+            leaveSessionCommandHandler.execute(command)
         }
     }
 }

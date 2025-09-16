@@ -19,9 +19,9 @@ data class CollaborativeSession(
         return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
-    fun removeCollaboratorState(collaboratorId: UUID): CollaborativeSession {
-        val collaboratorState: CollaboratorState = collaboratorStates.firstOrNull { it.collaboratorId == collaboratorId }
-            ?: throw IllegalArgumentException("Collaborator not found: $collaboratorId")
+    fun removeCollaboratorState(userId: UUID): CollaborativeSession {
+        val collaboratorState: CollaboratorState = collaboratorStates.firstOrNull { it.userId == userId }
+            ?: throw IllegalArgumentException("Collaborator not found. UserId: $userId")
         if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
         return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
@@ -80,5 +80,9 @@ data class CollaborativeSession(
         require(cursorPosition >= 0) { "Cursor position must be non-negative, got: $cursorPosition" }
         val contentLength = documentState.length()
         require(cursorPosition <= contentLength) { "Cursor position $cursorPosition is beyond document length $contentLength" }
+    }
+
+    fun findCollaboratorState(userId: UUID): CollaboratorState {
+        return collaboratorStates.first { it.userId == userId }
     }
 }

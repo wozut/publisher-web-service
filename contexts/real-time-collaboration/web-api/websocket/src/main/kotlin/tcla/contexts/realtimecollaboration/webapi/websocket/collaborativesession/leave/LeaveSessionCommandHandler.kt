@@ -1,4 +1,4 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removecollaborator
+package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.leave
 
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
@@ -7,13 +7,11 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorLeft
 
 @Component
-class RemoveCollaboratorFromSessionCommandHandler(
+class LeaveSessionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository
 ) {
-    fun execute(command: RemoveCollaboratorFromSessionCommand) {
-        if(command.requesterId != command.collaboratorId) throw IllegalArgumentException()
-
+    fun execute(command: LeaveSessionCommand) {
         if (!collaborativeSessionRepository.existsByDocumentId(documentId = command.documentId)) {
             throw IllegalArgumentException("Collaborative session not found for document: ${command.documentId}")
         }
@@ -21,14 +19,16 @@ class RemoveCollaboratorFromSessionCommandHandler(
         val collaborativeSession: CollaborativeSession =
             collaborativeSessionRepository.findByDocumentId(command.documentId)
 
+        val collaboratorState = collaborativeSession.findCollaboratorState(command.requesterId)
+
         var updatedCollaborativeSession = collaborativeSession
-            .removeCollaboratorState(command.collaboratorId)
+            .removeCollaboratorState(command.requesterId)
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
 
         collaborativeEventRepository.create(
             CollaboratorLeft(
-                collaboratorId = command.collaboratorId,
+                collaboratorId = collaboratorState.collaboratorId,
                 collaborativeSessionId = updatedCollaborativeSession.id,
                 sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
                 broadcasted = false,

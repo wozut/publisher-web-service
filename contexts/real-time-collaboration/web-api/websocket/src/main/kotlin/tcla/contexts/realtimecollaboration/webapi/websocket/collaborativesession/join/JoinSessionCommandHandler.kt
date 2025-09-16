@@ -10,12 +10,12 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaboratorJ
 import java.util.UUID
 
 @Component
-class JoinToSessionCommandHandler(
+class JoinSessionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository,
     private val createCollaborativeSession: CreateCollaborativeSession
 ) {
-    fun execute(command: JoinToSessionCommand) {
+    fun execute(command: JoinSessionCommand) {
         if (!collaborativeSessionRepository.existsByDocumentId(documentId = command.documentId)) {
             createCollaborativeSession.execute(documentId = command.documentId)
         }
