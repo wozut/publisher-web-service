@@ -205,6 +205,3 @@ class CollaborativeSessionController(
         }
     }
 }
-
-private fun extractRequesterId(headerAccessor: SimpMessageHeaderAccessor): String? =
-    headerAccessor.sessionAttributes?.get("userId") as? String
