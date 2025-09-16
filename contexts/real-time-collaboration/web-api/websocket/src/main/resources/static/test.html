@@ -1,45 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Collaborative Document Editor Test</title>
+    <title>Collaborative Document Editor</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
         .container {
             margin-bottom: 20px;
         }
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .col {
+            flex: 1;
+        }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, textarea {
+        input, textarea, select {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
         }
         textarea {
-            height: 300px;
+            height: 400px;
             font-family: monospace;
             resize: vertical;
         }
         button {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             margin-right: 10px;
+            margin-bottom: 5px;
         }
         button:hover {
             background-color: #0056b3;
@@ -47,6 +56,12 @@
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.danger {
+            background-color: #dc3545;
         }
         .status {
             padding: 10px;
@@ -63,11 +78,19 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        .collaborators {
+        .panel {
             background-color: #f8f9fa;
-            padding: 10px;
+            padding: 15px;
             border-radius: 4px;
-            margin-bottom: 10px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        .collaborator {
+            padding: 5px;
+            margin: 2px 0;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            font-size: 12px;
         }
         .messages {
             background-color: #f8f9fa;
@@ -76,197 +99,410 @@
             height: 200px;
             overflow-y: auto;
             font-family: monospace;
+            font-size: 11px;
+            border: 1px solid #dee2e6;
+        }
+        .session-info {
             font-size: 12px;
+            color: #6c757d;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .cursor-position {
+            background-color: #fff3cd;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Collaborative Document Editor Test</h1>
-    
-    <div class="container">
-        <label for="jwtToken">JWT Token:</label>
-        <input type="text" id="jwtToken" placeholder="Bearer token here">
-    </div>
-    
-    <div class="container">
-        <label for="documentId">Document ID:</label>
-        <input type="text" id="documentId" value="test-document-1">
-    </div>
-    
+    <h1>Collaborative Document Editor</h1>
+
     <div id="status" class="status disconnected">Disconnected</div>
-    
-    <div class="container">
-        <button id="connectBtn" onclick="connect()">Connect</button>
-        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
-        <button id="joinBtn" onclick="joinDocument()" disabled>Join Document</button>
-        <button id="leaveBtn" onclick="leaveDocument()" disabled>Leave Document</button>
+
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <label for="userId">User ID:</label>
+                <input type="text" id="userId" value="user-123-456">
+            </div>
+
+            <div class="container">
+                <label for="documentId">Document ID:</label>
+                <input type="text" id="documentId" value="doc-test-1">
+            </div>
+
+            <div class="container">
+                <button id="connectBtn" onclick="connect()">Connect</button>
+                <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+                <button id="joinBtn" onclick="joinDocument()" disabled>Join Document</button>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="panel">
+                <h4>Session State</h4>
+                <div id="sessionInfo" class="session-info">Not connected</div>
+                <div id="collaboratorsList">
+                    <strong>Collaborators:</strong>
+                    <div id="collaborators">None</div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="container">
-        <label for="documentContent">Document Content:</label>
-        <textarea id="documentContent" placeholder="Document content will appear here..."></textarea>
-        <button id="updateBtn" onclick="updateDocument()" disabled>Update Document</button>
-    </div>
-    
-    <div class="collaborators">
-        <strong>Collaborators:</strong>
-        <div id="collaboratorsList">None</div>
-    </div>
-    
-    <div class="container">
-        <strong>Messages:</strong>
-        <div id="messages" class="messages"></div>
+
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <label for="documentContent">Document Content:</label>
+                <div class="cursor-position" id="cursorInfo">Cursor: position 0</div>
+                <textarea id="documentContent" placeholder="Start typing to collaborate..."></textarea>
+
+                <div class="action-buttons">
+                    <button onclick="addText()" disabled id="addTextBtn">Add Text</button>
+                    <button onclick="removeText()" disabled id="removeTextBtn">Remove Text</button>
+                    <button onclick="selectText()" disabled id="selectTextBtn">Select Text</button>
+                    <button onclick="deselectText()" disabled id="deselectTextBtn">Deselect Text</button>
+                </div>
+
+                <div class="container">
+                    <label>Text Operations:</label>
+                    <div class="row">
+                        <div class="col">
+                            <input type="number" id="textPosition" placeholder="Position" value="0">
+                        </div>
+                        <div class="col">
+                            <input type="text" id="textToAdd" placeholder="Text to add" value="Hello ">
+                        </div>
+                        <div class="col">
+                            <input type="number" id="textLength" placeholder="Length" value="5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="container">
+                <label>Messages Log:</label>
+                <div id="messages" class="messages"></div>
+                <button onclick="clearMessages()" class="secondary">Clear Messages</button>
+            </div>
+        </div>
     </div>
 
     <script>
         let stompClient = null;
         let isConnected = false;
         let currentDocumentId = null;
-        
-        function addMessage(message) {
+        let localSessionState = null;
+        let currentUserId = null;
+        let subscription = null;
+
+        // Utility functions
+        function addMessage(message, type = 'info') {
             const messages = document.getElementById('messages');
             const messageDiv = document.createElement('div');
-            messageDiv.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<span style="color: #666">${timestamp}</span> [${type.toUpperCase()}] ${message}`;
             messages.appendChild(messageDiv);
             messages.scrollTop = messages.scrollHeight;
         }
-        
-        function setConnected(connected) {
-            isConnected = connected;
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        function updateUI() {
+            const connected = isConnected;
+            const joined = connected && localSessionState !== null;
+
             document.getElementById('connectBtn').disabled = connected;
             document.getElementById('disconnectBtn').disabled = !connected;
-            document.getElementById('joinBtn').disabled = !connected;
-            document.getElementById('leaveBtn').disabled = !connected;
-            document.getElementById('updateBtn').disabled = !connected;
-            
+            document.getElementById('joinBtn').disabled = !connected || joined;
+
+            document.getElementById('addTextBtn').disabled = !joined;
+            document.getElementById('removeTextBtn').disabled = !joined;
+            document.getElementById('selectTextBtn').disabled = !joined;
+            document.getElementById('deselectTextBtn').disabled = !joined;
+
             const status = document.getElementById('status');
             if (connected) {
-                status.textContent = 'Connected';
+                status.textContent = joined ? `Connected and joined to ${currentDocumentId}` : 'Connected';
                 status.className = 'status connected';
             } else {
                 status.textContent = 'Disconnected';
                 status.className = 'status disconnected';
             }
+
+            updateSessionInfo();
+            updateCollaboratorsList();
         }
-        
-        function connect() {
-            const token = document.getElementById('jwtToken').value.trim();
-            if (!token) {
-                alert('Please enter a JWT token');
-                return;
-            }
-            
-            const socket = new SockJS('http://localhost:8080/collaborative-editor');
-            stompClient = Stomp.over(socket);
-            
-            const headers = {
-                'Authorization': token.startsWith('Bearer ') ? token : 'Bearer ' + token,
-                'UserId': "userid-1"
-            };
-            
-            stompClient.connect(headers, function (frame) {
-                setConnected(true);
-                addMessage('Connected to server: ' + frame);
-                console.log('Connected: ' + frame);
-                
-                // Subscribe to document changes
-                const docId = document.getElementById('documentId').value;
-                stompClient.subscribe('/topic/document/' + docId + '/changes', function (message) {
-                    const change = JSON.parse(message.body);
-                    addMessage('Document updated by ' + change.userId + ' (version ' + change.version + ')');
-                    document.getElementById('documentContent').value = change.content;
-                });
-                
-                // Subscribe to collaborator changes
-                stompClient.subscribe('/topic/document/' + docId + '/collaborators', function (message) {
-                    const collaboratorUpdate = JSON.parse(message.body);
-                    addMessage('Collaborator ' + collaboratorUpdate.action + ': ' + collaboratorUpdate.userId);
-                });
-                
-                // Subscribe to document data - this will be sent automatically when subscribing
-                stompClient.subscribe('/document/' + docId, function (message) {
-                    const doc = JSON.parse(message.body);
-                    addMessage('Received document: ' + doc.id + ' (version ' + doc.version + ')');
-                    document.getElementById('documentContent').value = doc.content;
-                    updateCollaboratorsList(doc.collaborators || []);
-                });
-                
-            }, function (error) {
-                setConnected(false);
-                addMessage('Connection error: ' + error);
-                console.log('Connection error: ' + error);
-            });
-        }
-        
-        function disconnect() {
-            if (stompClient !== null) {
-                stompClient.disconnect();
-            }
-            setConnected(false);
-            addMessage('Disconnected from server');
-            console.log("Disconnected");
-        }
-        
-        function joinDocument() {
-            const docId = document.getElementById('documentId').value;
-            if (stompClient && docId) {
-                currentDocumentId = docId;
-                stompClient.send("/app/document/" + docId + "/join", {}, JSON.stringify({}));
-                addMessage('Joining document: ' + docId);
+
+        function updateSessionInfo() {
+            const info = document.getElementById('sessionInfo');
+            if (localSessionState) {
+                info.innerHTML = `
+                    <div><strong>Session ID:</strong> ${localSessionState.id}</div>
+                    <div><strong>Document ID:</strong> ${currentDocumentId}</div>
+                    <div><strong>Document Length:</strong> ${localSessionState.documentState.content.length} chars</div>
+                    <div><strong>Sequence:</strong> ${localSessionState.lastCollaborativeEventSequenceNumber}</div>
+                `;
+            } else {
+                info.textContent = isConnected ? 'Connected but not joined' : 'Not connected';
             }
         }
-        
-        function leaveDocument() {
-            if (stompClient && currentDocumentId) {
-                stompClient.send("/app/document/" + currentDocumentId + "/leave", {}, JSON.stringify({}));
-                addMessage('Leaving document: ' + currentDocumentId);
-                currentDocumentId = null;
-            }
-        }
-        
-        function updateDocument() {
-            const docId = document.getElementById('documentId').value;
-            const content = document.getElementById('documentContent').value;
-            
-            if (stompClient && docId && content !== undefined) {
-                const change = {
-                    documentId: docId,
-                    content: content,
-                    userId: 'test-user',  // This will be overridden by server using JWT token
-                    version: 0  // Server will increment this
-                };
-                
-                stompClient.send("/app/document/" + docId + "/update", {}, JSON.stringify(change));
-                addMessage('Sending document update...');
-            }
-        }
-        
-        function updateCollaboratorsList(collaborators) {
-            const collaboratorsList = document.getElementById('collaboratorsList');
-            if (collaborators && Array.isArray(collaborators) && collaborators.length > 0) {
-                collaboratorsList.textContent = collaborators.join(', ');
-            } else if (collaborators && typeof collaborators === 'object') {
-                // Handle Set-like object from server
-                const collaboratorsArray = Object.keys(collaborators);
-                if (collaboratorsArray.length > 0) {
-                    collaboratorsList.textContent = collaboratorsArray.join(', ');
+
+        function updateCollaboratorsList() {
+            const collaboratorsDiv = document.getElementById('collaborators');
+            if (localSessionState && localSessionState.collaboratorStates) {
+                const collaborators = localSessionState.collaboratorStates;
+                if (collaborators.length > 0) {
+                    collaboratorsDiv.innerHTML = collaborators.map(collab => `
+                        <div class="collaborator">
+                            <strong>User:</strong> ${collab.userId}<br>
+                            <strong>Cursor:</strong> ${collab.cursorPosition || 'N/A'}<br>
+                            <strong>Selected:</strong> ${collab.selectedText ?
+                                `pos ${collab.selectedText.position}, len ${collab.selectedText.length}` : 'None'}
+                        </div>
+                    `).join('');
                 } else {
-                    collaboratorsList.textContent = 'None';
+                    collaboratorsDiv.innerHTML = 'None';
                 }
             } else {
-                collaboratorsList.textContent = 'None';
+                collaboratorsDiv.innerHTML = 'Not joined';
             }
         }
-        
-        // Auto-update document content every few seconds for testing
-        setInterval(function() {
-            if (isConnected && currentDocumentId) {
+
+        function updateDocumentContent() {
+            if (localSessionState && localSessionState.documentState) {
                 const textarea = document.getElementById('documentContent');
-                if (document.activeElement !== textarea) { // Don't update if user is typing
-                    // This would be where you'd sync with server in a real app
+                const currentCursor = textarea.selectionStart;
+                textarea.value = localSessionState.documentState.content;
+
+                // Restore cursor if possible
+                if (currentCursor <= textarea.value.length) {
+                    textarea.setSelectionRange(currentCursor, currentCursor);
                 }
             }
-        }, 5000);
+        }
+
+        // WebSocket connection management
+        function connect() {
+            currentUserId = document.getElementById('userId').value.trim();
+            if (!currentUserId) {
+                alert('Please enter a User ID');
+                return;
+            }
+
+            const socket = new SockJS('http://localhost:8080/collaborative-session');
+            stompClient = Stomp.over(socket);
+
+            const headers = {
+                'UserId': currentUserId
+            };
+
+            stompClient.connect(headers, function (frame) {
+                isConnected = true;
+                addMessage('Connected to server: ' + frame, 'success');
+                updateUI();
+
+            }, function (error) {
+                isConnected = false;
+                addMessage('Connection error: ' + error, 'error');
+                updateUI();
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                if (subscription) {
+                    subscription.unsubscribe();
+                    subscription = null;
+                }
+                stompClient.disconnect();
+            }
+            isConnected = false;
+            currentDocumentId = null;
+            localSessionState = null;
+            addMessage('Disconnected from server', 'info');
+            updateUI();
+        }
+
+        function joinDocument() {
+            const docId = document.getElementById('documentId').value.trim();
+            if (!stompClient || !docId) {
+                alert('Please connect first and enter a document ID');
+                return;
+            }
+
+            currentDocumentId = docId;
+
+            // Subscribe to updates for this document
+            subscription = stompClient.subscribe('/app/updates/' + docId, function (message) {
+                const sessionData = JSON.parse(message.body);
+                localSessionState = sessionData;
+                addMessage('Received session state update', 'success');
+                updateDocumentContent();
+                updateUI();
+            });
+
+            addMessage('Joined document: ' + docId, 'success');
+            updateUI();
+        }
+
+        // Document operations
+        function addText() {
+            if (!stompClient || !localSessionState) return;
+
+            const position = parseInt(document.getElementById('textPosition').value) || 0;
+            const text = document.getElementById('textToAdd').value || 'Hello ';
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: currentUserId,
+                position: position,
+                text: text
+            };
+
+            stompClient.send('/app/add-text', {}, JSON.stringify(request));
+            addMessage(`Sent add-text: "${text}" at position ${position}`, 'action');
+        }
+
+        function removeText() {
+            if (!stompClient || !localSessionState) return;
+
+            const position = parseInt(document.getElementById('textPosition').value) || 0;
+            const length = parseInt(document.getElementById('textLength').value) || 1;
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: currentUserId,
+                position: position,
+                length: length
+            };
+
+            stompClient.send('/app/remove-text', {}, JSON.stringify(request));
+            addMessage(`Sent remove-text: ${length} chars from position ${position}`, 'action');
+        }
+
+        function selectText() {
+            if (!stompClient || !localSessionState) return;
+
+            const position = parseInt(document.getElementById('textPosition').value) || 0;
+            const length = parseInt(document.getElementById('textLength').value) || 1;
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: currentUserId,
+                position: position,
+                length: length
+            };
+
+            stompClient.send('/app/select-text', {}, JSON.stringify(request));
+            addMessage(`Sent select-text: ${length} chars from position ${position}`, 'action');
+        }
+
+        function deselectText() {
+            if (!stompClient || !localSessionState) return;
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: currentUserId
+            };
+
+            stompClient.send('/app/deselect-text', {}, JSON.stringify(request));
+            addMessage('Sent deselect-text', 'action');
+        }
+
+        // Cursor position tracking
+        function updateCursorPosition() {
+            if (!stompClient || !localSessionState) return;
+
+            const textarea = document.getElementById('documentContent');
+            const position = textarea.selectionStart;
+
+            document.getElementById('cursorInfo').textContent = `Cursor: position ${position}`;
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: currentUserId,
+                newPosition: position
+            };
+
+            stompClient.send('/app/change-cursor-position', {}, JSON.stringify(request));
+        }
+
+        // Event listeners
+        document.getElementById('documentContent').addEventListener('input', function() {
+            updateCursorPosition();
+        });
+
+        document.getElementById('documentContent').addEventListener('selectionchange', function() {
+            updateCursorPosition();
+        });
+
+        document.getElementById('documentContent').addEventListener('click', function() {
+            updateCursorPosition();
+        });
+
+        document.getElementById('documentContent').addEventListener('keyup', function() {
+            updateCursorPosition();
+        });
+
+        // Auto-detect text operations from textarea
+        let lastContent = '';
+        document.getElementById('documentContent').addEventListener('input', function(e) {
+            if (!localSessionState) return;
+
+            const currentContent = e.target.value;
+            const cursorPos = e.target.selectionStart;
+
+            // Simple diff to detect changes
+            if (currentContent.length > lastContent.length) {
+                // Text was added
+                const addedText = currentContent.slice(lastContent.length);
+                const position = lastContent.length;
+
+                if (addedText) {
+                    const request = {
+                        collaborativeSessionId: localSessionState.id,
+                        collaboratorId: currentUserId,
+                        position: position,
+                        text: addedText
+                    };
+
+                    stompClient.send('/app/add-text', {}, JSON.stringify(request));
+                    addMessage(`Auto-sent add-text: "${addedText}" at position ${position}`, 'auto');
+                }
+            } else if (currentContent.length < lastContent.length) {
+                // Text was removed
+                const removedLength = lastContent.length - currentContent.length;
+                const position = cursorPos;
+
+                const request = {
+                    collaborativeSessionId: localSessionState.id,
+                    collaboratorId: currentUserId,
+                    position: position,
+                    length: removedLength
+                };
+
+                stompClient.send('/app/remove-text', {}, JSON.stringify(request));
+                addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position}`, 'auto');
+            }
+
+            lastContent = currentContent;
+        });
+
+        // Initialize
+        updateUI();
+        addMessage('Application initialized. Enter User ID and Document ID, then connect.', 'info');
     </script>
 </body>
 </html>
