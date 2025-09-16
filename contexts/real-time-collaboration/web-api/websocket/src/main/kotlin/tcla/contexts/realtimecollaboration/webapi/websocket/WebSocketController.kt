@@ -188,10 +188,7 @@ class CollaborativeDocumentController(
     // common logic
     @EventListener
     fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
-        val subscriptionId = event.message.headers["simpSubscriptionId"] as? String
-//        val userId = event.sessionAttributes["userId"] as? String
 
-        println("SessionUnsubscribeEvent: $subscriptionId")
 
     }
 }
