@@ -22,6 +22,8 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectTextCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removecollaborator.RemoveCollaboratorFromSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removecollaborator.RemoveCollaboratorFromSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
@@ -32,6 +34,7 @@ import java.util.UUID.fromString
 class CollaborativeDocumentController(
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
     private val addCollaboratorToSessionCommandHandler: AddCollaboratorToSessionCommandHandler,
+    private val removeCollaboratorFromSessionCommandHandler: RemoveCollaboratorFromSessionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
     private val removeTextCommandHandler: RemoveTextCommandHandler,
@@ -161,7 +164,7 @@ class CollaborativeDocumentController(
     // common logic
     @EventListener
     fun onSessionConnected(event: SessionConnectedEvent) {
-        println("SessionConnectedEvent")
+        println("SessionConnectedEvent: ${event.user?.name}")
         // Aquí puedes ejecutar lógica cuando se conecta una sesión
     }
 
@@ -178,20 +181,34 @@ class CollaborativeDocumentController(
     @EventListener
     fun onSessionSubscribe(event: SessionSubscribeEvent) {
         val destination = event.message.headers["simpDestination"] as? String
-//        val userId = event.sessionAttributes["userId"] as? String
-
-
-        println("SessionSubscribeEvent: $destination")
+        println("SessionSubscribeEvent: destination=$destination, user=${event.user?.name}")
         // Ejecutar lógica cuando se suscribe a un topic específico
     }
 
     // common logic
     @EventListener
     fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
+        val destination = event.message.headers["simpDestination"] as? String
+        val userId = event.user?.name
 
+        println("SessionUnsubscribeEvent: destination=$destination, userId=$userId")
 
+        // Check if unsubscribing from updates destination
+        if (destination != null && destination.startsWith("/topic/updates/") && userId != null) {
+            val documentId = destination.removePrefix("/topic/updates/")
+
+            val uuid = fromString(userId)
+            val documentUuid = fromString(documentId)
+            val command = RemoveCollaboratorFromSessionCommand(
+                requesterId = uuid,
+                collaboratorId = uuid,
+                documentId = documentUuid
+            )
+            removeCollaboratorFromSessionCommandHandler.execute(command)
+
+        }
     }
 }
 
 private fun extractRequesterId(headerAccessor: SimpMessageHeaderAccessor): String? =
-    headerAccessor.sessionAttributes["userId"] as? String
+    headerAccessor.sessionAttributes?.get("userId") as? String

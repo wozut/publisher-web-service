@@ -18,6 +18,13 @@ data class CollaborativeSession(
         return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
+    fun removeCollaboratorState(collaboratorId: UUID): CollaborativeSession {
+        val collaboratorState: CollaboratorState = collaboratorStates.firstOrNull { it.collaboratorId == collaboratorId }
+            ?: throw IllegalArgumentException("Collaborator not found: $collaboratorId")
+        if (!collaboratorStates.remove(collaboratorState)) throw IllegalStateException()
+        return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
+    }
+
     fun changeCursorPosition(collaboratorId: UUID, newPosition: Long): CollaborativeSession {
         val collaboratorState: CollaboratorState = collaboratorStates.first { it.collaboratorId == collaboratorId }
         ensureCursorPositionConsistency(newPosition)
