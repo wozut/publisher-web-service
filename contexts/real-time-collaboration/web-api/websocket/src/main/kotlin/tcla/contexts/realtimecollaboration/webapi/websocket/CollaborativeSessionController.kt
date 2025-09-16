@@ -31,7 +31,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import java.util.UUID.fromString
 
 @Controller
-class CollaborativeDocumentController(
+class CollaborativeSessionController(
     private val findCollaborativeSessionByDocumentIdQueryHandler: FindCollaborativeSessionByDocumentIdQueryHandler,
     private val joinSessionCommandHandler: JoinSessionCommandHandler,
     private val leaveSessionCommandHandler: LeaveSessionCommandHandler,
