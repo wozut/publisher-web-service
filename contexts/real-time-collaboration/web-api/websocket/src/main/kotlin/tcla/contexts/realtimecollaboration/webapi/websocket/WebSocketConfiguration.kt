@@ -50,8 +50,9 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
             // TODO: validate authentication here
 //            val authorization = accessor.getNativeHeader("Authorization")?.firstOrNull()
             val userId: String? = accessor.getNativeHeader("UserId")?.firstOrNull()
-
+            println("preSend getNativeHeader(\"UserId\"): $userId")
             accessor.sessionAttributes["userId"] = userId
+            println("preSend sessionAttributes userId ${accessor.sessionAttributes?.get("userId")}")
 
 //            if (authorization?.startsWith("Bearer ") == true) {
 //                val token = authorization.substring(7)
