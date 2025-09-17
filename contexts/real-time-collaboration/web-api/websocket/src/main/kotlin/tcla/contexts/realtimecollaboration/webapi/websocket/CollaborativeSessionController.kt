@@ -164,24 +164,28 @@ class CollaborativeSessionController(
     // common logic
     @EventListener
     fun onSessionConnected(event: SessionConnectedEvent) {
-        println("SessionConnectedEvent: ${event.user?.name}")
-        // Aquí puedes ejecutar lógica cuando se conecta una sesión
+        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
+
+        println("SessionConnectedEvent. RequesterId: $requesterUuid")
     }
 
     // common logic
     @EventListener
     fun onSessionDisconnect(event: SessionDisconnectEvent) {
-//        val userId = event.sessionAttributes["userId"] as? String
-//        val uuid = userId?.let { fromString(it) }
+        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
 
-        println("SessionDisconnectEvent: ${event.sessionId}")
+        println("SessionDisconnectEvent. RequesterId: $requesterUuid")
     }
 
     // common logic
     @EventListener
     fun onSessionSubscribe(event: SessionSubscribeEvent) {
-        val destination = event.message.headers["simpDestination"] as? String
-        println("SessionSubscribeEvent: destination=$destination, user=${event.user?.name}")
+        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val destination = headerAccessor.destination
+        val requesterUuid = fromString(extractRequesterId(headerAccessor))
+        println("SessionSubscribeEvent: destination=$destination, user=${requesterUuid}")
         // Ejecutar lógica cuando se suscribe a un topic específico
     }
 
