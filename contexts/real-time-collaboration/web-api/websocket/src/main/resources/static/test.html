@@ -202,7 +202,8 @@
         let isConnected = false;
         let currentDocumentId = null;
         let localSessionState = null;
-        let currentUserId = null;
+        let myUserId = null;
+        let myCollaboratorId = null;
         let subscription = null;
 
         // Utility functions
@@ -295,8 +296,8 @@
 
         // WebSocket connection management
         function connect() {
-            currentUserId = document.getElementById('userId').value.trim();
-            if (!currentUserId) {
+            myUserId = document.getElementById('userId').value.trim();
+            if (!myUserId) {
                 alert('Please enter a User ID');
                 return;
             }
@@ -305,7 +306,7 @@
             stompClient = Stomp.over(socket);
 
             const headers = {
-                'UserId': currentUserId
+                'UserId': myUserId
             };
 
             stompClient.connect(headers, function (frame) {
@@ -346,8 +347,11 @@
 
             // Subscribe to updates for this document
             subscription = stompClient.subscribe('/app/updates/' + docId, function (message) {
-                const sessionData = JSON.parse(message.body);
-                localSessionState = sessionData;
+                localSessionState = JSON.parse(message.body);
+                let myCollaboratorState = localSessionState.collaboratorStates.find((collaboratorState) => (collaboratorState.userId === myUserId))
+                if(myCollaboratorState) {
+                    myCollaboratorId = myCollaboratorState.collaboratorId;
+                }
                 addMessage('Received session state update', 'success');
                 updateDocumentContent();
                 updateUI();
@@ -366,7 +370,7 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: currentUserId,
+                collaboratorId: myCollaboratorId,
                 position: position,
                 text: text
             };
@@ -383,7 +387,7 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: currentUserId,
+                collaboratorId: myCollaboratorId,
                 position: position,
                 length: length
             };
@@ -400,7 +404,7 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: currentUserId,
+                collaboratorId: myCollaboratorId,
                 position: position,
                 length: length
             };
@@ -414,7 +418,7 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: currentUserId
+                collaboratorId: myCollaboratorId
             };
 
             stompClient.send('/app/deselect-text', {}, JSON.stringify(request));
@@ -432,7 +436,7 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: currentUserId,
+                collaboratorId: myCollaboratorId,
                 newPosition: position
             };
 
@@ -473,7 +477,7 @@
                 if (addedText) {
                     const request = {
                         collaborativeSessionId: localSessionState.id,
-                        collaboratorId: currentUserId,
+                        collaboratorId: myCollaboratorId,
                         position: position,
                         text: addedText
                     };
@@ -488,7 +492,7 @@
 
                 const request = {
                     collaborativeSessionId: localSessionState.id,
-                    collaboratorId: currentUserId,
+                    collaboratorId: myCollaboratorId,
                     position: position,
                     length: removedLength
                 };

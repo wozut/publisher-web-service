@@ -11,8 +11,10 @@ class ChangeCursorPositionCommandHandler(
     private val collaborativeEventRepository: CollaborativeEventRepository
 ) {
     fun execute(command: ChangeCursorPositionCommand) {
-        if (command.requesterId != command.collaboratorId) throw IllegalArgumentException()
         val collaborativeSession = collaborativeSessionRepository.findById(command.collaborativeSessionId)
+        val collaboratorState =
+            collaborativeSession.findCollaboratorStateByCollaboratorId(command.collaboratorId)
+        if (collaboratorState.userId != command.requesterId) throw IllegalArgumentException()
 
         var updatedCollaborativeSession = collaborativeSession.changeCursorPosition(
             collaboratorId = command.collaboratorId,

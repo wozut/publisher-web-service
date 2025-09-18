@@ -12,6 +12,7 @@ data class CollaborativeSession(
     val lastCollaborativeEventSequenceNumber: Long
 ) {
     fun addCollaboratorState(collaboratorState: CollaboratorState): CollaborativeSession {
+        println("Adding collaboratorState: $collaboratorState")
         if(collaboratorStates.any { it.userId == collaboratorState.userId }) throw IllegalArgumentException()
         if(collaboratorState.cursorPosition != null) ensureCursorPositionConsistency(collaboratorState.cursorPosition)
         if(collaboratorState.selectedText != null) ensureSelectedTextConsistency(collaboratorState.selectedText)
@@ -82,7 +83,11 @@ data class CollaborativeSession(
         require(cursorPosition <= contentLength) { "Cursor position $cursorPosition is beyond document length $contentLength" }
     }
 
-    fun findCollaboratorState(userId: UUID): CollaboratorState {
+    fun findCollaboratorStateByUserId(userId: UUID): CollaboratorState {
         return collaboratorStates.first { it.userId == userId }
+    }
+
+    fun findCollaboratorStateByCollaboratorId(collaboratorId: UUID): CollaboratorState {
+        return collaboratorStates.first { it.collaboratorId == collaboratorId }
     }
 }

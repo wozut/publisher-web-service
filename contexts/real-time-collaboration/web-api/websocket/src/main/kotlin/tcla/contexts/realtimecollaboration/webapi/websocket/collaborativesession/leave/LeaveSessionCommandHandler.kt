@@ -19,7 +19,7 @@ class LeaveSessionCommandHandler(
         val collaborativeSession: CollaborativeSession =
             collaborativeSessionRepository.findByDocumentId(command.documentId)
 
-        val collaboratorState = collaborativeSession.findCollaboratorState(command.requesterId)
+        val collaboratorState = collaborativeSession.findCollaboratorStateByUserId(command.requesterId)
 
         var updatedCollaborativeSession = collaborativeSession
             .removeCollaboratorState(command.requesterId)
