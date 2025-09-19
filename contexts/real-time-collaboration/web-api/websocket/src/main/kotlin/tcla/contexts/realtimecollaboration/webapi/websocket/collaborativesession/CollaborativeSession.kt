@@ -90,4 +90,8 @@ data class CollaborativeSession(
     fun findCollaboratorStateByCollaboratorId(collaboratorId: UUID): CollaboratorState {
         return collaboratorStates.first { it.collaboratorId == collaboratorId }
     }
+
+    fun collaboratorExistsByUserId(userId: UUID): Boolean {
+        return collaboratorStates.any { it.userId == userId }
+    }
 }

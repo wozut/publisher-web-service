@@ -205,6 +205,7 @@
         let myUserId = null;
         let myCollaboratorId = null;
         let subscription = null;
+        let myCursorPosition = null;
 
         // Utility functions
         function addMessage(message, type = 'info') {
@@ -430,23 +431,25 @@
             if (!stompClient || !localSessionState) return;
 
             const textarea = document.getElementById('documentContent');
-            const position = textarea.selectionStart;
+            const newPosition = textarea.selectionStart;
+            if(myCursorPosition === newPosition) return;
 
-            document.getElementById('cursorInfo').textContent = `Cursor: position ${position}`;
+            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
-                newPosition: position
+                newPosition: newPosition
             };
 
             stompClient.send('/app/change-cursor-position', {}, JSON.stringify(request));
+            myCursorPosition = newPosition;
         }
 
         // Event listeners
-        document.getElementById('documentContent').addEventListener('input', function() {
+/*        document.getElementById('documentContent').addEventListener('input', function() {
             updateCursorPosition();
-        });
+        });*/
 
         document.getElementById('documentContent').addEventListener('selectionchange', function() {
             updateCursorPosition();
@@ -484,6 +487,7 @@
 
                     stompClient.send('/app/add-text', {}, JSON.stringify(request));
                     addMessage(`Auto-sent add-text: "${addedText}" at position ${position}`, 'auto');
+                    updateCursorPosition();
                 }
             } else if (currentContent.length < lastContent.length) {
                 // Text was removed
@@ -499,6 +503,7 @@
 
                 stompClient.send('/app/remove-text', {}, JSON.stringify(request));
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position}`, 'auto');
+                updateCursorPosition();
             }
 
             lastContent = currentContent;

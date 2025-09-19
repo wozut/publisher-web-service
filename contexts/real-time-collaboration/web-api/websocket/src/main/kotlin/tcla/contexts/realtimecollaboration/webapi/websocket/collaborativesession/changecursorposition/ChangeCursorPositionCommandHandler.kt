@@ -3,6 +3,8 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterIsCollaborator
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterOwnsCollaboratorState
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
 
 @Component
@@ -12,9 +14,10 @@ class ChangeCursorPositionCommandHandler(
 ) {
     fun execute(command: ChangeCursorPositionCommand) {
         val collaborativeSession = collaborativeSessionRepository.findById(command.collaborativeSessionId)
+        ensureRequesterIsCollaborator(collaborativeSession = collaborativeSession, requesterId = command.requesterId)
         val collaboratorState =
             collaborativeSession.findCollaboratorStateByCollaboratorId(command.collaboratorId)
-        if (collaboratorState.userId != command.requesterId) throw IllegalArgumentException()
+        ensureRequesterOwnsCollaboratorState(collaboratorState, command.requesterId)
 
         var updatedCollaborativeSession = collaborativeSession.changeCursorPosition(
             collaboratorId = command.collaboratorId,
