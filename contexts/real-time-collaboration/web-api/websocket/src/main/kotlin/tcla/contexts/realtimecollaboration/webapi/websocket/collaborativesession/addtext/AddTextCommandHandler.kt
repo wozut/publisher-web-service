@@ -5,6 +5,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRe
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterIsCollaborator
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
+import java.time.Instant
 
 @Component
 class AddTextCommandHandler(
@@ -12,6 +13,7 @@ class AddTextCommandHandler(
     private val collaborativeEventRepository: CollaborativeEventRepository
 ) {
     fun execute(command: AddTextCommand) {
+        println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. AddTextCommandHandler: $command")
         val collaborativeSession = collaborativeSessionRepository.findById(command.collaborativeSessionId)
         ensureRequesterIsCollaborator(collaborativeSession = collaborativeSession, requesterId = command.requesterId)
 

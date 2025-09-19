@@ -6,6 +6,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterIsCollaborator
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterOwnsCollaboratorState
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
+import java.time.Instant
 
 @Component
 class ChangeCursorPositionCommandHandler(
@@ -13,6 +14,7 @@ class ChangeCursorPositionCommandHandler(
     private val collaborativeEventRepository: CollaborativeEventRepository
 ) {
     fun execute(command: ChangeCursorPositionCommand) {
+        println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. ChangeCursorPositionCommandHandler: $command")
         val collaborativeSession = collaborativeSessionRepository.findById(command.collaborativeSessionId)
         ensureRequesterIsCollaborator(collaborativeSession = collaborativeSession, requesterId = command.requesterId)
         val collaboratorState =

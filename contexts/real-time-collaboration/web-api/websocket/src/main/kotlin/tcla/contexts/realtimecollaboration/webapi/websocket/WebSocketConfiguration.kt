@@ -13,6 +13,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 
 @Configuration
@@ -74,8 +75,8 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
         }
 
         if(StompCommand.SEND == accessor?.command) {
-            println("preSend SEND")
-            println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
+            println("preSend SEND. Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. Destination ${accessor.destination}")
+//            println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
         }
 
         if(StompCommand.UNSUBSCRIBE == accessor?.command) {

@@ -377,6 +377,7 @@
             };
 
             stompClient.send('/app/add-text', {}, JSON.stringify(request));
+            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'(Func) Sent add-text: ' + request);
             addMessage(`Sent add-text: "${text}" at position ${position}`, 'action');
         }
 
@@ -443,6 +444,7 @@
             };
 
             stompClient.send('/app/change-cursor-position', {}, JSON.stringify(request));
+            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition);
             myCursorPosition = newPosition;
         }
 
@@ -451,17 +453,17 @@
             updateCursorPosition();
         });*/
 
-        document.getElementById('documentContent').addEventListener('selectionchange', function() {
+/*        document.getElementById('documentContent').addEventListener('selectionchange', function() {
             updateCursorPosition();
-        });
+        });*/
 
         document.getElementById('documentContent').addEventListener('click', function() {
             updateCursorPosition();
         });
 
-        document.getElementById('documentContent').addEventListener('keyup', function() {
+/*        document.getElementById('documentContent').addEventListener('keyup', function() {
             updateCursorPosition();
-        });
+        });*/
 
         // Auto-detect text operations from textarea
         let lastContent = '';
@@ -486,6 +488,7 @@
                     };
 
                     stompClient.send('/app/add-text', {}, JSON.stringify(request));
+                    console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                     addMessage(`Auto-sent add-text: "${addedText}" at position ${position}`, 'auto');
                     updateCursorPosition();
                 }
