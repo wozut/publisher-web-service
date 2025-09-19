@@ -1,7 +1,11 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
+import java.util.UUID
+
 data class ChangeCursorPositionRequest(
-    val collaborativeSessionId: String,
-    val collaboratorId: String,
     val newPosition: Long,
-)
+    override val collaborativeSessionId: UUID,
+    override val collaboratorId: UUID,
+    override val sequenceNumber: Long,
+    override var status: Status = Status.PENDING
+): CollaborativeRequest()

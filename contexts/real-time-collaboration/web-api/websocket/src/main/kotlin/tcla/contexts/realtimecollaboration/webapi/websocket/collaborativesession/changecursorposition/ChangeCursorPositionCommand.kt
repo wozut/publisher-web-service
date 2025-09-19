@@ -2,4 +2,10 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import java.util.UUID
 
-data class ChangeCursorPositionCommand(val requesterId: UUID, val collaborativeSessionId: UUID, val collaboratorId: UUID, val newPosition: Long)
+data class ChangeCursorPositionCommand(
+    val requesterId: UUID,
+    val collaborativeSessionId: UUID,
+    val collaboratorId: UUID,
+    val newPosition: Long,
+    val sequenceNumber: Long
+)

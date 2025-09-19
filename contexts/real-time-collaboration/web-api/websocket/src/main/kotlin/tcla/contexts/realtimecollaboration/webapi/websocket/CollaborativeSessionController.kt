@@ -68,17 +68,18 @@ class CollaborativeSessionController(
     @MessageMapping("/change-cursor-position")
     fun changeCursorPosition(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload changeCursorPositionRequest: ChangeCursorPositionRequest,
+        @Payload changeCursorPositionMessage: ChangeCursorPositionMessage,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(changeCursorPositionRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(changeCursorPositionRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(changeCursorPositionMessage.collaborativeSessionId)
+        val collaboratorUuid = fromString(changeCursorPositionMessage.collaboratorId)
 
         val command = ChangeCursorPositionCommand(
             requesterId = requesterUuid,
             collaborativeSessionId = collaborativeSessionUuid,
             collaboratorId = collaboratorUuid,
-            newPosition = changeCursorPositionRequest.newPosition
+            newPosition = changeCursorPositionMessage.newPosition,
+            sequenceNumber = changeCursorPositionMessage.sequenceNumber
         )
         changeCursorPositionCommandHandler.execute(command = command)
     }
@@ -87,18 +88,18 @@ class CollaborativeSessionController(
     @MessageMapping("/add-text")
     fun addText(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload addTextRequest: AddTextRequest,
+        @Payload addTextMessage: AddTextMessage,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(addTextRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(addTextRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(addTextMessage.collaborativeSessionId)
+        val collaboratorUuid = fromString(addTextMessage.collaboratorId)
 
         val command = AddTextCommand(
             requesterId = requesterUuid,
             collaborativeSessionId = collaborativeSessionUuid,
             collaboratorId = collaboratorUuid,
-            position = addTextRequest.position,
-            text = addTextRequest.text
+            position = addTextMessage.position,
+            text = addTextMessage.text
         )
         addTextCommandHandler.execute(command = command)
     }

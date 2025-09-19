@@ -1,17 +1,18 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition
 
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
+import tcla.contexts.realtimecollaboration.webapi.websocket.ChangeCursorPositionRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequestRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterIsCollaborator
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterOwnsCollaboratorState
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
 import java.time.Instant
 
 @Component
 class ChangeCursorPositionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
-    private val collaborativeEventRepository: CollaborativeEventRepository
+    private val collaborativeRequestRepository: CollaborativeRequestRepository,
 ) {
     fun execute(command: ChangeCursorPositionCommand) {
         println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. ChangeCursorPositionCommandHandler: $command")
@@ -21,19 +22,14 @@ class ChangeCursorPositionCommandHandler(
             collaborativeSession.findCollaboratorStateByCollaboratorId(command.collaboratorId)
         ensureRequesterOwnsCollaboratorState(collaboratorState, command.requesterId)
 
-        var updatedCollaborativeSession = collaborativeSession.changeCursorPosition(
+        val collaborativeRequest = ChangeCursorPositionRequest(
+            newPosition = command.newPosition,
+            collaborativeSessionId = command.collaborativeSessionId,
             collaboratorId = command.collaboratorId,
-            newPosition = command.newPosition
+            sequenceNumber = command.sequenceNumber,
+            status = CollaborativeRequest.Status.PENDING
         )
 
-        updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
-        val cursorPositionChanged = CursorPositionChanged(
-            collaborativeSessionId = updatedCollaborativeSession.id,
-            collaboratorId = command.collaboratorId,
-            sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
-            broadcasted = false,
-            newPosition = command.newPosition
-        )
-        collaborativeEventRepository.create(cursorPositionChanged)
+        collaborativeRequestRepository.create(collaborativeRequest)
     }
 }
