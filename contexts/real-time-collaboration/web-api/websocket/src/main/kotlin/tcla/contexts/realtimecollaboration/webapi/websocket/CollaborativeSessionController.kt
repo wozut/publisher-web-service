@@ -202,6 +202,7 @@ class CollaborativeSessionController(
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
         println("SessionUnsubscribeEvent: destination=$destination, requesterUuid=$requesterUuid")
 
+        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
         if (destination != null && destination.startsWith("/topic/updates/") && requesterUuid != null) {
             val documentId = destination.removePrefix("/topic/updates/")
             
