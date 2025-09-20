@@ -14,6 +14,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectText
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext.RemoveText
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.AddTextRequest
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @Component
@@ -56,5 +57,6 @@ class CollaborativeRequestProcessor(
 
         collaborativeRequest.markAsProcessed()
         collaborativeRequestRepository.saveChanges(collaborativeRequest)
+        println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. CollaborativeRequest: $collaborativeRequest")
     }
 }
