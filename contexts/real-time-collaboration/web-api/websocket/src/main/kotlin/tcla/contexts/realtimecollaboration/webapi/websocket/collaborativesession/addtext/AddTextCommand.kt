@@ -7,5 +7,6 @@ data class AddTextCommand(
     val collaborativeSessionId: UUID,
     val collaboratorId: UUID,
     val position: Long,
-    val text: String
+    val text: String,
+    val sequenceNumber: Long
 )

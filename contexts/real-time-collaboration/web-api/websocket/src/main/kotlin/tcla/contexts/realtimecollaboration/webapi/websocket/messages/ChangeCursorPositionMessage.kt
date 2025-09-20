@@ -1,6 +1,4 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
-
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.CollaborativeMessage
+package tcla.contexts.realtimecollaboration.webapi.websocket.messages
 
 data class ChangeCursorPositionMessage(
     val newPosition: Long,

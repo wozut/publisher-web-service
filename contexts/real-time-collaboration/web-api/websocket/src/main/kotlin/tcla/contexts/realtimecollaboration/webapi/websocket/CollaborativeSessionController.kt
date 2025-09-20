@@ -29,6 +29,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQueryHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.AddTextMessage
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.ChangeCursorPositionMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.SelectTextMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.DeselectTextMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
@@ -104,7 +105,8 @@ class CollaborativeSessionController(
             collaborativeSessionId = collaborativeSessionUuid,
             collaboratorId = collaboratorUuid,
             position = addTextMessage.position,
-            text = addTextMessage.text
+            text = addTextMessage.text,
+            sequenceNumber = addTextMessage.sequenceNumber
         )
         addTextCommandHandler.execute(command = command)
     }
