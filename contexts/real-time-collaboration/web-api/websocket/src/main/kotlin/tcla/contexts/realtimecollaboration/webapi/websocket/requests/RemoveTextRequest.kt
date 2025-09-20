@@ -1,6 +1,6 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.requests
 
-data class SelectTextRequest(
+data class RemoveTextRequest(
     val collaborativeSessionId: String,
     val collaboratorId: String,
     val position: Long,

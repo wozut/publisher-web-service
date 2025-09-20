@@ -1,9 +1,10 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.requests
 
 import java.util.UUID
 
-data class ChangeCursorPositionRequest(
-    val newPosition: Long,
+data class SelectTextRequest(
+    val position: Long,
+    val length: Long,
     override val collaborativeSessionId: UUID,
     override val collaboratorId: UUID,
     override val sequenceNumber: Long,

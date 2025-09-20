@@ -1,6 +1,7 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
 import org.springframework.stereotype.Repository
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.CollaborativeRequest
 import java.util.UUID
 
 private val collaborativeRequests: MutableList<CollaborativeRequest> = mutableListOf()

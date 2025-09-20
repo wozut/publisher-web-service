@@ -2,16 +2,19 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.ChangeCursorPositionRequest
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.ChangeCursorPositionRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.CollaborativeRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequestRepository
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.SelectTextRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPosition
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectText
 import java.util.concurrent.TimeUnit
 
 @Component
 class CollaborativeRequestProcessor(
     private val collaborativeRequestRepository: CollaborativeRequestRepository,
     private val changeCursorPosition: ChangeCursorPosition,
+    private val selectText: SelectText,
 ) {
     @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = TimeUnit.MILLISECONDS)
     @Synchronized
@@ -37,6 +40,7 @@ class CollaborativeRequestProcessor(
 
         when(collaborativeRequest) {
             is ChangeCursorPositionRequest -> changeCursorPosition.execute(collaborativeRequest)
+            is SelectTextRequest -> selectText.execute(collaborativeRequest)
         }
 
         collaborativeRequest.markAsProcessed()

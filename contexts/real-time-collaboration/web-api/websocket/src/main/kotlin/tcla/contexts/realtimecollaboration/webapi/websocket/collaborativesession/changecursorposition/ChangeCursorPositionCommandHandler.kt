@@ -1,8 +1,8 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition
 
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.ChangeCursorPositionRequest
-import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.ChangeCursorPositionRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.CollaborativeRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequestRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.rules.ensureRequesterIsCollaborator

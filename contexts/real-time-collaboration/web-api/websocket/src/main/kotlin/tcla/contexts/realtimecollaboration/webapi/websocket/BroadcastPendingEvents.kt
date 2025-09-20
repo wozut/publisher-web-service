@@ -7,7 +7,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaborativeEvent
 
 @Component
-class BroadcastPendingMessages(
+class BroadcastPendingEvents(
     private val simpMessagingTemplate: SimpMessagingTemplate,
     private val collaborativeEventRepository: CollaborativeEventRepository,
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
@@ -15,8 +15,8 @@ class BroadcastPendingMessages(
     @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = java.util.concurrent.TimeUnit.MILLISECONDS)
     @Synchronized
     fun execute() {
-        val oldestPendingEvent: CollaborativeEvent? = collaborativeEventRepository.findOldestByBroadcasted(false)
-        if (oldestPendingEvent == null) return
+        val oldestPendingEvent: CollaborativeEvent =
+            collaborativeEventRepository.findOldestByBroadcasted(false) ?: return
 
         var updatedEvent = oldestPendingEvent.markAsBroadcasted()
         updatedEvent = collaborativeEventRepository.saveChanges(updatedEvent)

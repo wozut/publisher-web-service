@@ -1,4 +1,6 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket
+package tcla.contexts.realtimecollaboration.webapi.websocket.messages
+
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.CollaborativeMessage
 
 data class AddTextMessage(
     val position: Long,

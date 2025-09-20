@@ -7,5 +7,6 @@ data class SelectTextCommand(
     val collaborativeSessionId: UUID,
     val collaboratorId: UUID,
     val position: Long,
-    val length: Long
+    val length: Long,
+    val sequenceNumber: Long
 )

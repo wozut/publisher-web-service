@@ -28,6 +28,10 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQuery
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQueryHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.AddTextMessage
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.SelectTextMessage
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.DeselectTextRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
 import java.util.UUID.fromString
 
 @Controller
@@ -129,18 +133,19 @@ class CollaborativeSessionController(
     @MessageMapping("/select-text")
     fun selectText(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload selectTextRequest: SelectTextRequest,
+        @Payload selectTextMessage: SelectTextMessage,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(selectTextRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(selectTextRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(selectTextMessage.collaborativeSessionId)
+        val collaboratorUuid = fromString(selectTextMessage.collaboratorId)
 
         val command = SelectTextCommand(
             requesterId = requesterUuid,
             collaborativeSessionId = collaborativeSessionUuid,
             collaboratorId = collaboratorUuid,
-            position = selectTextRequest.position,
-            length = selectTextRequest.length
+            position = selectTextMessage.position,
+            length = selectTextMessage.length,
+            sequenceNumber = selectTextMessage.sequenceNumber
         )
         selectTextCommandHandler.execute(command = command)
     }
