@@ -58,6 +58,7 @@ class CollaborativeSessionController(
         val command =
             JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
         joinSessionCommandHandler.execute(command)
+        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
         val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
         val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
 

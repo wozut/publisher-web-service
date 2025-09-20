@@ -20,6 +20,7 @@ class JoinSessionCommandHandler(
             createCollaborativeSession.execute(documentId = command.documentId)
         }
 
+        //TODO: aplicar mismo patrón que en ChangeCursorPositionCommandHandler
         val collaborativeSession: CollaborativeSession =
             collaborativeSessionRepository.findByDocumentId(command.documentId)
 
