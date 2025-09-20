@@ -206,6 +206,7 @@
         let myCollaboratorId = null;
         let subscription = null;
         let myCursorPosition = null;
+        let sequenceNumber = 0;
 
         // Utility functions
         function addMessage(message, type = 'info') {
@@ -373,12 +374,13 @@
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 position: position,
-                text: text
+                text: text,
+                sequenceNumber: sequenceNumber++
             };
 
             stompClient.send('/app/add-text', {}, JSON.stringify(request));
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'(Func) Sent add-text: ' + request);
-            addMessage(`Sent add-text: "${text}" at position ${position}`, 'action');
+            addMessage(`Sent add-text: "${text}" at position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
 
         function removeText() {
@@ -391,11 +393,12 @@
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 position: position,
-                length: length
+                length: length,
+                sequenceNumber: sequenceNumber++
             };
 
             stompClient.send('/app/remove-text', {}, JSON.stringify(request));
-            addMessage(`Sent remove-text: ${length} chars from position ${position}`, 'action');
+            addMessage(`Sent remove-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
 
         function selectText() {
@@ -408,11 +411,12 @@
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 position: position,
-                length: length
+                length: length,
+                sequenceNumber: sequenceNumber++
             };
 
             stompClient.send('/app/select-text', {}, JSON.stringify(request));
-            addMessage(`Sent select-text: ${length} chars from position ${position}`, 'action');
+            addMessage(`Sent select-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
 
         function deselectText() {
@@ -420,11 +424,12 @@
 
             const request = {
                 collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId
+                collaboratorId: myCollaboratorId,
+                sequenceNumber: sequenceNumber++
             };
 
             stompClient.send('/app/deselect-text', {}, JSON.stringify(request));
-            addMessage('Sent deselect-text', 'action');
+            addMessage(`Sent deselect-text (seq: ${request.sequenceNumber})`, 'action');
         }
 
         // Cursor position tracking
@@ -440,11 +445,12 @@
             const request = {
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
-                newPosition: newPosition
+                newPosition: newPosition,
+                sequenceNumber: sequenceNumber++
             };
 
             stompClient.send('/app/change-cursor-position', {}, JSON.stringify(request));
-            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition);
+            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
             myCursorPosition = newPosition;
         }
 
@@ -484,12 +490,13 @@
                         collaborativeSessionId: localSessionState.id,
                         collaboratorId: myCollaboratorId,
                         position: position,
-                        text: addedText
+                        text: addedText,
+                        sequenceNumber: sequenceNumber++
                     };
 
                     stompClient.send('/app/add-text', {}, JSON.stringify(request));
                     console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
-                    addMessage(`Auto-sent add-text: "${addedText}" at position ${position}`, 'auto');
+                    addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                     updateCursorPosition();
                 }
             } else if (currentContent.length < lastContent.length) {
@@ -501,11 +508,12 @@
                     collaborativeSessionId: localSessionState.id,
                     collaboratorId: myCollaboratorId,
                     position: position,
-                    length: removedLength
+                    length: removedLength,
+                    sequenceNumber: sequenceNumber++
                 };
 
                 stompClient.send('/app/remove-text', {}, JSON.stringify(request));
-                addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position}`, 'auto');
+                addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                 updateCursorPosition();
             }
 
