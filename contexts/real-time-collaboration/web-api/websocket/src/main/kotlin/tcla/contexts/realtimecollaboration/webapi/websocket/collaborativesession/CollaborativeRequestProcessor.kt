@@ -6,8 +6,10 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.requests.ChangeCurso
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.CollaborativeRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequestRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.SelectTextRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.DeselectTextRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPosition
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectText
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectText
 import java.util.concurrent.TimeUnit
 
 @Component
@@ -15,14 +17,14 @@ class CollaborativeRequestProcessor(
     private val collaborativeRequestRepository: CollaborativeRequestRepository,
     private val changeCursorPosition: ChangeCursorPosition,
     private val selectText: SelectText,
+    private val deselectText: DeselectText,
 ) {
     @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = TimeUnit.MILLISECONDS)
     @Synchronized
     fun execute() {
 
-        var collaborativeRequest: CollaborativeRequest? = collaborativeRequestRepository.findOldestByStatus(CollaborativeRequest.Status.PENDING)
-
-        if(collaborativeRequest == null) return
+        var collaborativeRequest: CollaborativeRequest =
+            collaborativeRequestRepository.findOldestByStatus(CollaborativeRequest.Status.PENDING) ?: return
 
         if(collaborativeRequest.sequenceNumber > 0L) {
             val exists: Boolean =
@@ -41,6 +43,7 @@ class CollaborativeRequestProcessor(
         when(collaborativeRequest) {
             is ChangeCursorPositionRequest -> changeCursorPosition.execute(collaborativeRequest)
             is SelectTextRequest -> selectText.execute(collaborativeRequest)
+            is DeselectTextRequest -> deselectText.execute(collaborativeRequest)
         }
 
         collaborativeRequest.markAsProcessed()

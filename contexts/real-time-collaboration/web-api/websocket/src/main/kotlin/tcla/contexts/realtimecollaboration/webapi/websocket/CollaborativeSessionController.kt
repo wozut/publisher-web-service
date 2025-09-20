@@ -30,7 +30,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.findbydocumentid.FindCollaborativeSessionByDocumentIdQueryHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.AddTextMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.SelectTextMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.requests.DeselectTextRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.DeselectTextMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
 import java.util.UUID.fromString
 
@@ -154,16 +154,17 @@ class CollaborativeSessionController(
     @MessageMapping("/deselect-text")
     fun deselectText(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload deselectTextRequest: DeselectTextRequest,
+        @Payload deselectTextMessage: DeselectTextMessage,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(deselectTextRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(deselectTextRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(deselectTextMessage.collaborativeSessionId)
+        val collaboratorUuid = fromString(deselectTextMessage.collaboratorId)
 
         val command = DeselectTextCommand(
             requesterId = requesterUuid,
             collaborativeSessionId = collaborativeSessionUuid,
-            collaboratorId = collaboratorUuid
+            collaboratorId = collaboratorUuid,
+            sequenceNumber = deselectTextMessage.sequenceNumber
         )
         deselectTextCommandHandler.execute(command = command)
     }

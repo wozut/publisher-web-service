@@ -5,5 +5,6 @@ import java.util.UUID
 data class DeselectTextCommand(
     val requesterId: UUID,
     val collaborativeSessionId: UUID,
-    val collaboratorId: UUID
+    val collaboratorId: UUID,
+    val sequenceNumber: Long
 )
