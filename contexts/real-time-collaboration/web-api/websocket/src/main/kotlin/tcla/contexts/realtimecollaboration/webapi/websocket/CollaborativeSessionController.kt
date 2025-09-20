@@ -32,7 +32,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.messages.AddTextMess
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.ChangeCursorPositionMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.SelectTextMessage
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.DeselectTextMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.RemoveTextMessage
 import java.util.UUID.fromString
 
 @Controller
@@ -115,18 +115,19 @@ class CollaborativeSessionController(
     @MessageMapping("/remove-text")
     fun removeText(
         headerAccessor: SimpMessageHeaderAccessor,
-        @Payload removeTextRequest: RemoveTextRequest,
+        @Payload removeTextMessage: RemoveTextMessage,
     ) {
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        val collaborativeSessionUuid = fromString(removeTextRequest.collaborativeSessionId)
-        val collaboratorUuid = fromString(removeTextRequest.collaboratorId)
+        val collaborativeSessionUuid = fromString(removeTextMessage.collaborativeSessionId)
+        val collaboratorUuid = fromString(removeTextMessage.collaboratorId)
 
         val command = RemoveTextCommand(
             requesterId = requesterUuid,
             collaborativeSessionId = collaborativeSessionUuid,
             collaboratorId = collaboratorUuid,
-            position = removeTextRequest.position,
-            length = removeTextRequest.length
+            position = removeTextMessage.position,
+            length = removeTextMessage.length,
+            sequenceNumber = removeTextMessage.sequenceNumber
         )
         removeTextCommandHandler.execute(command = command)
     }

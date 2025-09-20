@@ -8,9 +8,11 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.addtext.AddText
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.SelectTextRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.DeselectTextRequest
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.changecursorposition.ChangeCursorPosition
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.selecttext.SelectText
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.deselecttext.DeselectText
+import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext.RemoveText
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.AddTextRequest
 import java.util.concurrent.TimeUnit
 
@@ -21,6 +23,7 @@ class CollaborativeRequestProcessor(
     private val selectText: SelectText,
     private val deselectText: DeselectText,
     private val addText: AddText,
+    private val removeText: RemoveText,
 ) {
     @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = TimeUnit.MILLISECONDS)
     @Synchronized
@@ -48,6 +51,7 @@ class CollaborativeRequestProcessor(
             is SelectTextRequest -> selectText.execute(collaborativeRequest)
             is DeselectTextRequest -> deselectText.execute(collaborativeRequest)
             is AddTextRequest -> addText.execute(collaborativeRequest)
+            is RemoveTextRequest -> removeText.execute(collaborativeRequest)
         }
 
         collaborativeRequest.markAsProcessed()
