@@ -84,6 +84,7 @@ class CollaborativeSessionController(
     // 4. (server) send      /user/{username}/queue/collaborative-session-state/{documentId}
     // 5. (server) send      /topic/updates/{documentId}
 
+    //TODO: separar este flujo en 2: joinSession y getCollaborativeSessionState
     @Synchronized
     @MessageMapping("/join-session/{documentId}")
     fun joinSession(
