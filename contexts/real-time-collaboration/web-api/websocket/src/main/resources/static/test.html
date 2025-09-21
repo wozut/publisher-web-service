@@ -338,7 +338,7 @@
             updateUI();
         }
 
-        function joinDocument() {
+        function joinDocument(options) {
             const docId = document.getElementById('documentId').value.trim();
             if (!stompClient || !docId) {
                 alert('Please connect first and enter a document ID');
@@ -349,9 +349,10 @@
 
             // Subscribe to updates for this document
             subscription = stompClient.subscribe('/app/updates/' + docId, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (Func) Message received: ${message.body}`);
                 localSessionState = JSON.parse(message.body);
                 let myCollaboratorState = localSessionState.collaboratorStates.find((collaboratorState) => (collaboratorState.userId === myUserId))
-                if(myCollaboratorState) {
+                if (myCollaboratorState) {
                     myCollaboratorId = myCollaboratorState.collaboratorId;
                 }
                 addMessage('Received session state update', 'success');
