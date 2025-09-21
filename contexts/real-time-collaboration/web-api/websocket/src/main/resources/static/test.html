@@ -270,7 +270,6 @@
                     ${event.text ? `<div><strong>Text:</strong> "${event.text}"</div>` : ''}
                     ${event.length ? `<div><strong>Length:</strong> ${event.length}</div>` : ''}
                     ${event.newPosition !== undefined ? `<div><strong>New Position:</strong> ${event.newPosition}</div>` : ''}
-                    <div class="event-timestamp">${new Date(event.timestamp).toLocaleString()}</div>
                 </div>
             `).join('');
 
@@ -423,10 +422,7 @@
 
                 try {
                     const collaborativeEvent = JSON.parse(message.body);
-                    collaborativeEvents.push({
-                        ...collaborativeEvent,
-                        timestamp: new Date().toISOString()
-                    });
+                    collaborativeEvents.push(collaborativeEvent);
                     addMessage(`Received event: ${collaborativeEvent.type} (seq: ${collaborativeEvent.sequenceNumber})`, 'event');
                     updateEventsDisplay();
                 } catch (error) {
