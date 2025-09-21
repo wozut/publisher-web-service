@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>Collaborative Document Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -303,34 +304,23 @@
                 return;
             }
 
-            stompClient = new StompJs.Client({
-                brokerURL: 'ws://localhost:8080/collaborative-session',
-                connectHeaders: {
-                    'UserId': myUserId
-                },
-                onConnect: function (frame) {
-                    isConnected = true;
-                    addMessage('Connected to server: ' + frame, 'success');
-                    updateUI();
-                },
-                onStompError: function (frame) {
-                    isConnected = false;
-                    addMessage('STOMP error: ' + frame.headers['message'], 'error');
-                    updateUI();
-                },
-                onWebSocketError: function (error) {
-                    isConnected = false;
-                    addMessage('WebSocket error: ' + error, 'error');
-                    updateUI();
-                },
-                onDisconnect: function () {
-                    isConnected = false;
-                    addMessage('Disconnected from server', 'info');
-                    updateUI();
-                }
-            });
+            const socket = new SockJS('http://localhost:8080/collaborative-session');
+            stompClient = Stomp.over(socket);
 
-            stompClient.activate();
+            const headers = {
+                'UserId': myUserId
+            };
+
+            stompClient.connect(headers, function (frame) {
+                isConnected = true;
+                addMessage('Connected to server: ' + frame, 'success');
+                updateUI();
+
+            }, function (error) {
+                isConnected = false;
+                addMessage('Connection error: ' + error, 'error');
+                updateUI();
+            });
         }
 
         function disconnect() {
@@ -339,11 +329,12 @@
                     subscription.unsubscribe();
                     subscription = null;
                 }
-                stompClient.deactivate();
+                stompClient.disconnect();
             }
             isConnected = false;
             currentDocumentId = null;
             localSessionState = null;
+            addMessage('Disconnected from server', 'info');
             updateUI();
         }
 
