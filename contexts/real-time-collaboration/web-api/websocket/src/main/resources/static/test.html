@@ -204,6 +204,8 @@
         let localSessionState = null;
         let myUserId = null;
         let myCollaboratorId = null;
+        let subscriptionToUpdates = null;
+        let subscriptionToCollaborativeSessionState = null;
         let subscription = null;
         let myCursorPosition = null;
         let sequenceNumber = 0;
@@ -348,8 +350,13 @@
             currentDocumentId = docId;
 
             // Subscribe to updates for this document
-            subscription = stompClient.subscribe('/app/updates/' + docId, function (message) {
-                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (Func) Message received: ${message.body}`);
+            subscriptionToUpdates = stompClient.subscribe('/topic/updates/' + docId, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/topic/updates/${docId}) Message received: ${message.body}`);
+            });
+
+            // Subscribe to collaborative session state
+            subscriptionToCollaborativeSessionState = stompClient.subscribe('/user/queue/collaborative-session-state/' + docId, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/queue/collaborative-session-state/${docId}) Message received: ${message.body}`);
                 localSessionState = JSON.parse(message.body);
                 let myCollaboratorState = localSessionState.collaboratorStates.find((collaboratorState) => (collaboratorState.userId === myUserId))
                 if (myCollaboratorState) {
@@ -359,6 +366,8 @@
                 updateDocumentContent();
                 updateUI();
             });
+
+            stompClient.send('/app/join-session/' + docId, {}, JSON.stringify({}))
 
             addMessage('Joined document: ' + docId, 'success');
             updateUI();
