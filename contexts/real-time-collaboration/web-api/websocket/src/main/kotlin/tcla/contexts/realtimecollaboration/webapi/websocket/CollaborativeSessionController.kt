@@ -48,6 +48,14 @@ class CollaborativeSessionController(
 ) {
 
     //TODO: change to "/updates/{collaborativeSessionId}"
+    /*TODO: no funciona porque el cliente no se esta suscribiendo a /topic/updates/{documentId}
+     *  sino a /app/updates/{documentId}
+     * Posibles Soluciones:
+     * - Dos suscripciones diferentes: /topic/updates/{documentId} y /app/updates/{documentId}
+     * - (Mejor)
+     *      - un mapping (MessageMapping|SendToUser) para que los clientes pidan el estado actual de la sesión
+     *      - @SubscribeMapping("/updates/{documentId}") -> desaparece
+     */
     @Synchronized
     @SubscribeMapping("/updates/{documentId}")
     fun onSubscribeToUpdates(
