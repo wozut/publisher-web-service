@@ -78,6 +78,28 @@ class CollaborativeSessionController(
         return collaborativeSession
     }
 
+/*    @Synchronized
+    @MessageMapping("/join-session/{documentId}")
+    fun getCollaborativeSession(
+        @DestinationVariable documentId: String,
+        headerAccessor: SimpMessageHeaderAccessor,
+    ): CollaborativeSession {
+        val requesterId = extractRequesterId(headerAccessor)
+        val uuid = fromString(requesterId!!)
+
+        val documentUuid = fromString(documentId)
+        println("getCollaborativeSession requesterId: $uuid")
+
+        val command =
+            JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
+        joinSessionCommandHandler.execute(command)
+        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
+        val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
+        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
+
+        return collaborativeSession
+    }*/
+
     @Synchronized
     @MessageMapping("/change-cursor-position")
     fun changeCursorPosition(

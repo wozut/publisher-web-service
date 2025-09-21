@@ -41,7 +41,7 @@ class WebSocketConfiguration(
 @Component
 class ClientInboundChannelInterceptor : ChannelInterceptor {
 
-    override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
+    override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
         println("preSend Thread name: ${Thread.currentThread().name}")
         val accessor: StompHeaderAccessor? = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java)
 
