@@ -93,6 +93,9 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
             // Ejecutar lógica cuando se desconecta
         }
 
+        val destination: String? = accessor?.getNativeHeader("destination")?.firstOrNull()
+        println("preSend getNativeHeader(\"destination\"): $destination")
+
         return message
     }
 }
