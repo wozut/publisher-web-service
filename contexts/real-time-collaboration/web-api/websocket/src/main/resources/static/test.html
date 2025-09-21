@@ -355,8 +355,8 @@
             });
 
             // Subscribe to collaborative session state
-            subscriptionToCollaborativeSessionState = stompClient.subscribe('/user/queue/collaborative-session-state/' + docId, function (message) {
-                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/queue/collaborative-session-state/${docId}) Message received: ${message.body}`);
+            subscriptionToCollaborativeSessionState = stompClient.subscribe(`/user/${myUserId}/queue/collaborative-session-state/${docId}`, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/collaborative-session-state/${docId}) Message received: ${message.body}`);
                 localSessionState = JSON.parse(message.body);
                 let myCollaboratorState = localSessionState.collaboratorStates.find((collaboratorState) => (collaboratorState.userId === myUserId))
                 if (myCollaboratorState) {
