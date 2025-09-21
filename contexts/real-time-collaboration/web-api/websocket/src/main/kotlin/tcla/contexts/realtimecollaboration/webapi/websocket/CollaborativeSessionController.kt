@@ -79,7 +79,7 @@ class CollaborativeSessionController(
     }
 
     // 1. (client) subscribe /topic/updates/{documentId}
-    // 2. (client) subscribe /user/{username}/queue/collaborative-session-state/{documentId}
+    // 2. (client) subscribe [/user]/queue/collaborative-session-state/{documentId}
     // 3. (client) send      /app/join-session/{documentId}
     // 4. (server) send      /user/{username}/queue/collaborative-session-state/{documentId}
     // 5. (server) send      /topic/updates/{documentId}
