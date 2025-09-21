@@ -27,5 +27,6 @@ class BroadcastPendingEvents(
             "/topic/updates/${collaborativeSession.documentState.documentId}",
             updatedEvent
         )
+        println("Broadcasting event $updatedEvent")
     }
 }
