@@ -1,5 +1,6 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.join
 
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
@@ -13,7 +14,8 @@ import java.util.UUID
 class JoinSessionCommandHandler(
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
     private val collaborativeEventRepository: CollaborativeEventRepository,
-    private val createCollaborativeSession: CreateCollaborativeSession
+    private val createCollaborativeSession: CreateCollaborativeSession,
+    private val simpMessagingTemplate: SimpMessagingTemplate,
 ) {
     fun execute(command: JoinSessionCommand) {
         if (!collaborativeSessionRepository.existsByDocumentId(documentId = command.documentId)) {
@@ -23,6 +25,9 @@ class JoinSessionCommandHandler(
         //TODO: aplicar mismo patrón que en ChangeCursorPositionCommandHandler
         val collaborativeSession: CollaborativeSession =
             collaborativeSessionRepository.findByDocumentId(command.documentId)
+
+        //TODO: fallar si ya existe?
+        if(collaborativeSession.collaboratorExistsByUserId(userId = command.requesterId)) return
 
         val collaboratorId = UUID.randomUUID()
         val collaboratorState = CollaboratorState(
@@ -37,13 +42,18 @@ class JoinSessionCommandHandler(
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
 
-        collaborativeEventRepository.create(
-            CollaboratorJoined(
-                collaboratorId = collaboratorId,
-                collaborativeSessionId = updatedCollaborativeSession.id,
-                sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
-                broadcasted = false,
-            )
+        val collaboratorJoined = CollaboratorJoined(
+            collaboratorId = collaboratorId,
+            collaborativeSessionId = updatedCollaborativeSession.id,
+            sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
+            broadcasted = false,
+        )
+        collaborativeEventRepository.create(collaboratorJoined)
+
+        simpMessagingTemplate.convertAndSendToUser(
+            collaboratorState.userId.toString(),
+            "/queue/collaborative-session-state/${updatedCollaborativeSession.documentState.documentId}",
+            updatedCollaborativeSession
         )
     }
 

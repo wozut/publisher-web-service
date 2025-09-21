@@ -56,7 +56,7 @@ class CollaborativeSessionController(
      *      - un mapping (MessageMapping|SendToUser) para que los clientes pidan el estado actual de la sesión
      *      - @SubscribeMapping("/updates/{documentId}") -> desaparece
      */
-    @Synchronized
+/*    @Synchronized
     @SubscribeMapping("/updates/{documentId}")
     fun onSubscribeToUpdates(
         @DestinationVariable documentId: String,
@@ -76,7 +76,7 @@ class CollaborativeSessionController(
         val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
 
         return collaborativeSession
-    }
+    }*/
 
     // 1. (client) subscribe /topic/updates/{documentId}
     // 2. (client) subscribe [/user]/queue/collaborative-session-state/{documentId}
@@ -84,7 +84,7 @@ class CollaborativeSessionController(
     // 4. (server) send      /user/{username}/queue/collaborative-session-state/{documentId}
     // 5. (server) send      /topic/updates/{documentId}
 
-/*    @Synchronized
+    @Synchronized
     @MessageMapping("/join-session/{documentId}")
     fun joinSession(
         @DestinationVariable documentId: String,
@@ -99,7 +99,7 @@ class CollaborativeSessionController(
         val command =
             JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
         joinSessionCommandHandler.execute(command)
-    }*/
+    }
 
     @Synchronized
     @MessageMapping("/change-cursor-position")

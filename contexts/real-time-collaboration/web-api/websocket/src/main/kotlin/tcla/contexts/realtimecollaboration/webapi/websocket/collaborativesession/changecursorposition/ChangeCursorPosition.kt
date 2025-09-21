@@ -19,6 +19,7 @@ class ChangeCursorPosition(
         )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
+
         val cursorPositionChanged = CursorPositionChanged(
             collaborativeSessionId = updatedCollaborativeSession.id,
             collaboratorId = request.collaboratorId,
