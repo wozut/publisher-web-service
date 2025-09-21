@@ -78,26 +78,27 @@ class CollaborativeSessionController(
         return collaborativeSession
     }
 
+    // 1. (client) subscribe /topic/updates/{documentId}
+    // 2. (client) subscribe /user/{username}/queue/collaborative-session-state/{documentId}
+    // 3. (client) send      /app/join-session/{documentId}
+    // 4. (server) send      /user/{username}/queue/collaborative-session-state/{documentId}
+    // 5. (server) send      /topic/updates/{documentId}
+
 /*    @Synchronized
     @MessageMapping("/join-session/{documentId}")
-    fun getCollaborativeSession(
+    fun joinSession(
         @DestinationVariable documentId: String,
         headerAccessor: SimpMessageHeaderAccessor,
-    ): CollaborativeSession {
+    ) {
         val requesterId = extractRequesterId(headerAccessor)
         val uuid = fromString(requesterId!!)
 
         val documentUuid = fromString(documentId)
-        println("getCollaborativeSession requesterId: $uuid")
+        println("joinSession requesterId: $uuid")
 
         val command =
             JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
         joinSessionCommandHandler.execute(command)
-        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
-        val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
-        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
-
-        return collaborativeSession
     }*/
 
     @Synchronized
