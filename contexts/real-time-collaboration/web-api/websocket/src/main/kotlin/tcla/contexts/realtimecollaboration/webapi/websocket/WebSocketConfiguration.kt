@@ -22,7 +22,6 @@ class WebSocketConfiguration(
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/collaborative-session")
             .setAllowedOriginPatterns("*")
-            .withSockJS()
     }
 
     override fun configureClientInboundChannel(registration: ChannelRegistration) {

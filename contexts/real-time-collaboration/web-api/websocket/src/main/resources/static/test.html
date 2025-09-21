@@ -2,8 +2,7 @@
 <html>
 <head>
     <title>Collaborative Document Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -206,7 +205,6 @@
         let myCollaboratorId = null;
         let subscriptionToUpdates = null;
         let subscriptionToCollaborativeSessionState = null;
-        let subscription = null;
         let myCursorPosition = null;
         let sequenceNumber = 0;
 
@@ -306,32 +304,42 @@
                 return;
             }
 
-            const socket = new SockJS('http://localhost:8080/collaborative-session');
-            stompClient = Stomp.over(socket);
-
-            const headers = {
-                'UserId': myUserId
-            };
-
-            stompClient.connect(headers, function (frame) {
-                isConnected = true;
-                addMessage('Connected to server: ' + frame, 'success');
-                updateUI();
-
-            }, function (error) {
-                isConnected = false;
-                addMessage('Connection error: ' + error, 'error');
-                updateUI();
+            stompClient = new StompJs.Client({
+                brokerURL: 'ws://localhost:8080/collaborative-session',
+                connectHeaders: {
+                    'UserId': myUserId
+                },
+                onConnect: function (frame) {
+                    isConnected = true;
+                    addMessage('Connected to server: ' + frame, 'success');
+                    updateUI();
+                },
+                onStompError: function (frame) {
+                    isConnected = false;
+                    addMessage('Connection error: ' + frame.headers['message'], 'error');
+                    updateUI();
+                },
+                onWebSocketError: function (error) {
+                    isConnected = false;
+                    addMessage('WebSocket error: ' + error, 'error');
+                    updateUI();
+                }
             });
+
+            stompClient.activate();
         }
 
         function disconnect() {
             if (stompClient !== null) {
-                if (subscription) {
-                    subscription.unsubscribe();
-                    subscription = null;
+                if (subscriptionToUpdates) {
+                    subscriptionToUpdates.unsubscribe();
+                    subscriptionToUpdates = null;
                 }
-                stompClient.disconnect();
+                if (subscriptionToCollaborativeSessionState) {
+                    subscriptionToCollaborativeSessionState.unsubscribe();
+                    subscriptionToCollaborativeSessionState = null;
+                }
+                stompClient.deactivate();
             }
             isConnected = false;
             currentDocumentId = null;
@@ -367,7 +375,10 @@
                 updateUI();
             });
 
-            stompClient.send('/app/join-session/' + docId, {}, JSON.stringify({}))
+            stompClient.publish({
+                destination: '/app/join-session/' + docId,
+                body: JSON.stringify({})
+            })
 
             addMessage('Joined document: ' + docId, 'success');
             updateUI();
@@ -388,7 +399,10 @@
                 sequenceNumber: sequenceNumber++
             };
 
-            stompClient.send('/app/add-text', {}, JSON.stringify(request));
+            stompClient.publish({
+                destination: '/app/add-text',
+                body: JSON.stringify(request)
+            })
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'(Func) Sent add-text: ' + request);
             addMessage(`Sent add-text: "${text}" at position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
@@ -407,7 +421,10 @@
                 sequenceNumber: sequenceNumber++
             };
 
-            stompClient.send('/app/remove-text', {}, JSON.stringify(request));
+            stompClient.publish({
+                destination: '/app/remove-text',
+                body: JSON.stringify(request)
+            })
             addMessage(`Sent remove-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
 
@@ -425,7 +442,10 @@
                 sequenceNumber: sequenceNumber++
             };
 
-            stompClient.send('/app/select-text', {}, JSON.stringify(request));
+            stompClient.publish({
+                destination: '/app/select-text',
+                body: JSON.stringify(request)
+            })
             addMessage(`Sent select-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
         }
 
@@ -438,7 +458,10 @@
                 sequenceNumber: sequenceNumber++
             };
 
-            stompClient.send('/app/deselect-text', {}, JSON.stringify(request));
+            stompClient.publish({
+                destination: '/app/deselect-text',
+                body: JSON.stringify(request)
+            })
             addMessage(`Sent deselect-text (seq: ${request.sequenceNumber})`, 'action');
         }
 
@@ -459,7 +482,10 @@
                 sequenceNumber: sequenceNumber++
             };
 
-            stompClient.send('/app/change-cursor-position', {}, JSON.stringify(request));
+            stompClient.publish({
+                destination: '/app/change-cursor-position',
+                body: JSON.stringify(request)
+            })
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
             myCursorPosition = newPosition;
         }
@@ -504,7 +530,10 @@
                         sequenceNumber: sequenceNumber++
                     };
 
-                    stompClient.send('/app/add-text', {}, JSON.stringify(request));
+                    stompClient.publish({
+                        destination: '/app/add-text',
+                        body: JSON.stringify(request)
+                    })
                     console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                     addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                     updateCursorPosition();
@@ -522,7 +551,10 @@
                     sequenceNumber: sequenceNumber++
                 };
 
-                stompClient.send('/app/remove-text', {}, JSON.stringify(request));
+                stompClient.publish({
+                    destination: '/app/remove-text',
+                    body: JSON.stringify(request)
+                })
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                 updateCursorPosition();
             }
