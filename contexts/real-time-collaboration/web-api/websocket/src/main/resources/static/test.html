@@ -184,27 +184,6 @@
                 <div class="cursor-position" id="cursorInfo">Cursor: position 0</div>
                 <textarea id="documentContent" placeholder="Start typing to collaborate..."></textarea>
 
-                <div class="action-buttons">
-                    <button onclick="addText()" disabled id="addTextBtn">Add Text</button>
-                    <button onclick="removeText()" disabled id="removeTextBtn">Remove Text</button>
-                    <button onclick="selectText()" disabled id="selectTextBtn">Select Text</button>
-                    <button onclick="deselectText()" disabled id="deselectTextBtn">Deselect Text</button>
-                </div>
-
-                <div class="container">
-                    <label>Text Operations:</label>
-                    <div class="row">
-                        <div class="col">
-                            <input type="number" id="textPosition" placeholder="Position" value="0">
-                        </div>
-                        <div class="col">
-                            <input type="text" id="textToAdd" placeholder="Text to add" value="Hello ">
-                        </div>
-                        <div class="col">
-                            <input type="number" id="textLength" placeholder="Length" value="5">
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -308,11 +287,6 @@
             document.getElementById('connectBtn').disabled = connected;
             document.getElementById('disconnectBtn').disabled = !connected;
             document.getElementById('joinBtn').disabled = !connected || joined;
-
-            document.getElementById('addTextBtn').disabled = !joined;
-            document.getElementById('removeTextBtn').disabled = !joined;
-            document.getElementById('selectTextBtn').disabled = !joined;
-            document.getElementById('deselectTextBtn').disabled = !joined;
 
             const status = document.getElementById('status');
             if (connected) {
@@ -475,86 +449,6 @@
             updateUI();
         }
 
-        // Document operations
-        function addText() {
-            if (!stompClient || !localSessionState) return;
-
-            const position = parseInt(document.getElementById('textPosition').value) || 0;
-            const text = document.getElementById('textToAdd').value || 'Hello ';
-
-            const request = {
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                position: position,
-                text: text,
-                sequenceNumber: sequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/add-text',
-                body: JSON.stringify(request)
-            })
-            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'(Func) Sent add-text: ' + request);
-            addMessage(`Sent add-text: "${text}" at position ${position} (seq: ${request.sequenceNumber})`, 'action');
-        }
-
-        function removeText() {
-            if (!stompClient || !localSessionState) return;
-
-            const position = parseInt(document.getElementById('textPosition').value) || 0;
-            const length = parseInt(document.getElementById('textLength').value) || 1;
-
-            const request = {
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                position: position,
-                length: length,
-                sequenceNumber: sequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/remove-text',
-                body: JSON.stringify(request)
-            })
-            addMessage(`Sent remove-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
-        }
-
-        function selectText() {
-            if (!stompClient || !localSessionState) return;
-
-            const position = parseInt(document.getElementById('textPosition').value) || 0;
-            const length = parseInt(document.getElementById('textLength').value) || 1;
-
-            const request = {
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                position: position,
-                length: length,
-                sequenceNumber: sequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/select-text',
-                body: JSON.stringify(request)
-            })
-            addMessage(`Sent select-text: ${length} chars from position ${position} (seq: ${request.sequenceNumber})`, 'action');
-        }
-
-        function deselectText() {
-            if (!stompClient || !localSessionState) return;
-
-            const request = {
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                sequenceNumber: sequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/deselect-text',
-                body: JSON.stringify(request)
-            })
-            addMessage(`Sent deselect-text (seq: ${request.sequenceNumber})`, 'action');
-        }
 
         // Cursor position tracking
         function updateCursorPosition() {
