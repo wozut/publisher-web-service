@@ -482,8 +482,17 @@
             }
         }
 
-        // Cursor position tracking
-        function changeCursorPosition() {
+        function updateMyCursorPosition() {
+            const textarea = document.getElementById('documentContent');
+            const newPosition = textarea.selectionStart;
+            if(myCursorPosition === newPosition) return;
+
+            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
+
+            myCursorPosition = newPosition;
+        }
+
+        function sentChangeCursorPosition() {
             if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
             const textarea = document.getElementById('documentContent');
@@ -492,7 +501,7 @@
 
             document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
 
-            /*            const request = {
+            const request = {
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 newPosition: newPosition,
@@ -513,12 +522,11 @@
                             newPosition: newPosition,
                             broadcasted: false
                         };
-                        processCollaborativeEvent(cursorEvent);
-                        lastCollaborativeEventSequenceNumber++;
-                        updateEventsDisplay();*/
+            processCollaborativeEvent(cursorEvent);
+            lastCollaborativeEventSequenceNumber++;
+            updateEventsDisplay();
 
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
-            myCursorPosition = newPosition;
         }
 
         // Event listeners
@@ -531,7 +539,8 @@
         });*/
 
         document.getElementById('documentContent').addEventListener('click', function() {
-            changeCursorPosition();
+            updateMyCursorPosition();
+            sentChangeCursorPosition();
         });
 
 /*        document.getElementById('documentContent').addEventListener('keyup', function() {
@@ -579,7 +588,7 @@
 
                 console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                 addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
-                changeCursorPosition();
+                // updateMyCursorPosition();
             } else if (currentContent.length < lastContent.length) {
                 if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
                 const removedLength = lastContent.length - currentContent.length;
@@ -613,7 +622,7 @@
                 updateEventsDisplay();
 
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
-                changeCursorPosition();
+                // updateMyCursorPosition();
             }
 
             lastContent = currentContent;

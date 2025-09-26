@@ -3,6 +3,8 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaboratorState
 import tcla.contexts.realtimecollaboration.webapi.websocket.DocumentState
 import tcla.contexts.realtimecollaboration.webapi.websocket.SelectedText
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaborativeEvent
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
 import java.util.*
 
 data class CollaborativeSession(
@@ -10,7 +12,9 @@ data class CollaborativeSession(
     val documentState: DocumentState,
     val collaboratorStates: MutableSet<CollaboratorState>,
     val lastCollaborativeEventSequenceNumber: Long
-) {
+): CollaborativeEventGenerator {
+    private var generatedCollaborativeEvents = mutableListOf<CollaborativeEvent>()
+
     fun addCollaboratorState(collaboratorState: CollaboratorState): CollaborativeSession {
         println("Adding collaboratorState: $collaboratorState")
         if(collaboratorStates.any { it.userId == collaboratorState.userId }) throw IllegalArgumentException()
@@ -36,9 +40,26 @@ data class CollaborativeSession(
         return copy(lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
     }
 
-    fun addText(position: Long, text: String): CollaborativeSession {
+    fun addText(collaboratorId: UUID, position: Long, text: String): CollaborativeSession {
         val updatedDocumentState = documentState.addText(position, text)
-        return copy(documentState = updatedDocumentState, lastCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1)
+        val nextCollaborativeEventSequenceNumber = lastCollaborativeEventSequenceNumber + 1
+        val textAdded = TextAdded(
+            collaborativeSessionId = id,
+            collaboratorId = collaboratorId,
+            sequenceNumber = nextCollaborativeEventSequenceNumber,
+            broadcasted = false,
+            position = position,
+            text = text
+        )
+        generatedCollaborativeEvents.add(textAdded)
+
+        /*TODO change cursor position of collaborators whose cursor position has been affected
+        * solo los que su posición está mas alla del texto añadido
+        *
+        * Enviar eventos de cursor modificado por colaborador afectado? Intentar NO para optimizar.
+        * collaboratorStates.forEach { it.changeCursorPosition() }
+        */
+        return copy(documentState = updatedDocumentState, lastCollaborativeEventSequenceNumber = nextCollaborativeEventSequenceNumber)
     }
 
     fun removeText(position: Long, length: Long): CollaborativeSession {
@@ -93,5 +114,9 @@ data class CollaborativeSession(
 
     fun collaboratorExistsByUserId(userId: UUID): Boolean {
         return collaboratorStates.any { it.userId == userId }
+    }
+
+    override fun popAllGeneratedCollaborativeEvents(): List<CollaborativeEvent> {
+        return generatedCollaborativeEvents.toList().also { generatedCollaborativeEvents.clear() }
     }
 }
