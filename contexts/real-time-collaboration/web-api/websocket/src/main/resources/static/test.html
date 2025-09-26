@@ -267,6 +267,10 @@
             }
             const sourceEvent = event.broadcasted ? "remote" : "local";
 
+            if(sourceEvent === "local") {
+
+            }
+
             // Busqueda binaria para encontrar posición de inserción manteniendo ordenación ascendente por sequenceNumber
             const eventSeq = event.sequenceNumber;
             let left = 0;
@@ -458,7 +462,7 @@
 
 
         // Cursor position tracking
-        function updateCursorPosition() {
+        function changeCursorPosition() {
             if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
             const textarea = document.getElementById('documentContent');
@@ -498,19 +502,19 @@
 
         // Event listeners
 /*        document.getElementById('documentContent').addEventListener('input', function() {
-            updateCursorPosition();
+            changeCursorPosition();
         });*/
 
 /*        document.getElementById('documentContent').addEventListener('selectionchange', function() {
-            updateCursorPosition();
+            changeCursorPosition();
         });*/
 
         document.getElementById('documentContent').addEventListener('click', function() {
-            updateCursorPosition();
+            changeCursorPosition();
         });
 
 /*        document.getElementById('documentContent').addEventListener('keyup', function() {
-            updateCursorPosition();
+            changeCursorPosition();
         });*/
 
         // Auto-detect text operations from textarea
@@ -558,7 +562,7 @@
 
                     console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                     addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
-                    updateCursorPosition();
+                    changeCursorPosition();
                 }
             } else if (currentContent.length < lastContent.length) {
                 if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
@@ -594,7 +598,7 @@
                 updateEventsDisplay();
 
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
-                updateCursorPosition();
+                changeCursorPosition();
             }
 
             lastContent = currentContent;
