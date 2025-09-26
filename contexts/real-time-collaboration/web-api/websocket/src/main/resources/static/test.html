@@ -269,18 +269,20 @@
 
             if(sourceEvent === "local") {
 
+            } else {
+                // it is a remote event coming from the server
             }
 
             // Busqueda binaria para encontrar posición de inserción manteniendo ordenación ascendente por sequenceNumber
-            const eventSeq = event.sequenceNumber;
+            const eventSequenceNumber = event.sequenceNumber;
             let left = 0;
             let right = collaborativeEvents.length;
 
             while (left < right) {
                 const mid = Math.floor((left + right) / 2);
-                const midSeq = collaborativeEvents[mid].sequenceNumber || 0;
+                const midSequenceNumber = collaborativeEvents[mid].sequenceNumber;
 
-                if (midSeq < eventSeq) {
+                if (midSequenceNumber < eventSequenceNumber) {
                     left = mid + 1;
                 } else {
                     right = mid;
