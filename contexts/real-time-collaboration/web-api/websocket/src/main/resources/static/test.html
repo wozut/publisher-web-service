@@ -291,6 +291,8 @@
             }
 
             collaborativeEvents.splice(left, 0, event);
+
+            updateLastCollaborativeEventSequenceNumber(event.sequenceNumber)
         }
 
         function updateUI() {
@@ -448,7 +450,7 @@
                 if (myCollaboratorState) {
                     myCollaboratorId = myCollaboratorState.collaboratorId;
                 }
-                lastCollaborativeEventSequenceNumber = localSessionState.lastCollaborativeEventSequenceNumber
+                updateLastCollaborativeEventSequenceNumber(localSessionState.lastCollaborativeEventSequenceNumber)
                 addMessage('Received session state update', 'success');
                 setInitialDocumentContent();
                 updateUI();
@@ -464,6 +466,11 @@
             updateUI();
         }
 
+        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
+            if(lastCollaborativeEventSequenceNumber === undefined || sequenceNumber > lastCollaborativeEventSequenceNumber) {
+                lastCollaborativeEventSequenceNumber = sequenceNumber
+            }
+        }
 
         // Cursor position tracking
         function changeCursorPosition() {
