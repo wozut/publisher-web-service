@@ -9,6 +9,7 @@ private val collaborativeRequests: MutableList<CollaborativeRequest> = mutableLi
 @Repository
 class CollaborativeRequestRepository {
 
+    @Synchronized
     fun create(collaborativeRequest: CollaborativeRequest) {
         if (collaborativeRequests.any { areSame(it, collaborativeRequest) }) throw IllegalArgumentException(
             "CollaborativeRequest already exists"
@@ -28,6 +29,7 @@ class CollaborativeRequestRepository {
         .filter { it.status == status }
         .minByOrNull { it.sequenceNumber }
 
+    @Synchronized
     fun saveChanges(collaborativeRequest: CollaborativeRequest): CollaborativeRequest {
         if (collaborativeRequests.none { areSame(it, collaborativeRequest) }) throw IllegalArgumentException(
             "CollaborativeRequest not found"

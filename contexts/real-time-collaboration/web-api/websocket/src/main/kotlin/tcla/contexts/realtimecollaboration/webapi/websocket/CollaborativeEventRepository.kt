@@ -9,6 +9,7 @@ private val collaborativeEvents: MutableList<CollaborativeEvent> = mutableListOf
 class CollaborativeEventRepository {
 
 
+    @Synchronized
     fun create(collaborativeEvent: CollaborativeEvent) {
         if (collaborativeEvents.any { it.sequenceNumber == collaborativeEvent.sequenceNumber }) throw IllegalArgumentException(
             "CollaborativeEvent already exists"
@@ -21,6 +22,7 @@ class CollaborativeEventRepository {
         .filter { it.broadcasted == broadcasted }
         .minByOrNull { it.sequenceNumber }
 
+    @Synchronized
     fun saveChanges(collaborativeEvent: CollaborativeEvent): CollaborativeEvent {
         if (collaborativeEvents.none { it.sequenceNumber == collaborativeEvent.sequenceNumber }) throw IllegalArgumentException(
             "CollaborativeEvent not found"

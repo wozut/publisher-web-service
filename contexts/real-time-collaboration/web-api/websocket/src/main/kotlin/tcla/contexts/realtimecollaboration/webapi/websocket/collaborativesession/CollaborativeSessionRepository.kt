@@ -12,6 +12,7 @@ class CollaborativeSessionRepository {
 
     fun findById(id: UUID): CollaborativeSession = collaborativeSessions.first { it.id == id }
 
+    @Synchronized
     fun saveChanges(collaborativeSession: CollaborativeSession): CollaborativeSession {
         if (collaborativeSessions.none { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession not found")
 
@@ -24,6 +25,7 @@ class CollaborativeSessionRepository {
         return collaborativeSessions.any { it.documentState.documentId == documentId }
     }
 
+    @Synchronized
     fun create(collaborativeSession: CollaborativeSession) {
         if (collaborativeSessions.any { it.id == collaborativeSession.id }) throw IllegalArgumentException("CollaborativeSession already exists")
 
