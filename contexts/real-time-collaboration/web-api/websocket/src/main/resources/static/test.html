@@ -349,7 +349,7 @@
             }
         }
 
-        function updateDocumentContent() {
+        function setInitialDocumentContent() {
             if (localSessionState && localSessionState.documentState) {
                 const textarea = document.getElementById('documentContent');
                 const currentCursor = textarea.selectionStart;
@@ -450,7 +450,7 @@
                 }
                 lastCollaborativeEventSequenceNumber = localSessionState.lastCollaborativeEventSequenceNumber
                 addMessage('Received session state update', 'success');
-                updateDocumentContent();
+                setInitialDocumentContent();
                 updateUI();
             });
 
