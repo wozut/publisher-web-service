@@ -522,8 +522,6 @@
         // Auto-detect text operations from textarea
         let lastContent = '';
         document.getElementById('documentContent').addEventListener('input', function(e) {
-            if (!localSessionState) return;
-
             const currentContent = e.target.value;
             const cursorPos = e.target.selectionStart;
 
