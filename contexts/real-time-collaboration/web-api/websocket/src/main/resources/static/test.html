@@ -261,8 +261,13 @@
         }
 
         function insertCollaborativeEvent(event) {
+            if (event.sequenceNumber === undefined || event.sequenceNumber === null ||
+                typeof event.sequenceNumber !== 'number' || event.sequenceNumber < 0) {
+                throw new Error('Event sequence number must be a number greater than or equal to 0');
+            }
+            //
             // Busqueda binaria para encontrar posición de inserción manteniendo ordenación ascendente por sequenceNumber
-            const eventSeq = event.sequenceNumber || 0;
+            const eventSeq = event.sequenceNumber;
             let left = 0;
             let right = collaborativeEvents.length;
 
