@@ -262,9 +262,9 @@
         }
 
         function processCollaborativeEvent(event) {
-            const sequenceNumber = event.sequenceNumber;
-            if (sequenceNumber === undefined || sequenceNumber === null ||
-                typeof sequenceNumber !== 'number' || sequenceNumber < 0) {
+            const eventSequenceNumber = event.sequenceNumber;
+            if (eventSequenceNumber === undefined || eventSequenceNumber === null ||
+                typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0) {
                 throw new Error('Event sequence number must be a number greater than or equal to 0');
             }
             const sourceEvent = event.broadcasted ? "remote" : "local";
@@ -272,18 +272,19 @@
             const isRemote = sourceEvent === "remote";
             const isLocal = sourceEvent === "local";
 
-            if(isLocal && sequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
+            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
                 throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
+            }
+
+            if(isRemote) {
+
             }
 
             if(isLocal) {
 
-            } else {
-                // it is a remote event coming from the server
             }
 
             // Busqueda binaria para encontrar posición de inserción manteniendo ordenación ascendente por sequenceNumber
-            const eventSequenceNumber = sequenceNumber;
             let left = 0;
             let right = collaborativeEvents.length;
 
@@ -300,7 +301,7 @@
 
             collaborativeEvents.splice(left, 0, event);
 
-            updateLastCollaborativeEventSequenceNumber(sequenceNumber)
+            updateLastCollaborativeEventSequenceNumber(eventSequenceNumber)
         }
 
         function updateUI() {
