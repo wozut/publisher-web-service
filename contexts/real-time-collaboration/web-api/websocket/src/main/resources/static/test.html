@@ -465,7 +465,7 @@
 
         // Cursor position tracking
         function changeCursorPosition() {
-            if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+/*            if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
             const textarea = document.getElementById('documentContent');
             const newPosition = textarea.selectionStart;
@@ -499,7 +499,7 @@
             updateEventsDisplay();
 
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
-            myCursorPosition = newPosition;
+            myCursorPosition = newPosition;*/
         }
 
         // Event listeners
