@@ -216,7 +216,7 @@
         let subscriptionToUpdates = null;
         let subscriptionToCollaborativeSessionState = null;
         let myCursorPosition = null;
-        let sequenceNumber = 0;
+        let requestSequenceNumber = 0;
         let collaborativeEvents = [];
 
         // Utility functions
@@ -440,6 +440,7 @@
                 updateUI();
             });
 
+            if (!stompClient) throw new Error('Client not connected');
             stompClient.publish({
                 destination: '/app/join-session/' + docId,
                 body: JSON.stringify({})
@@ -452,7 +453,7 @@
 
         // Cursor position tracking
         function updateCursorPosition() {
-            if (!stompClient || !localSessionState) return;
+            if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
             const textarea = document.getElementById('documentContent');
             const newPosition = textarea.selectionStart;
@@ -464,13 +465,27 @@
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 newPosition: newPosition,
-                sequenceNumber: sequenceNumber++
+                sequenceNumber: requestSequenceNumber++
             };
 
             stompClient.publish({
                 destination: '/app/change-cursor-position',
                 body: JSON.stringify(request)
             })
+
+            // Add client-side collaborative event for cursor position change
+            const cursorEvent = {
+                type: "CursorPositionChanged",
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: myCollaboratorId,
+                sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                newPosition: newPosition,
+                broadcasted: false
+            };
+            insertCollaborativeEvent(cursorEvent);
+            localSessionState.lastCollaborativeEventSequenceNumber++;
+            updateEventsDisplay();
+
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
             myCursorPosition = newPosition;
         }
@@ -507,23 +522,40 @@
                 const position = lastContent.length;
 
                 if (addedText) {
+                    if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
                     const request = {
                         collaborativeSessionId: localSessionState.id,
                         collaboratorId: myCollaboratorId,
                         position: position,
                         text: addedText,
-                        sequenceNumber: sequenceNumber++
+                        sequenceNumber: requestSequenceNumber++
                     };
 
                     stompClient.publish({
                         destination: '/app/add-text',
                         body: JSON.stringify(request)
                     })
+
+                    // Add client-side collaborative event for text addition
+                    const addTextEvent = {
+                        type: "TextAdded",
+                        collaborativeSessionId: localSessionState.id,
+                        collaboratorId: myCollaboratorId,
+                        sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                        position: position,
+                        text: addedText,
+                        broadcasted: false
+                    };
+                    insertCollaborativeEvent(addTextEvent);
+                    localSessionState.lastCollaborativeEventSequenceNumber++;
+                    updateEventsDisplay();
+
                     console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                     addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                     updateCursorPosition();
                 }
             } else if (currentContent.length < lastContent.length) {
+                if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
                 // Text was removed
                 const removedLength = lastContent.length - currentContent.length;
                 const position = cursorPos;
@@ -533,13 +565,28 @@
                     collaboratorId: myCollaboratorId,
                     position: position,
                     length: removedLength,
-                    sequenceNumber: sequenceNumber++
+                    sequenceNumber: requestSequenceNumber++
                 };
 
                 stompClient.publish({
                     destination: '/app/remove-text',
                     body: JSON.stringify(request)
                 })
+
+                // Add client-side collaborative event for text removal
+                const removeTextEvent = {
+                    type: "TextRemoved",
+                    collaborativeSessionId: localSessionState.id,
+                    collaboratorId: myCollaboratorId,
+                    sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                    position: position,
+                    length: removedLength,
+                    broadcasted: false
+                };
+                insertCollaborativeEvent(removeTextEvent);
+                localSessionState.lastCollaborativeEventSequenceNumber++;
+                updateEventsDisplay();
+
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                 updateCursorPosition();
             }
