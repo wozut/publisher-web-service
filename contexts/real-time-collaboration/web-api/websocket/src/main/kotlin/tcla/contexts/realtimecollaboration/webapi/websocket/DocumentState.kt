@@ -11,7 +11,7 @@ data class DocumentState(val documentId: UUID, val content: String) {
 
         val positionInt = position.toInt()
         return copy(
-            content = content.substring(0, positionInt) + text + content.substring(positionInt)
+            content = content.take(positionInt) + text + content.substring(positionInt)
         )
     }
 
@@ -24,7 +24,7 @@ data class DocumentState(val documentId: UUID, val content: String) {
         val positionInt = position.toInt()
         val endPositionInt = (position + length).toInt()
         return copy(
-            content = content.substring(0, positionInt) + content.substring(endPositionInt)
+            content = content.take(positionInt) + content.substring(endPositionInt)
         )
     }
 }
