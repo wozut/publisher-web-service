@@ -530,39 +530,37 @@
                 const position = cursorPos - addedTextLength;
                 const addedText = currentContent.substring(position, position + addedTextLength);
 
-                if (addedText) {
-                    if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
-                    const request = {
-                        collaborativeSessionId: localSessionState.id,
-                        collaboratorId: myCollaboratorId,
-                        position: position,
-                        text: addedText,
-                        sequenceNumber: requestSequenceNumber++
-                    };
+                if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+                const request = {
+                    collaborativeSessionId: localSessionState.id,
+                    collaboratorId: myCollaboratorId,
+                    position: position,
+                    text: addedText,
+                    sequenceNumber: requestSequenceNumber++
+                };
 
-                    stompClient.publish({
-                        destination: '/app/add-text',
-                        body: JSON.stringify(request)
-                    })
+                stompClient.publish({
+                    destination: '/app/add-text',
+                    body: JSON.stringify(request)
+                })
 
-                    // Add client-side collaborative event for text addition
-                    const addTextEvent = {
-                        type: "TextAdded",
-                        collaborativeSessionId: localSessionState.id,
-                        collaboratorId: myCollaboratorId,
-                        sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
-                        position: position,
-                        text: addedText,
-                        broadcasted: false
-                    };
-                    processCollaborativeEvent(addTextEvent);
-                    localSessionState.lastCollaborativeEventSequenceNumber++;
-                    updateEventsDisplay();
+                // Add client-side collaborative event for text addition
+                const addTextEvent = {
+                    type: "TextAdded",
+                    collaborativeSessionId: localSessionState.id,
+                    collaboratorId: myCollaboratorId,
+                    sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                    position: position,
+                    text: addedText,
+                    broadcasted: false
+                };
+                processCollaborativeEvent(addTextEvent);
+                localSessionState.lastCollaborativeEventSequenceNumber++;
+                updateEventsDisplay();
 
-                    console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
-                    addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
-                    changeCursorPosition();
-                }
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
+                addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
+                changeCursorPosition();
             } else if (currentContent.length < lastContent.length) {
                 if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
                 const removedLength = lastContent.length - currentContent.length;
