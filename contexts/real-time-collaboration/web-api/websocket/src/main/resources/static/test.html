@@ -465,7 +465,7 @@
 
         // Cursor position tracking
         function changeCursorPosition() {
-/*            if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+            if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
             const textarea = document.getElementById('documentContent');
             const newPosition = textarea.selectionStart;
@@ -473,7 +473,7 @@
 
             document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
 
-            const request = {
+            /*            const request = {
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
                 newPosition: newPosition,
@@ -487,19 +487,19 @@
 
             // Add client-side collaborative event for cursor position change
             const cursorEvent = {
-                type: "CursorPositionChanged",
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
-                newPosition: newPosition,
-                broadcasted: false
-            };
-            processCollaborativeEvent(cursorEvent);
-            localSessionState.lastCollaborativeEventSequenceNumber++;
-            updateEventsDisplay();
+                            type: "CursorPositionChanged",
+                            collaborativeSessionId: localSessionState.id,
+                            collaboratorId: myCollaboratorId,
+                            sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                            newPosition: newPosition,
+                            broadcasted: false
+                        };
+                        processCollaborativeEvent(cursorEvent);
+                        localSessionState.lastCollaborativeEventSequenceNumber++;
+                        updateEventsDisplay();*/
 
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
-            myCursorPosition = newPosition;*/
+            myCursorPosition = newPosition;
         }
 
         // Event listeners
