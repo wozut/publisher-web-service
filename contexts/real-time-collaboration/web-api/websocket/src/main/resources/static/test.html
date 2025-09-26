@@ -260,7 +260,7 @@
             updateEventsDisplay();
         }
 
-        function insertCollaborativeEvent(event) {
+        function processCollaborativeEvent(event) {
             if (event.sequenceNumber === undefined || event.sequenceNumber === null ||
                 typeof event.sequenceNumber !== 'number' || event.sequenceNumber < 0) {
                 throw new Error('Event sequence number must be a number greater than or equal to 0');
@@ -422,7 +422,7 @@
                 try {
                     const collaborativeEvent = JSON.parse(message.body);
 
-                    insertCollaborativeEvent(collaborativeEvent);
+                    processCollaborativeEvent(collaborativeEvent);
 
                     addMessage(`Received event: ${collaborativeEvent.type} (seq: ${collaborativeEvent.sequenceNumber})`, 'event');
                     updateEventsDisplay();
@@ -487,7 +487,7 @@
                 newPosition: newPosition,
                 broadcasted: false
             };
-            insertCollaborativeEvent(cursorEvent);
+            processCollaborativeEvent(cursorEvent);
             localSessionState.lastCollaborativeEventSequenceNumber++;
             updateEventsDisplay();
 
@@ -551,7 +551,7 @@
                         text: addedText,
                         broadcasted: false
                     };
-                    insertCollaborativeEvent(addTextEvent);
+                    processCollaborativeEvent(addTextEvent);
                     localSessionState.lastCollaborativeEventSequenceNumber++;
                     updateEventsDisplay();
 
@@ -588,7 +588,7 @@
                     length: removedLength,
                     broadcasted: false
                 };
-                insertCollaborativeEvent(removeTextEvent);
+                processCollaborativeEvent(removeTextEvent);
                 localSessionState.lastCollaborativeEventSequenceNumber++;
                 updateEventsDisplay();
 
