@@ -525,11 +525,12 @@
             const currentContent = e.target.value;
             const cursorPos = e.target.selectionStart;
 
-            // Simple diff to detect changes
+            // Diff to detect changes at any position using cursor positions
             if (currentContent.length > lastContent.length) {
-                // Text was added
-                const addedText = currentContent.slice(lastContent.length);
-                const position = lastContent.length;
+                // Text was added at the previous cursor position
+                const addedTextLength = currentContent.length - lastContent.length;
+                const position = cursorPos - addedTextLength;
+                const addedText = currentContent.substr(position, addedTextLength);
 
                 if (addedText) {
                     if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
