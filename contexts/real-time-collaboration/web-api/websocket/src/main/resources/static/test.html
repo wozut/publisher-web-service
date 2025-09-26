@@ -218,6 +218,7 @@
         let myCursorPosition = null;
         let requestSequenceNumber = 0;
         let collaborativeEvents = [];
+        let lastCollaborativeEventSequenceNumber = null;
 
         // Utility functions
         function addMessage(message, type = 'info') {
@@ -320,7 +321,7 @@
                     <div><strong>Session ID:</strong> ${localSessionState.id}</div>
                     <div><strong>Document ID:</strong> ${currentDocumentId}</div>
                     <div><strong>Document Length:</strong> ${localSessionState.documentState.content.length} chars</div>
-                    <div><strong>Sequence:</strong> ${localSessionState.lastCollaborativeEventSequenceNumber}</div>
+                    <div><strong>Sequence:</strong> ${lastCollaborativeEventSequenceNumber}</div>
                 `;
             } else {
                 info.textContent = isConnected ? 'Connected but not joined' : 'Not connected';
@@ -447,6 +448,7 @@
                 if (myCollaboratorState) {
                     myCollaboratorId = myCollaboratorState.collaboratorId;
                 }
+                lastCollaborativeEventSequenceNumber = localSessionState.lastCollaborativeEventSequenceNumber
                 addMessage('Received session state update', 'success');
                 updateDocumentContent();
                 updateUI();
@@ -490,12 +492,12 @@
                             type: "CursorPositionChanged",
                             collaborativeSessionId: localSessionState.id,
                             collaboratorId: myCollaboratorId,
-                            sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                            sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
                             newPosition: newPosition,
                             broadcasted: false
                         };
                         processCollaborativeEvent(cursorEvent);
-                        localSessionState.lastCollaborativeEventSequenceNumber++;
+                        lastCollaborativeEventSequenceNumber++;
                         updateEventsDisplay();*/
 
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
@@ -549,13 +551,13 @@
                     type: "TextAdded",
                     collaborativeSessionId: localSessionState.id,
                     collaboratorId: myCollaboratorId,
-                    sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                    sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
                     position: position,
                     text: addedText,
                     broadcasted: false
                 };
                 processCollaborativeEvent(addTextEvent);
-                localSessionState.lastCollaborativeEventSequenceNumber++;
+                lastCollaborativeEventSequenceNumber++;
                 updateEventsDisplay();
 
                 console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
@@ -584,13 +586,13 @@
                     type: "TextRemoved",
                     collaborativeSessionId: localSessionState.id,
                     collaboratorId: myCollaboratorId,
-                    sequenceNumber: localSessionState.lastCollaborativeEventSequenceNumber + 1,
+                    sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
                     position: position,
                     length: removedLength,
                     broadcasted: false
                 };
                 processCollaborativeEvent(removeTextEvent);
-                localSessionState.lastCollaborativeEventSequenceNumber++;
+                lastCollaborativeEventSequenceNumber++;
                 updateEventsDisplay();
 
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
