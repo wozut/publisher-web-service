@@ -522,6 +522,9 @@
                             newPosition: newPosition,
                             broadcasted: false
                         };
+            /* TODO crear evento y pasar a processCollaborativeEvent
+             * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
+             */
             processCollaborativeEvent(cursorEvent);
             lastCollaborativeEventSequenceNumber++;
             updateEventsDisplay();
