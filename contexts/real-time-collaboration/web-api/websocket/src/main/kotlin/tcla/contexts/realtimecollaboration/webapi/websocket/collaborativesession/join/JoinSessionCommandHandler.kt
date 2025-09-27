@@ -46,7 +46,7 @@ class JoinSessionCommandHandler(
             collaboratorId = collaboratorId,
             collaborativeSessionId = updatedCollaborativeSession.id,
             sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
-            broadcasted = false,
+            broadcasted = true,
         )
         collaborativeEventRepository.create(collaboratorJoined)
 
