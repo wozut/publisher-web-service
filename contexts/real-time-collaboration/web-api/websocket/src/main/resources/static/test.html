@@ -262,6 +262,24 @@
         }
 
         function processCollaborativeEvent(event) {
+            /* TODO crear evento y pasar a processCollaborativeEvent
+ * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
+ */
+
+/*            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
+
+            const request = {
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: myCollaboratorId,
+                newPosition: newPosition,
+                sequenceNumber: requestSequenceNumber++
+            };
+
+            stompClient.publish({
+                destination: '/app/change-cursor-position',
+                body: JSON.stringify(request)
+            })*/
+
             const eventSequenceNumber = event.sequenceNumber;
             if (eventSequenceNumber === undefined || eventSequenceNumber === null ||
                 typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0) {
@@ -482,54 +500,30 @@
             }
         }
 
-        function updateMyCursorPosition() {
-            const textarea = document.getElementById('documentContent');
-            const newPosition = textarea.selectionStart;
-            if(myCursorPosition === newPosition) return;
-
-            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
-
+        function updateMyCursorPosition(newPosition) {
             myCursorPosition = newPosition;
         }
 
-        function sentChangeCursorPosition() {
+        function sentChangeCursorPosition(newPosition) {
             if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
-            const textarea = document.getElementById('documentContent');
-            const newPosition = textarea.selectionStart;
-            if(myCursorPosition === newPosition) return;
+            processChangeLocalCursorPosition(newPosition);
 
-            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
+            updateEventsDisplay();
+            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
+        }
 
-            const request = {
-                collaborativeSessionId: localSessionState.id,
-                collaboratorId: myCollaboratorId,
-                newPosition: newPosition,
-                sequenceNumber: requestSequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/change-cursor-position',
-                body: JSON.stringify(request)
-            })
-
+        function processChangeLocalCursorPosition(newPosition) {
             // Add client-side collaborative event for cursor position change
             const cursorEvent = {
-                            type: "CursorPositionChanged",
-                            collaborativeSessionId: localSessionState.id,
-                            collaboratorId: myCollaboratorId,
-                            sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
-                            newPosition: newPosition,
-                            broadcasted: false
-                        };
-            /* TODO crear evento y pasar a processCollaborativeEvent
-             * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
-             */
+                type: "CursorPositionChanged",
+                collaborativeSessionId: localSessionState.id,
+                collaboratorId: myCollaboratorId,
+                // sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
+                newPosition: newPosition,
+                broadcasted: false
+            };
             processCollaborativeEvent(cursorEvent);
-            lastCollaborativeEventSequenceNumber++;
-            updateEventsDisplay();
-
-            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
         }
 
         // Event listeners
@@ -542,8 +536,11 @@
         });*/
 
         document.getElementById('documentContent').addEventListener('click', function() {
-            updateMyCursorPosition();
-            sentChangeCursorPosition();
+            const textarea = document.getElementById('documentContent');
+            const newPosition = textarea.selectionStart;
+            if(myCursorPosition === newPosition) return;
+            updateMyCursorPosition(newPosition);
+            sentChangeCursorPosition(newPosition);
         });
 
 /*        document.getElementById('documentContent').addEventListener('keyup', function() {
