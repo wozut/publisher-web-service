@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
     collaborativeEvents,
     eventIsRemote,
@@ -11,6 +11,25 @@ describe('Collaborative Events', () => {
     beforeEach(() => {
         clearEvents();
         jest.clearAllMocks();
+    });
+
+    afterEach(() => {
+        // Clean up after each test to prevent interference
+        clearEvents();
+        jest.clearAllMocks();
+
+        // Call the global cleanup function if available
+        if (global.jsdomCleanup) {
+            global.jsdomCleanup();
+        }
+
+        // Ensure globals are properly restored if any test modified them
+        if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+            // Reset any event listeners or DOM state that might persist
+            if (document.body) {
+                document.body.innerHTML = '';
+            }
+        }
     });
 
     describe('Event Type Detection', () => {
@@ -156,17 +175,20 @@ describe('Collaborative Events', () => {
         });
 
         test('should not call updateEventsDisplay in non-browser environment', () => {
+            // Mock the browser environment check instead of deleting globals
             const originalWindow = global.window;
             const originalDocument = global.document;
 
-            delete global.window;
-            delete global.document;
+            // Temporarily set to undefined instead of deleting
+            global.window = undefined;
+            global.document = undefined;
 
             insertEvent(0, { sequenceNumber: 1, broadcasted: true });
 
             expect(() => clearEvents()).not.toThrow();
             expect(collaborativeEvents).toHaveLength(0);
 
+            // Restore original values
             global.window = originalWindow;
             global.document = originalDocument;
         });

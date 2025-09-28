@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import {
     collaborativeEvents,
     findInsertionPosition,
@@ -10,6 +10,16 @@ import {
 describe('Binary Search Insertion', () => {
     beforeEach(() => {
         clearEvents();
+    });
+
+    afterEach(() => {
+        // Clean up after each test to prevent interference
+        clearEvents();
+
+        // Call the global cleanup function if available
+        if (global.jsdomCleanup) {
+            global.jsdomCleanup();
+        }
     });
 
     describe('findInsertionPosition', () => {
