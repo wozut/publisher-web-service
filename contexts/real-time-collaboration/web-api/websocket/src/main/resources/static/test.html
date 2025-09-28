@@ -594,13 +594,12 @@
                     type: "TextAdded",
                     collaborativeSessionId: sessionStateSnapshot.id,
                     collaboratorId: myCollaboratorId,
-                    sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
+                    sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
                     position: position,
                     text: addedText,
                     broadcasted: false
                 };
                 processCollaborativeEvent(addTextEvent);
-                lastCollaborativeEventSequenceNumber++;
                 updateEventsDisplay();
 
                 console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
@@ -629,13 +628,12 @@
                     type: "TextRemoved",
                     collaborativeSessionId: sessionStateSnapshot.id,
                     collaboratorId: myCollaboratorId,
-                    sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
+                    sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
                     position: position,
                     length: removedLength,
                     broadcasted: false
                 };
                 processCollaborativeEvent(removeTextEvent);
-                lastCollaborativeEventSequenceNumber++;
                 updateEventsDisplay();
 
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
