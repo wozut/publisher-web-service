@@ -269,6 +269,27 @@
             return !eventIsRemote(event);
         }
 
+        function findInsertionPosition(eventSequenceNumber) {
+            let left = 0;
+            let right = collaborativeEvents.length;
+
+            while (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                const midSequenceNumber = collaborativeEvents[mid].sequenceNumber;
+
+                if (midSequenceNumber < eventSequenceNumber) {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+            return left;
+        }
+
+        function insertEvent(insertionPosition, event) {
+            collaborativeEvents.splice(insertionPosition, 0, event);
+        }
+
         function processCollaborativeEvent(event) {
             /* TODO crear evento y pasar a processCollaborativeEvent
  * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
@@ -312,28 +333,11 @@
                 throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
             }*/
 
-
-
             if(isLocal) {
 
             }
-
-            // Busqueda binaria para encontrar posición de inserción manteniendo ordenación ascendente por sequenceNumber
-            let left = 0;
-            let right = collaborativeEvents.length;
-
-            while (left < right) {
-                const mid = Math.floor((left + right) / 2);
-                const midSequenceNumber = collaborativeEvents[mid].sequenceNumber;
-
-                if (midSequenceNumber < eventSequenceNumber) {
-                    left = mid + 1;
-                } else {
-                    right = mid;
-                }
-            }
-
-            collaborativeEvents.splice(left, 0, event);
+            let insertionPosition = findInsertionPosition(eventSequenceNumber);
+            insertEvent(insertionPosition, event);
         }
 
         function updateUI() {
