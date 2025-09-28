@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Tests for collaborative editor WebSocket functionality",
   "type": "module",
+  "engines": {
+    "node": "22.19.0"
+  },
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
@@ -16,7 +19,9 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
     "testMatch": [
       "<rootDir>/tests/**/*.test.js"
     ]
