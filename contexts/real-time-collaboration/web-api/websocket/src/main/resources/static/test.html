@@ -261,6 +261,14 @@
             updateEventsDisplay();
         }
 
+        function eventIsRemote(event) {
+            return event.broadcasted !== undefined && event.broadcasted !== null ? event.broadcasted : throw new Error("event.broadcasted is undefined or null");
+        }
+
+        function eventIsLocal(event) {
+            return !eventIsRemote(event);
+        }
+
         function processCollaborativeEvent(event) {
             /* TODO crear evento y pasar a processCollaborativeEvent
  * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
@@ -279,15 +287,24 @@
                 destination: '/app/change-cursor-position',
                 body: JSON.stringify(request)
             })*/
-            const sourceEvent = event.broadcasted ? "remote" : "local";
-
-            const isRemote = sourceEvent === "remote";
-            const isLocal = sourceEvent === "local";
-
+            const isRemote = eventIsRemote(event);
+            const isLocal = eventIsLocal(event);
             const eventSequenceNumber = event.sequenceNumber;
+
             if (isRemote && (eventSequenceNumber === undefined || eventSequenceNumber === null ||
                 typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0)) {
                 throw new Error('Event sequence number must be a number greater than or equal to 0');
+            }
+
+            if(isRemote) {
+                const existingRemoteEvent = collaborativeEvents.some(e =>
+                    eventIsRemote(e) && e.sequenceNumber === eventSequenceNumber
+                );
+
+                if (existingRemoteEvent) {
+                    console.log(`Remote event with sequence number ${eventSequenceNumber} already exists, skipping insertion`);
+                    return;
+                }
             }
 
 
@@ -295,9 +312,7 @@
                 throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
             }*/
 
-            if(isRemote) {
 
-            }
 
             if(isLocal) {
 
