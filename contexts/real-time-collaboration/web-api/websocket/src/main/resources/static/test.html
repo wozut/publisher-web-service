@@ -279,20 +279,21 @@
                 destination: '/app/change-cursor-position',
                 body: JSON.stringify(request)
             })*/
-
-            const eventSequenceNumber = event.sequenceNumber;
-            if (eventSequenceNumber === undefined || eventSequenceNumber === null ||
-                typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0) {
-                throw new Error('Event sequence number must be a number greater than or equal to 0');
-            }
             const sourceEvent = event.broadcasted ? "remote" : "local";
 
             const isRemote = sourceEvent === "remote";
             const isLocal = sourceEvent === "local";
 
-            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
-                throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
+            const eventSequenceNumber = event.sequenceNumber;
+            if (isRemote && (eventSequenceNumber === undefined || eventSequenceNumber === null ||
+                typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0)) {
+                throw new Error('Event sequence number must be a number greater than or equal to 0');
             }
+
+
+/*            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
+                throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
+            }*/
 
             if(isRemote) {
 
@@ -318,8 +319,6 @@
             }
 
             collaborativeEvents.splice(left, 0, event);
-
-            updateLastCollaborativeEventSequenceNumber(eventSequenceNumber)
         }
 
         function updateUI() {
@@ -477,7 +476,7 @@
                 if (myCollaboratorState) {
                     myCollaboratorId = myCollaboratorState.collaboratorId;
                 }
-                updateLastCollaborativeEventSequenceNumber(localSessionState.lastCollaborativeEventSequenceNumber)
+                // updateLastCollaborativeEventSequenceNumber(localSessionState.lastCollaborativeEventSequenceNumber)
                 addMessage('Received session state update', 'success');
                 setInitialDocumentContent();
                 //si en este momento
@@ -494,11 +493,11 @@
             updateUI();
         }
 
-        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
+/*        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
             if(lastCollaborativeEventSequenceNumber === undefined || sequenceNumber > lastCollaborativeEventSequenceNumber) {
                 lastCollaborativeEventSequenceNumber = sequenceNumber
             }
-        }
+        }*/
 
         function updateMyCursorPosition(newPosition) {
             myCursorPosition = newPosition;
@@ -507,19 +506,22 @@
         function sentChangeCursorPosition(newPosition) {
             if (!stompClient || !localSessionState || !localSessionState.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
 
-            processChangeLocalCursorPosition(newPosition);
+            addCursorPositionChangedEvent(newPosition);
 
             updateEventsDisplay();
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
         }
 
-        function processChangeLocalCursorPosition(newPosition) {
-            // Add client-side collaborative event for cursor position change
+        function incrementAndGetLastCollaborativeEventSequenceNumber() {
+            return ++lastCollaborativeEventSequenceNumber
+        }
+
+        function addCursorPositionChangedEvent(newPosition) {
             const cursorEvent = {
                 type: "CursorPositionChanged",
                 collaborativeSessionId: localSessionState.id,
                 collaboratorId: myCollaboratorId,
-                // sequenceNumber: lastCollaborativeEventSequenceNumber + 1,
+                sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
                 newPosition: newPosition,
                 broadcasted: false
             };
