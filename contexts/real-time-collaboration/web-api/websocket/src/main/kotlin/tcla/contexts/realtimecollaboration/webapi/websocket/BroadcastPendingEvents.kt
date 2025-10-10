@@ -12,7 +12,7 @@ class BroadcastPendingEvents(
     private val collaborativeEventRepository: CollaborativeEventRepository,
     private val collaborativeSessionRepository: CollaborativeSessionRepository,
 ) {
-    @Scheduled(fixedDelay = 100L, initialDelay = 100L, timeUnit = java.util.concurrent.TimeUnit.MILLISECONDS)
+    @Scheduled(fixedDelay = 1L, initialDelay = 1L, timeUnit = java.util.concurrent.TimeUnit.MILLISECONDS)
     @Synchronized
     fun execute() {
         val oldestPendingEvent: CollaborativeEvent =

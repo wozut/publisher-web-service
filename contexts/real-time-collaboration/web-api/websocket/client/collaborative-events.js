@@ -97,20 +97,6 @@ function processCollaborativeEvent(event) {
     /* TODO crear evento y pasar a processCollaborativeEvent
 * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
 */
-
-    /*            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
-
-                const request = {
-                    collaborativeSessionId: sessionStateSnapshot.id,
-                    collaboratorId: myCollaboratorId,
-                    newPosition: newPosition,
-                    sequenceNumber: requestSequenceNumber++
-                };
-
-                stompClient.publish({
-                    destination: '/app/change-cursor-position',
-                    body: JSON.stringify(request)
-                })*/
     const isRemote = eventIsRemote(event);
     const isLocal = eventIsLocal(event);
     const eventSequenceNumber = event.sequenceNumber;
@@ -131,6 +117,8 @@ function processCollaborativeEvent(event) {
         }
     }
 
+    if(isRemote) return;
+
 
     /*            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
                     throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
@@ -139,8 +127,53 @@ function processCollaborativeEvent(event) {
     if(isLocal) {
 
     }
+
     let insertionPosition = findInsertionPosition(eventSequenceNumber);
     insertEvent(insertionPosition, event);
+
+    if(event.type === "CursorPositionChanged") {
+        const request = {
+            collaborativeSessionId: sessionStateSnapshot.id,
+            collaboratorId: myCollaboratorId,
+            newPosition: event.position,
+            sequenceNumber: requestSequenceNumber++
+        };
+
+        stompClient.publish({
+            destination: '/app/change-cursor-position',
+            body: JSON.stringify(request)
+        })
+    }
+
+    if(event.type === "TextAdded") {
+        const request = {
+            collaborativeSessionId: sessionStateSnapshot.id,
+            collaboratorId: myCollaboratorId,
+            position: event.position,
+            text: event.text,
+            sequenceNumber: requestSequenceNumber++
+        };
+
+        stompClient.publish({
+            destination: '/app/add-text',
+            body: JSON.stringify(request)
+        })
+    }
+
+    if(event.type === "TextRemoved") {
+        const request = {
+            collaborativeSessionId: sessionStateSnapshot.id,
+            collaboratorId: myCollaboratorId,
+            position: event.position,
+            length: event.length,
+            sequenceNumber: requestSequenceNumber++
+        };
+
+        stompClient.publish({
+            destination: '/app/remove-text',
+            body: JSON.stringify(request)
+        })
+    }
 }
 
 function updateUI() {
@@ -345,8 +378,8 @@ function sentChangeCursorPosition(newPosition) {
 
     addCursorPositionChangedEvent(newPosition);
 
+    document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
     updateEventsDisplay();
-    console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
 }
 
 function incrementAndGetLastCollaborativeEventSequenceNumber() {
@@ -354,7 +387,7 @@ function incrementAndGetLastCollaborativeEventSequenceNumber() {
 }
 
 function addCursorPositionChangedEvent(newPosition) {
-    const cursorEvent = {
+    const cursorPositionChangedEvent = {
         type: "CursorPositionChanged",
         collaborativeSessionId: sessionStateSnapshot.id,
         collaboratorId: myCollaboratorId,
@@ -362,7 +395,33 @@ function addCursorPositionChangedEvent(newPosition) {
         newPosition: newPosition,
         broadcasted: false
     };
-    processCollaborativeEvent(cursorEvent);
+    processCollaborativeEvent(cursorPositionChangedEvent);
+}
+
+function addTextAddedEvent(position, addedText) {
+    const textAddedEvent = {
+        type: "TextAdded",
+        collaborativeSessionId: sessionStateSnapshot.id,
+        collaboratorId: myCollaboratorId,
+        sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
+        position: position,
+        text: addedText,
+        broadcasted: false
+    };
+    processCollaborativeEvent(textAddedEvent);
+}
+
+function addTextRemovedEvent(position, removedLength) {
+    const removeTextEvent = {
+        type: "TextRemoved",
+        collaborativeSessionId: sessionStateSnapshot.id,
+        collaboratorId: myCollaboratorId,
+        sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
+        position: position,
+        length: removedLength,
+        broadcasted: false
+    };
+    processCollaborativeEvent(removeTextEvent);
 }
 
 // Helper function for text operations
@@ -378,6 +437,7 @@ function setupEventListeners() {
         if(myCursorPosition === newPosition) return;
         updateMyCursorPosition(newPosition);
         sentChangeCursorPosition(newPosition);
+        //processCollaborativeEvent();
     });
 
     // Auto-detect text operations from textarea
@@ -392,30 +452,8 @@ function setupEventListeners() {
             const addedText = currentContent.substring(position, position + addedTextLength);
 
             if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
-            const request = {
-                collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
-                position: position,
-                text: addedText,
-                sequenceNumber: requestSequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/add-text',
-                body: JSON.stringify(request)
-            })
-
             // Add client-side collaborative event for text addition
-            const addTextEvent = {
-                type: "TextAdded",
-                collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
-                sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
-                position: position,
-                text: addedText,
-                broadcasted: false
-            };
-            processCollaborativeEvent(addTextEvent);
+            addTextAddedEvent(position, addedText);
             updateEventsDisplay();
 
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
@@ -424,31 +462,7 @@ function setupEventListeners() {
             if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
             const removedLength = lastContent.length - currentContent.length;
             const position = cursorPos;
-
-            const request = {
-                collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
-                position: position,
-                length: removedLength,
-                sequenceNumber: requestSequenceNumber++
-            };
-
-            stompClient.publish({
-                destination: '/app/remove-text',
-                body: JSON.stringify(request)
-            })
-
-            // Add client-side collaborative event for text removal
-            const removeTextEvent = {
-                type: "TextRemoved",
-                collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
-                sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
-                position: position,
-                length: removedLength,
-                broadcasted: false
-            };
-            processCollaborativeEvent(removeTextEvent);
+            addTextRemovedEvent(position, removedLength);
             updateEventsDisplay();
 
             addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
