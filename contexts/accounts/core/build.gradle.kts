@@ -22,6 +22,6 @@ dependencies {
     implementation(project(":contexts:authentication:core"))
 
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
-    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
+    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:${Versions.ARROW}"))
     testFixturesImplementation("io.arrow-kt:arrow-core")
 }

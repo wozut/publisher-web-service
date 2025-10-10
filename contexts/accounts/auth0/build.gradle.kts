@@ -20,7 +20,7 @@ dependencies {
     }
     implementation("org.springframework:spring-beans")
 
-    implementation("com.auth0:auth0:2.24.0")
+    implementation("com.auth0:auth0:${Versions.AUTH0_SDK}")
     implementation(project(":libraries:ok-http"))
     implementation(project(":libraries:jsonserialization"))
     implementation(project(":contexts:accounts:core"))

@@ -10,4 +10,12 @@ object Versions {
     const val JUNIT_PLATFORM = "1.13.4"
     const val ASSERTJ = "3.27.4"
     const val MOCKK = "1.14.5"
+    const val MOSHI = "1.15.2"
+    const val AUTH0_JWT = "4.5.0"
+    const val AUTH0_JWKS_RSA = "0.23.0"
+    const val AUTH0_SDK = "2.24.0"
+    const val OKHTTP_BOM = "4.12.0"
+    const val CUCUMBER = "7.14.0"
+    const val SPRING_MOCKK = "4.0.2"
+    const val APACHE_POI = "5.4.1"
 }

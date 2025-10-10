@@ -40,7 +40,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("com.ninja-squad:springmockk:${Versions.SPRING_MOCKK}")
     testImplementation(testFixtures(project(":contexts:tcla:core")))
     testImplementation(testFixtures(project(":libraries:time")))
 

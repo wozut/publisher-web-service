@@ -29,11 +29,11 @@ dependencies {
     api(project(":libraries:time"))
 
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("io.cucumber:cucumber-java8:7.14.0")
-    testImplementation("io.cucumber:cucumber-java:7.14.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
+    testImplementation("io.cucumber:cucumber-java8:${Versions.CUCUMBER}")
+    testImplementation("io.cucumber:cucumber-java:${Versions.CUCUMBER}")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:${Versions.CUCUMBER}")
 
-    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
+    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:${Versions.ARROW}"))
     testFixturesImplementation("io.arrow-kt:arrow-core")
 }
 
