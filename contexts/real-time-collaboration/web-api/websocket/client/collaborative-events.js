@@ -11,6 +11,10 @@ let myCursorPosition = null;
 let requestSequenceNumber = 0;
 let collaborativeEvents = [];
 let lastCollaborativeEventSequenceNumber = null;
+const textRemovedType = "TextRemoved";
+const textAddedType = "TextAdded";
+const cursorPositionChangedType = "CursorPositionChanged";
+
 
 // Utility functions
 function addMessage(message, type = 'info') {
@@ -131,7 +135,7 @@ function processCollaborativeEvent(event) {
     let insertionPosition = findInsertionPosition(eventSequenceNumber);
     insertEvent(insertionPosition, event);
 
-    if(event.type === "CursorPositionChanged") {
+    if(event.type === cursorPositionChangedType) {
         const request = {
             collaborativeSessionId: sessionStateSnapshot.id,
             collaboratorId: myCollaboratorId,
@@ -145,7 +149,7 @@ function processCollaborativeEvent(event) {
         })
     }
 
-    if(event.type === "TextAdded") {
+    if(event.type === textAddedType) {
         const request = {
             collaborativeSessionId: sessionStateSnapshot.id,
             collaboratorId: myCollaboratorId,
@@ -160,7 +164,8 @@ function processCollaborativeEvent(event) {
         })
     }
 
-    if(event.type === "TextRemoved") {
+
+    if(event.type === textRemovedType) {
         const request = {
             collaborativeSessionId: sessionStateSnapshot.id,
             collaboratorId: myCollaboratorId,
@@ -388,7 +393,7 @@ function incrementAndGetLastCollaborativeEventSequenceNumber() {
 
 function addCursorPositionChangedEvent(newPosition) {
     const cursorPositionChangedEvent = {
-        type: "CursorPositionChanged",
+        type: cursorPositionChangedType,
         collaborativeSessionId: sessionStateSnapshot.id,
         collaboratorId: myCollaboratorId,
         sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
@@ -400,7 +405,7 @@ function addCursorPositionChangedEvent(newPosition) {
 
 function addTextAddedEvent(position, addedText) {
     const textAddedEvent = {
-        type: "TextAdded",
+        type: textAddedType,
         collaborativeSessionId: sessionStateSnapshot.id,
         collaboratorId: myCollaboratorId,
         sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
@@ -412,8 +417,8 @@ function addTextAddedEvent(position, addedText) {
 }
 
 function addTextRemovedEvent(position, removedLength) {
-    const removeTextEvent = {
-        type: "TextRemoved",
+    const textRemovedEvent = {
+        type: textRemovedType,
         collaborativeSessionId: sessionStateSnapshot.id,
         collaboratorId: myCollaboratorId,
         sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
@@ -421,7 +426,7 @@ function addTextRemovedEvent(position, removedLength) {
         length: removedLength,
         broadcasted: false
     };
-    processCollaborativeEvent(removeTextEvent);
+    processCollaborativeEvent(textRemovedEvent);
 }
 
 // Helper function for text operations
@@ -452,12 +457,11 @@ function setupEventListeners() {
             const addedText = currentContent.substring(position, position + addedTextLength);
 
             if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
-            // Add client-side collaborative event for text addition
+
             addTextAddedEvent(position, addedText);
             updateEventsDisplay();
 
-            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
-            addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
+            addMessage(`Auto-sent add-text: "${addedText}" at position ${position}`, 'auto');
         } else if (currentContent.length < lastContent.length) {
             if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
             const removedLength = lastContent.length - currentContent.length;
@@ -465,7 +469,7 @@ function setupEventListeners() {
             addTextRemovedEvent(position, removedLength);
             updateEventsDisplay();
 
-            addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
+            addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position}`, 'auto');
         }
 
         lastContent = currentContent;
