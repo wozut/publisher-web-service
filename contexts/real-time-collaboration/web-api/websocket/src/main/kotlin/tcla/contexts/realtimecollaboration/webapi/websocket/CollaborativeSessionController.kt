@@ -228,16 +228,13 @@ class CollaborativeSessionController(
     // common logic
     @EventListener
     fun onSessionSubscribe(event: SessionSubscribeEvent) {
-//        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
-//        val destination = headerAccessor.destination
-//        val requesterUuid = fromString(extractRequesterId(headerAccessor))
-//        println("SessionSubscribeEvent: destination=$destination, user=${requesterUuid}")
-        // Ejecutar lógica cuando se suscribe a un topic específico
+        // TODO: guardar suscripciones en CollaborativeSession
     }
 
     // common logic
     @EventListener
     fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
+        // TODO: borrar suscripciones de CollaborativeSession
         val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
         val destination = headerAccessor.destination
         val requesterUuid = fromString(extractRequesterId(headerAccessor))
