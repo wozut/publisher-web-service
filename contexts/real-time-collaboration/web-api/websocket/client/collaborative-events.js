@@ -139,7 +139,7 @@ function processCollaborativeEvent(event) {
         const request = {
             collaborativeSessionId: sessionStateSnapshot.id,
             collaboratorId: myCollaboratorId,
-            newPosition: event.position,
+            newPosition: event.newPosition,
             sequenceNumber: requestSequenceNumber++
         };
 
