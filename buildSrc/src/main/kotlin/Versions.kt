@@ -1,5 +1,5 @@
 object Versions {
-    const val KOTLIN = "1.9.25" // also in buildSrc/build.gradle.kts
+    const val KOTLIN = "2.2.20" // also in buildSrc/build.gradle.kts
     const val SPRING_BOOT = "3.5.6"
     const val SPRING_DEPENDENCY_MANAGEMENT = "1.1.7"
     const val ARROW = "2.1.2"
