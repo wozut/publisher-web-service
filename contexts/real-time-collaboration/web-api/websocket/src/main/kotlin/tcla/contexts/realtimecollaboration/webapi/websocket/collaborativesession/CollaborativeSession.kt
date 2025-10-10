@@ -6,15 +6,18 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.SelectedText
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CollaborativeEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextRemoved
+import java.awt.SystemColor.text
 import java.util.*
+import kotlin.collections.toList
 
 data class CollaborativeSession(
     val id: UUID,
     val documentState: DocumentState,
     val collaboratorStates: MutableSet<CollaboratorState>,
-    val lastCollaborativeEventSequenceNumber: Long
+    val lastCollaborativeEventSequenceNumber: Long,
+    val generatedCollaborativeEvents: MutableList<CollaborativeEvent> = mutableListOf()
 ) : CollaborativeEventGenerator {
-    private var generatedCollaborativeEvents = mutableListOf<CollaborativeEvent>()
 
     private fun nextCollaborativeEventSequenceNumber(): Long = lastCollaborativeEventSequenceNumber + 1
 
@@ -67,14 +70,14 @@ data class CollaborativeSession(
 
         generatedCollaborativeEvents.add(textAdded)
 
-        updateAllCursorPositionsAfterTextAdded(position, text.length)
+        updateAllCursorPositionsAfterTextAdded(position, text.length.toLong())
 
         return copy(
             documentState = updatedDocumentState
         ).copyWithEventSequenceNumberIncremented()
     }
 
-    private fun updateAllCursorPositionsAfterTextAdded(position: Long, length: Int) {
+    private fun updateAllCursorPositionsAfterTextAdded(position: Long, length: Long) {
         collaboratorStates.filter {
             if (it.cursorPosition == null) false
             else it.cursorPosition >= position
@@ -83,8 +86,30 @@ data class CollaborativeSession(
         }
     }
 
-    fun removeText(position: Long, length: Long): CollaborativeSession {
+    private fun updateAllCursorPositionsAfterTextRemoved(position: Long, length: Long) {
+        collaboratorStates.filter {
+            if (it.cursorPosition == null) false
+            else it.cursorPosition >= position
+        }.forEach { collaboratorState ->
+            collaboratorState.changeCursorPosition(collaboratorState.cursorPosition!! - length)
+        }
+    }
+
+    fun removeText(collaboratorId: UUID, position: Long, length: Long): CollaborativeSession {
         val updatedDocumentState = documentState.removeText(position, length)
+        val textRemoved = TextRemoved(
+            collaborativeSessionId = id,
+            collaboratorId = collaboratorId,
+            sequenceNumber = nextCollaborativeEventSequenceNumber(),
+            broadcasted = false,
+            position = position,
+            length = length
+        )
+
+        generatedCollaborativeEvents.add(textRemoved)
+
+        updateAllCursorPositionsAfterTextRemoved(position, length)
+
         return copy(
             documentState = updatedDocumentState
         ).copyWithEventSequenceNumberIncremented()

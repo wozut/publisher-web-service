@@ -13,20 +13,17 @@ class RemoveText(
 ) {
     fun execute(request: RemoveTextRequest) {
         val collaborativeSession = collaborativeSessionRepository.findById(request.collaborativeSessionId)
+
         var updatedCollaborativeSession = collaborativeSession.removeText(
+            collaboratorId = request.collaboratorId,
             position = request.position,
             length = request.length
         )
 
         updatedCollaborativeSession = collaborativeSessionRepository.saveChanges(updatedCollaborativeSession)
-        val textRemoved = TextRemoved(
-            collaborativeSessionId = updatedCollaborativeSession.id,
-            collaboratorId = request.collaboratorId,
-            sequenceNumber = updatedCollaborativeSession.lastCollaborativeEventSequenceNumber,
-            broadcasted = false,
-            position = request.position,
-            length = request.length
+
+        collaborativeEventRepository.createAll(
+            collaborativeEvents = updatedCollaborativeSession.popAllGeneratedCollaborativeEvents()
         )
-        collaborativeEventRepository.create(textRemoved)
     }
 }

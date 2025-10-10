@@ -56,7 +56,7 @@ class CollaborativeRequestProcessor(
         }
 
         collaborativeRequest.markAsProcessed()
-        collaborativeRequestRepository.saveChanges(collaborativeRequest)
+        collaborativeRequest = collaborativeRequestRepository.saveChanges(collaborativeRequest)
         println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. CollaborativeRequest: $collaborativeRequest")
     }
 }

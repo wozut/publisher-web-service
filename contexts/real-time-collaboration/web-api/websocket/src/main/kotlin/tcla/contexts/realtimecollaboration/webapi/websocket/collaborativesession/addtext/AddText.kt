@@ -12,8 +12,7 @@ class AddText(
     private val collaborativeEventRepository: CollaborativeEventRepository,
 ) {
     fun execute(request: AddTextRequest) {
-        val collaborativeSession: CollaborativeSession =
-            collaborativeSessionRepository.findById(request.collaborativeSessionId)
+        val collaborativeSession = collaborativeSessionRepository.findById(request.collaborativeSessionId)
 
         var updatedCollaborativeSession = collaborativeSession.addText(
             collaboratorId = request.collaboratorId,
