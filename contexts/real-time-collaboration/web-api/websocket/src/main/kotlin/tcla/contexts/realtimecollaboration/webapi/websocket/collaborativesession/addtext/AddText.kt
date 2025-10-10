@@ -2,7 +2,6 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesessio
 
 import org.springframework.stereotype.Service
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.AddTextRequest
 

@@ -1,10 +1,9 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.removetext
 
 import org.springframework.stereotype.Service
-import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.CollaborativeEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.collaborativesession.CollaborativeSessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextRemoved
+import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextRequest
 
 @Service
 class RemoveText(
