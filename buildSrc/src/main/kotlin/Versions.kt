@@ -1,0 +1,13 @@
+object Versions {
+    const val KOTLIN = "1.9.25" // also in buildSrc/build.gradle.kts
+    const val SPRING_BOOT = "3.5.6"
+    const val SPRING_DEPENDENCY_MANAGEMENT = "1.1.7"
+    const val ARROW = "2.1.2"
+    const val GSON = "2.13.1"
+    const val JAKARTA_INJECT = "2.0.1"
+    const val SLF4J = "2.0.9"
+    const val JUNIT = "5.9.1"
+    const val JUNIT_PLATFORM = "1.13.4"
+    const val ASSERTJ = "3.27.4"
+    const val MOCKK = "1.14.5"
+}
