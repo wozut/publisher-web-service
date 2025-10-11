@@ -342,7 +342,6 @@ function joinDocument(options) {
             addMessage('Error parsing session event: ' + error.message, 'error');
         }
     });
-
     // Subscribe to session state
     subscriptionToSessionState = stompClient.subscribe(`/user/${myUserId}/queue/session-state/${docId}`, function (message) {
         console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/session-state/${docId}) Message received: ${message.body}`);
@@ -360,20 +359,10 @@ function joinDocument(options) {
     });
 
     if (!stompClient) throw new Error('Client not connected');
-    stompClient.publish({
-        destination: '/app/join-session/' + docId,
-        body: JSON.stringify({})
-    })
 
     addMessage('Joined document: ' + docId, 'success');
     updateUI();
 }
-
-/*        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
-            if(lastCollaborativeEventSequenceNumber === undefined || sequenceNumber > lastCollaborativeEventSequenceNumber) {
-                lastCollaborativeEventSequenceNumber = sequenceNumber
-            }
-        }*/
 
 function updateMyCursorPosition(newPosition) {
     myCursorPosition = newPosition;

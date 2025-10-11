@@ -1,7 +1,6 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket
 
 import org.springframework.context.event.EventListener
-import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
@@ -10,94 +9,36 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.messages.*
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.addtext.AddTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.addtext.AddTextCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.selecttext.SelectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.selecttext.SelectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.findbydocumentid.FindSessionByDocumentIdQueryHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.AddTextMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.ChangeCursorPositionMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.SelectTextMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.DeselectTextMessage
-import tcla.contexts.realtimecollaboration.webapi.websocket.messages.RemoveTextMessage
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.send.SendSessionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.send.SendSessionCommandHandler
 import java.util.UUID.fromString
 
 @Controller
 class SessionController(
-    private val findSessionByDocumentIdQueryHandler: FindSessionByDocumentIdQueryHandler,
     private val joinSessionCommandHandler: JoinSessionCommandHandler,
     private val leaveSessionCommandHandler: LeaveSessionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
     private val removeTextCommandHandler: RemoveTextCommandHandler,
     private val selectTextCommandHandler: SelectTextCommandHandler,
-    private val deselectTextCommandHandler: DeselectTextCommandHandler
+    private val deselectTextCommandHandler: DeselectTextCommandHandler,
+    private val sendSessionCommandHandler: SendSessionCommandHandler,
 ) {
-
-    //TODO: change to "/updates/{collaborativeSessionId}"
-    /*TODO: no funciona porque el cliente no se esta suscribiendo a /topic/updates/{documentId}
-     *  sino a /app/updates/{documentId}
-     * Posibles Soluciones:
-     * - Dos suscripciones diferentes: /topic/updates/{documentId} y /app/updates/{documentId}
-     * - (Mejor)
-     *      - un mapping (MessageMapping|SendToUser) para que los clientes pidan el estado actual de la sesión
-     *      - @SubscribeMapping("/updates/{documentId}") -> desaparece
-     */
-/*    @Synchronized
-    @SubscribeMapping("/updates/{documentId}")
-    fun onSubscribeToUpdates(
-        @DestinationVariable documentId: String,
-        headerAccessor: SimpMessageHeaderAccessor,
-    ): CollaborativeSession {
-        val requesterId = extractRequesterId(headerAccessor)
-        val uuid = fromString(requesterId!!)
-
-        val documentUuid = fromString(documentId)
-        println("onSubscribeToUpdates requesterId: $uuid")
-
-        val command =
-            JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
-        joinSessionCommandHandler.execute(command)
-        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
-        val query = FindCollaborativeSessionByDocumentIdQuery(documentId = documentUuid)
-        val collaborativeSession: CollaborativeSession = findCollaborativeSessionByDocumentIdQueryHandler.execute(query)
-
-        return collaborativeSession
-    }*/
-
-    // 1. (client) subscribe /topic/updates/{documentId}
-    // 2. (client) subscribe [/user]/queue/collaborative-session-state/{documentId}
-    // 3. (client) send      /app/join-session/{documentId}
-    // 4. (server) send      /user/{username}/queue/collaborative-session-state/{documentId}
-    // 5. (server) send      /topic/updates/{documentId}
-
-    //TODO: separar este flujo en 2: joinSession y getCollaborativeSessionState
-    @Synchronized
-    @MessageMapping("/join-session/{documentId}")
-    fun joinSession(
-        @DestinationVariable documentId: String,
-        headerAccessor: SimpMessageHeaderAccessor,
-    ) {
-        val requesterId = extractRequesterId(headerAccessor)
-        val uuid = fromString(requesterId!!)
-
-        val documentUuid = fromString(documentId)
-        println("joinSession requesterId: $uuid")
-
-        val command =
-            JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
-        joinSessionCommandHandler.execute(command)
-    }
 
     @Synchronized
     @MessageMapping("/change-cursor-position")
@@ -222,10 +163,33 @@ class SessionController(
 //        println("SessionDisconnectEvent. RequesterId: $requesterUuid")
     }
 
-    // common logic
+    @Synchronized
     @EventListener
     fun onSessionSubscribe(event: SessionSubscribeEvent) {
-        // TODO: guardar suscripciones en CollaborativeSession
+        val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+
+        val destination = headerAccessor.destination
+        val topicUpdatesPrefix = "/topic/updates/"
+        if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
+            val requesterId = extractRequesterId(headerAccessor)
+            val uuid = fromString(requesterId!!)
+
+            val documentId = destination.removePrefix(topicUpdatesPrefix)
+            val documentUuid = fromString(documentId)
+
+            val command =
+                JoinSessionCommand(requesterId = uuid, documentId = documentUuid)
+            joinSessionCommandHandler.execute(command)
+        } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
+            val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
+            val documentUuid = fromString(documentId)
+
+            val requesterId = extractRequesterId(headerAccessor)
+            val requesterUuid = fromString(requesterId!!)
+
+            val command = SendSessionCommand(requesterUuid, documentUuid)
+            sendSessionCommandHandler.handle(command)
+        }
     }
 
     // common logic

@@ -14,8 +14,7 @@ import java.util.UUID
 class JoinSessionCommandHandler(
     private val sessionRepository: SessionRepository,
     private val sessionEventRepository: SessionEventRepository,
-    private val createSession: CreateSession,
-    private val simpMessagingTemplate: SimpMessagingTemplate,
+    private val createSession: CreateSession
 ) {
     fun execute(command: JoinSessionCommand) {
         if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
@@ -49,12 +48,6 @@ class JoinSessionCommandHandler(
             broadcasted = false,
         )
         sessionEventRepository.create(writerJoined)
-
-        simpMessagingTemplate.convertAndSendToUser(
-            writerState.userId.toString(),
-            "/queue/session-state/${updatedSession.documentState.documentId}",
-            updatedSession
-        )
     }
 
 }

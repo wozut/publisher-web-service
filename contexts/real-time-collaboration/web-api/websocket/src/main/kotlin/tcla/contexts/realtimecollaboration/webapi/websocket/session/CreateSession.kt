@@ -13,7 +13,7 @@ class CreateSession(
             id = UUID.randomUUID(),
             documentState = DocumentState(documentId = documentId, content = ""),
             writerStates = mutableSetOf(),
-            lastSessionEventSequenceNumber = 0L
+            lastSessionEventSequenceNumber = -1L
         )
         sessionRepository.create(session)
     }
