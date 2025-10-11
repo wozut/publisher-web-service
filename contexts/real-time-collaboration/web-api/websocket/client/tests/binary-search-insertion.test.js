@@ -1,11 +1,11 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import {
-    collaborativeEvents,
+    sessionEvents,
     findInsertionPosition,
     insertEvent,
-    processCollaborativeEvent,
+    processSessionEvent,
     clearEvents
-} from '../collaborative-events.js';
+} from '../session-events.js';
 
 describe('Binary Search Insertion', () => {
     beforeEach(() => {
@@ -46,17 +46,17 @@ describe('Binary Search Insertion', () => {
                 { sequenceNumber: 2, broadcasted: false }
             ];
 
-            events.forEach(event => processCollaborativeEvent(event));
+            events.forEach(event => processSessionEvent(event));
 
             // Verify array is sorted by sequence number
-            const sequenceNumbers = collaborativeEvents.map(e => e.sequenceNumber);
+            const sequenceNumbers = sessionEvents.map(e => e.sequenceNumber);
             expect(sequenceNumbers).toEqual([1, 2, 3, 5, 7]);
         });
 
         test('should find correct position in sorted array', () => {
             // Setup sorted array: [1, 3, 5, 7, 9]
             [1, 3, 5, 7, 9].forEach(seq => {
-                insertEvent(collaborativeEvents.length, { sequenceNumber: seq });
+                insertEvent(sessionEvents.length, { sequenceNumber: seq });
             });
 
             expect(findInsertionPosition(0)).toBe(0);  // Before all
@@ -70,7 +70,7 @@ describe('Binary Search Insertion', () => {
         test('should handle duplicate sequence numbers correctly', () => {
             // Insert multiple events with the same sequence number
             [1, 3, 3, 3, 5].forEach(seq => {
-                insertEvent(collaborativeEvents.length, { sequenceNumber: seq });
+                insertEvent(sessionEvents.length, { sequenceNumber: seq });
             });
 
             // Should insert at the beginning of the duplicate group
@@ -89,14 +89,14 @@ describe('Binary Search Insertion', () => {
                 { sequenceNumber: 8, broadcasted: false, type: 'Event8' }
             ];
 
-            events.forEach(event => processCollaborativeEvent(event));
+            events.forEach(event => processSessionEvent(event));
 
             const expectedOrder = [1, 5, 8, 10, 15];
-            const actualOrder = collaborativeEvents.map(e => e.sequenceNumber);
+            const actualOrder = sessionEvents.map(e => e.sequenceNumber);
 
             expect(actualOrder).toEqual(expectedOrder);
-            expect(collaborativeEvents[0].type).toBe('Event1');
-            expect(collaborativeEvents[4].type).toBe('Event15');
+            expect(sessionEvents[0].type).toBe('Event1');
+            expect(sessionEvents[4].type).toBe('Event15');
         });
 
         test('should handle mixed remote and local events correctly', () => {
@@ -107,9 +107,9 @@ describe('Binary Search Insertion', () => {
                 { sequenceNumber: 4, broadcasted: false, type: 'Local4' }
             ];
 
-            events.forEach(event => processCollaborativeEvent(event));
+            events.forEach(event => processSessionEvent(event));
 
-            const types = collaborativeEvents.map(e => e.type);
+            const types = sessionEvents.map(e => e.type);
             expect(types).toEqual(['Local1', 'Remote2', 'Remote3', 'Local4']);
         });
     });
@@ -118,7 +118,7 @@ describe('Binary Search Insertion', () => {
         test('should handle large number of events efficiently', () => {
             // Insert 1000 events in reverse order
             for (let i = 999; i >= 0; i--) {
-                processCollaborativeEvent({
+                processSessionEvent({
                     sequenceNumber: i,
                     broadcasted: false,
                     type: `Event${i}`
@@ -126,10 +126,10 @@ describe('Binary Search Insertion', () => {
             }
 
             // Verify all events are in correct order
-            expect(collaborativeEvents).toHaveLength(1000);
+            expect(sessionEvents).toHaveLength(1000);
 
             for (let i = 0; i < 1000; i++) {
-                expect(collaborativeEvents[i].sequenceNumber).toBe(i);
+                expect(sessionEvents[i].sequenceNumber).toBe(i);
             }
         });
     });

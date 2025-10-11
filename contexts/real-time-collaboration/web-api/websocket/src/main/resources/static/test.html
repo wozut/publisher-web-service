@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Collaborative Document Editor</title>
+    <title>Document Editor</title>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js"></script>
     <style>
         body {
@@ -84,7 +84,7 @@
             border: 1px solid #dee2e6;
             margin-bottom: 15px;
         }
-        .collaborator {
+        .writer {
             padding: 5px;
             margin: 2px 0;
             background-color: #e9ecef;
@@ -142,7 +142,7 @@
     </style>
 </head>
 <body>
-    <h1>Collaborative Document Editor</h1>
+    <h1>Document Editor</h1>
 
     <div id="status" class="status disconnected">Disconnected</div>
 
@@ -169,9 +169,9 @@
             <div class="panel">
                 <h4>Session State</h4>
                 <div id="sessionInfo" class="session-info">Not connected</div>
-                <div id="collaboratorsList">
-                    <strong>Collaborators:</strong>
-                    <div id="collaborators">None</div>
+                <div id="writersList">
+                    <strong>Writers:</strong>
+                    <div id="writers">None</div>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@
     <div class="row">
         <div class="col">
             <div class="container">
-                <label>Collaborative Events:</label>
+                <label>Session Events:</label>
                 <div id="eventsContainer" class="events"></div>
                 <button onclick="clearEvents()" class="secondary">Clear Events</button>
             </div>
@@ -212,13 +212,13 @@
         let currentDocumentId = null;
         let sessionStateSnapshot = null;
         let myUserId = null;
-        let myCollaboratorId = null;
+        let myWriterId = null;
         let subscriptionToUpdates = null;
-        let subscriptionToCollaborativeSessionState = null;
+        let subscriptionToSessionState = null;
         let myCursorPosition = null;
         let requestSequenceNumber = 0;
-        let collaborativeEvents = [];
-        let lastCollaborativeEventSequenceNumber = null;
+        let sessionEvents = [];
+        let lastSessionEventSequenceNumber = null;
 
         // Utility functions
         function addMessage(message, type = 'info') {
@@ -236,16 +236,16 @@
 
         function updateEventsDisplay() {
             const eventsContainer = document.getElementById('eventsContainer');
-            if (collaborativeEvents.length === 0) {
+            if (sessionEvents.length === 0) {
                 eventsContainer.innerHTML = '<div style="color: #666; padding: 10px; text-align: center;">No events received yet</div>';
                 return;
             }
 
-            eventsContainer.innerHTML = collaborativeEvents.map(event => `
+            eventsContainer.innerHTML = sessionEvents.map(event => `
                 <div class="event-item">
                     <div><strong>Type:</strong> ${event.type}</div>
                     <div><strong>Seq:</strong> ${event.sequenceNumber || 'N/A'}</div>
-                    <div><strong>Collaborator:</strong> ${event.collaboratorId || 'N/A'}</div>
+                    <div><strong>Writer:</strong> ${event.writerId || 'N/A'}</div>
                     ${event.position !== undefined ? `<div><strong>Position:</strong> ${event.position}</div>` : ''}
                     ${event.text ? `<div><strong>Text:</strong> "${event.text}"</div>` : ''}
                     ${event.length ? `<div><strong>Length:</strong> ${event.length}</div>` : ''}
@@ -257,7 +257,7 @@
         }
 
         function clearEvents() {
-            collaborativeEvents = [];
+            sessionEvents = [];
             updateEventsDisplay();
         }
 
@@ -271,11 +271,11 @@
 
         function findInsertionPosition(eventSequenceNumber) {
             let left = 0;
-            let right = collaborativeEvents.length;
+            let right = sessionEvents.length;
 
             while (left < right) {
                 const mid = Math.floor((left + right) / 2);
-                const midSequenceNumber = collaborativeEvents[mid].sequenceNumber;
+                const midSequenceNumber = sessionEvents[mid].sequenceNumber;
 
                 if (midSequenceNumber < eventSequenceNumber) {
                     left = mid + 1;
@@ -287,19 +287,19 @@
         }
 
         function insertEvent(insertionPosition, event) {
-            collaborativeEvents.splice(insertionPosition, 0, event);
+            sessionEvents.splice(insertionPosition, 0, event);
         }
 
-        function processCollaborativeEvent(event) {
-            /* TODO crear evento y pasar a processCollaborativeEvent
- * processCollaborativeEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
+        function processSessionEvent(event) {
+            /* TODO crear evento y pasar a processSessionEvent
+ * processSessionEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
  */
 
 /*            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
 
             const request = {
                 collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
+                collaboratorId: myWriterId,
                 newPosition: newPosition,
                 sequenceNumber: requestSequenceNumber++
             };
@@ -318,7 +318,7 @@
             }
 
             if(isRemote) {
-                const existingRemoteEvent = collaborativeEvents.some(e =>
+                const existingRemoteEvent = sessionEvents.some(e =>
                     eventIsRemote(e) && e.sequenceNumber === eventSequenceNumber
                 );
 
@@ -329,8 +329,8 @@
             }
 
 
-/*            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
-                throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
+/*            if(isLocal && eventSequenceNumber !== lastSessionEventSequenceNumber + 1) {
+                throw new Error('Local Event Sequence Number must be lastSessionEventSequenceNumber + 1')
             }*/
 
             if(isLocal) {
@@ -358,7 +358,7 @@
             }
 
             updateSessionInfo();
-            updateCollaboratorsList();
+            updateWritersList();
         }
 
         function updateSessionInfo() {
@@ -368,31 +368,31 @@
                     <div><strong>Session ID:</strong> ${sessionStateSnapshot.id}</div>
                     <div><strong>Document ID:</strong> ${currentDocumentId}</div>
                     <div><strong>Document Length:</strong> ${sessionStateSnapshot.documentState.content.length} chars</div>
-                    <div><strong>Sequence:</strong> ${lastCollaborativeEventSequenceNumber}</div>
+                    <div><strong>Sequence:</strong> ${lastSessionEventSequenceNumber}</div>
                 `;
             } else {
                 info.textContent = isConnected ? 'Connected but not joined' : 'Not connected';
             }
         }
 
-        function updateCollaboratorsList() {
-            const collaboratorsDiv = document.getElementById('collaborators');
-            if (sessionStateSnapshot && sessionStateSnapshot.collaboratorStates) {
-                const collaborators = sessionStateSnapshot.collaboratorStates;
-                if (collaborators.length > 0) {
-                    collaboratorsDiv.innerHTML = collaborators.map(collab => `
-                        <div class="collaborator">
-                            <strong>User:</strong> ${collab.userId}<br>
-                            <strong>Cursor:</strong> ${collab.cursorPosition || 'N/A'}<br>
-                            <strong>Selected:</strong> ${collab.selectedText ?
-                                `pos ${collab.selectedText.position}, len ${collab.selectedText.length}` : 'None'}
+        function updateWritersList() {
+            const writersDiv = document.getElementById('writers');
+            if (sessionStateSnapshot && sessionStateSnapshot.writerStates) {
+                const writers = sessionStateSnapshot.writerStates;
+                if (writers.length > 0) {
+                    writersDiv.innerHTML = writers.map(writer => `
+                        <div class="writer">
+                            <strong>User:</strong> ${writer.userId}<br>
+                            <strong>Cursor:</strong> ${writer.cursorPosition || 'N/A'}<br>
+                            <strong>Selected:</strong> ${writer.selectedText ?
+                                `pos ${writer.selectedText.position}, len ${writer.selectedText.length}` : 'None'}
                         </div>
                     `).join('');
                 } else {
-                    collaboratorsDiv.innerHTML = 'None';
+                    writersDiv.innerHTML = 'None';
                 }
             } else {
-                collaboratorsDiv.innerHTML = 'Not joined';
+                writersDiv.innerHTML = 'Not joined';
             }
         }
 
@@ -418,7 +418,7 @@
             }
 
             stompClient = new StompJs.Client({
-                brokerURL: 'ws://localhost:8080/collaborative-session',
+                brokerURL: 'ws://localhost:8080/ession',
                 connectHeaders: {
                     'UserId': myUserId
                 },
@@ -448,9 +448,9 @@
                     subscriptionToUpdates.unsubscribe();
                     subscriptionToUpdates = null;
                 }
-                if (subscriptionToCollaborativeSessionState) {
-                    subscriptionToCollaborativeSessionState.unsubscribe();
-                    subscriptionToCollaborativeSessionState = null;
+                if (subscriptionToSessionState) {
+                    subscriptionToSessionState.unsubscribe();
+                    subscriptionToSessionState = null;
                 }
                 stompClient.deactivate();
             }
@@ -475,27 +475,27 @@
                 console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/topic/updates/${docId}) Message received: ${message.body}`);
 
                 try {
-                    const collaborativeEvent = JSON.parse(message.body);
+                    const sessionEvent = JSON.parse(message.body);
 
-                    processCollaborativeEvent(collaborativeEvent);
+                    processSessionEvent(sessionEvent);
 
-                    addMessage(`Received event: ${collaborativeEvent.type} (seq: ${collaborativeEvent.sequenceNumber})`, 'event');
+                    addMessage(`Received event: ${sessionEvent.type} (seq: ${sessionEvent.sequenceNumber})`, 'event');
                     updateEventsDisplay();
                 } catch (error) {
-                    console.error('Error parsing collaborative event:', error);
-                    addMessage('Error parsing collaborative event: ' + error.message, 'error');
+                    console.error('Error parsing session event:', error);
+                    addMessage('Error parsing session event: ' + error.message, 'error');
                 }
             });
 
             // Subscribe to collaborative session state
-            subscriptionToCollaborativeSessionState = stompClient.subscribe(`/user/${myUserId}/queue/collaborative-session-state/${docId}`, function (message) {
-                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/collaborative-session-state/${docId}) Message received: ${message.body}`);
+            subscriptionToSessionState = stompClient.subscribe(`/user/${myUserId}/queue/session-state/${docId}`, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/session-state/${docId}) Message received: ${message.body}`);
                 sessionStateSnapshot = JSON.parse(message.body);
-                let myCollaboratorState = sessionStateSnapshot.collaboratorStates.find((collaboratorState) => (collaboratorState.userId === myUserId))
-                if (myCollaboratorState) {
-                    myCollaboratorId = myCollaboratorState.collaboratorId;
+                let myWriterState = sessionStateSnapshot.writerStates.find((writerState) => (writerState.userId === myUserId))
+                if (myWriterState) {
+                    myWriterId = myWriterState.writerId;
                 }
-                // updateLastCollaborativeEventSequenceNumber(sessionStateSnapshot.lastCollaborativeEventSequenceNumber)
+                // updateLastCollaborativeEventSequenceNumber(sessionStateSnapshot.lastSessionEventSequenceNumber)
                 addMessage('Received session state update', 'success');
                 setInitialDocumentContent();
                 //si en este momento
@@ -513,8 +513,8 @@
         }
 
 /*        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
-            if(lastCollaborativeEventSequenceNumber === undefined || sequenceNumber > lastCollaborativeEventSequenceNumber) {
-                lastCollaborativeEventSequenceNumber = sequenceNumber
+            if(lastSessionEventSequenceNumber === undefined || sequenceNumber > lastSessionEventSequenceNumber) {
+                lastSessionEventSequenceNumber = sequenceNumber
             }
         }*/
 
@@ -523,7 +523,7 @@
         }
 
         function sentChangeCursorPosition(newPosition) {
-            if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+            if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
 
             addCursorPositionChangedEvent(newPosition);
 
@@ -531,20 +531,20 @@
             console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
         }
 
-        function incrementAndGetLastCollaborativeEventSequenceNumber() {
-            return ++lastCollaborativeEventSequenceNumber
+        function incrementAndGetLastSessionEventSequenceNumber() {
+            return ++lastSessionEventSequenceNumber
         }
 
         function addCursorPositionChangedEvent(newPosition) {
             const cursorEvent = {
                 type: "CursorPositionChanged",
-                collaborativeSessionId: sessionStateSnapshot.id,
-                collaboratorId: myCollaboratorId,
-                sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
+                sessionId: sessionStateSnapshot.id,
+                writerId: myWriterId,
+                sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
                 newPosition: newPosition,
                 broadcasted: false
             };
-            processCollaborativeEvent(cursorEvent);
+            processSessionEvent(cursorEvent);
         }
 
         // Event listeners
@@ -579,10 +579,10 @@
                 const position = cursorPos - addedTextLength;
                 const addedText = currentContent.substring(position, position + addedTextLength);
 
-                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
                 const request = {
-                    collaborativeSessionId: sessionStateSnapshot.id,
-                    collaboratorId: myCollaboratorId,
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
                     position: position,
                     text: addedText,
                     sequenceNumber: requestSequenceNumber++
@@ -596,27 +596,27 @@
                 // Add client-side collaborative event for text addition
                 const addTextEvent = {
                     type: "TextAdded",
-                    collaborativeSessionId: sessionStateSnapshot.id,
-                    collaboratorId: myCollaboratorId,
-                    sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
                     position: position,
                     text: addedText,
                     broadcasted: false
                 };
-                processCollaborativeEvent(addTextEvent);
+                processSessionEvent(addTextEvent);
                 updateEventsDisplay();
 
                 console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
                 addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
                 // updateMyCursorPosition();
             } else if (currentContent.length < lastContent.length) {
-                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myCollaboratorId) throw new Error('Client not connected or session data does not exist');
+                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
                 const removedLength = lastContent.length - currentContent.length;
                 const position = cursorPos;
 
                 const request = {
-                    collaborativeSessionId: sessionStateSnapshot.id,
-                    collaboratorId: myCollaboratorId,
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
                     position: position,
                     length: removedLength,
                     sequenceNumber: requestSequenceNumber++
@@ -630,14 +630,14 @@
                 // Add client-side collaborative event for text removal
                 const removeTextEvent = {
                     type: "TextRemoved",
-                    collaborativeSessionId: sessionStateSnapshot.id,
-                    collaboratorId: myCollaboratorId,
-                    sequenceNumber: incrementAndGetLastCollaborativeEventSequenceNumber(),
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
                     position: position,
                     length: removedLength,
                     broadcasted: false
                 };
-                processCollaborativeEvent(removeTextEvent);
+                processSessionEvent(removeTextEvent);
                 updateEventsDisplay();
 
                 addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');

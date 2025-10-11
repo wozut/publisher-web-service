@@ -1,7 +1,7 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.messages
 
 data class DeselectTextMessage(
-    override val collaborativeSessionId: String,
-    override val collaboratorId: String,
+    override val sessionId: String,
+    override val writerId: String,
     override val sequenceNumber: Long
-): CollaborativeMessage()
+): SessionMessage()

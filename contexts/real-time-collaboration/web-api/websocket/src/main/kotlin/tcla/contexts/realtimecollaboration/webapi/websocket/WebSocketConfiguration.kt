@@ -20,7 +20,7 @@ class WebSocketConfiguration(
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/collaborative-session")
+        registry.addEndpoint("/session")
             .setAllowedOriginPatterns("*")
     }
 

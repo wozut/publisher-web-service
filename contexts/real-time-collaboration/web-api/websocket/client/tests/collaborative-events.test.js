@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
-    collaborativeEvents,
+    sessionEvents,
     eventIsRemote,
     eventIsLocal,
-    processCollaborativeEvent,
+    processSessionEvent,
     clearEvents, insertEvent
-} from '../collaborative-events.js';
+} from '../session-events.js';
 
-describe('Collaborative Events', () => {
+describe('Session Events', () => {
     beforeEach(() => {
         clearEvents();
         jest.clearAllMocks();
@@ -71,31 +71,31 @@ describe('Collaborative Events', () => {
                 text: 'world' // Different content but same sequence number
             };
 
-            processCollaborativeEvent(event1);
-            processCollaborativeEvent(event2); // Should be skipped
+            processSessionEvent(event1);
+            processSessionEvent(event2); // Should be skipped
 
-            expect(collaborativeEvents).toHaveLength(1);
-            expect(collaborativeEvents[0].text).toBe('hello');
+            expect(sessionEvents).toHaveLength(1);
+            expect(sessionEvents[0].text).toBe('hello');
         });
 
         test('should allow different remote events with different sequence numbers', () => {
             const event1 = { sequenceNumber: 1, broadcasted: true, type: 'TextAdded' };
             const event2 = { sequenceNumber: 2, broadcasted: true, type: 'TextAdded' };
 
-            processCollaborativeEvent(event1);
-            processCollaborativeEvent(event2);
+            processSessionEvent(event1);
+            processSessionEvent(event2);
 
-            expect(collaborativeEvents).toHaveLength(2);
+            expect(sessionEvents).toHaveLength(2);
         });
 
         test('should allow local events even with duplicate sequence numbers', () => {
             const remoteEvent = { sequenceNumber: 1, broadcasted: true, type: 'TextAdded' };
             const localEvent = { sequenceNumber: 1, broadcasted: false, type: 'TextAdded' };
 
-            processCollaborativeEvent(remoteEvent);
-            processCollaborativeEvent(localEvent);
+            processSessionEvent(remoteEvent);
+            processSessionEvent(localEvent);
 
-            expect(collaborativeEvents).toHaveLength(2);
+            expect(sessionEvents).toHaveLength(2);
         });
 
         test('should log warning when skipping duplicate remote event', () => {
@@ -104,8 +104,8 @@ describe('Collaborative Events', () => {
             const event1 = { sequenceNumber: 5, broadcasted: true };
             const event2 = { sequenceNumber: 5, broadcasted: true };
 
-            processCollaborativeEvent(event1);
-            processCollaborativeEvent(event2);
+            processSessionEvent(event1);
+            processSessionEvent(event2);
 
             expect(consoleSpy).toHaveBeenCalledWith(
                 'Remote event with sequence number 5 already exists, skipping insertion'
@@ -123,7 +123,7 @@ describe('Collaborative Events', () => {
             ];
 
             invalidEvents.forEach(event => {
-                expect(() => processCollaborativeEvent(event))
+                expect(() => processSessionEvent(event))
                     .toThrow('Event sequence number must be a number greater than or equal to 0');
             });
         });
@@ -136,10 +136,10 @@ describe('Collaborative Events', () => {
             ];
 
             validEvents.forEach(event => {
-                expect(() => processCollaborativeEvent(event)).not.toThrow();
+                expect(() => processSessionEvent(event)).not.toThrow();
             });
 
-            expect(collaborativeEvents).toHaveLength(3);
+            expect(sessionEvents).toHaveLength(3);
         });
     });
 
@@ -152,26 +152,26 @@ describe('Collaborative Events', () => {
             ];
 
             events.forEach((event, index) => insertEvent(index, event));
-            expect(collaborativeEvents).toHaveLength(3);
+            expect(sessionEvents).toHaveLength(3);
 
             clearEvents();
-            expect(collaborativeEvents).toHaveLength(0);
+            expect(sessionEvents).toHaveLength(0);
         });
 
         test('should preserve array reference after clearing', () => {
-            const originalArray = collaborativeEvents;
+            const originalArray = sessionEvents;
 
             insertEvent(0, { sequenceNumber: 1, broadcasted: true });
             clearEvents();
 
-            expect(collaborativeEvents).toBe(originalArray);
+            expect(sessionEvents).toBe(originalArray);
         });
 
         test('should work when array is already empty', () => {
-            expect(collaborativeEvents).toHaveLength(0);
+            expect(sessionEvents).toHaveLength(0);
 
             expect(() => clearEvents()).not.toThrow();
-            expect(collaborativeEvents).toHaveLength(0);
+            expect(sessionEvents).toHaveLength(0);
         });
 
         test('should not call updateEventsDisplay in non-browser environment', () => {
@@ -186,7 +186,7 @@ describe('Collaborative Events', () => {
             insertEvent(0, { sequenceNumber: 1, broadcasted: true });
 
             expect(() => clearEvents()).not.toThrow();
-            expect(collaborativeEvents).toHaveLength(0);
+            expect(sessionEvents).toHaveLength(0);
 
             // Restore original values
             global.window = originalWindow;
@@ -200,8 +200,8 @@ describe('Collaborative Events', () => {
 
             insertEvent(0, event);
 
-            expect(collaborativeEvents).toHaveLength(1);
-            expect(collaborativeEvents[0]).toBe(event);
+            expect(sessionEvents).toHaveLength(1);
+            expect(sessionEvents[0]).toBe(event);
         });
 
         test('should insert event at the beginning of array', () => {
@@ -211,9 +211,9 @@ describe('Collaborative Events', () => {
             insertEvent(0, event1);
             insertEvent(0, event2);
 
-            expect(collaborativeEvents).toHaveLength(2);
-            expect(collaborativeEvents[0]).toBe(event2);
-            expect(collaborativeEvents[1]).toBe(event1);
+            expect(sessionEvents).toHaveLength(2);
+            expect(sessionEvents[0]).toBe(event2);
+            expect(sessionEvents[1]).toBe(event1);
         });
 
         test('should insert event at the end of array', () => {
@@ -223,9 +223,9 @@ describe('Collaborative Events', () => {
             insertEvent(0, event1);
             insertEvent(1, event2);
 
-            expect(collaborativeEvents).toHaveLength(2);
-            expect(collaborativeEvents[0]).toBe(event1);
-            expect(collaborativeEvents[1]).toBe(event2);
+            expect(sessionEvents).toHaveLength(2);
+            expect(sessionEvents[0]).toBe(event1);
+            expect(sessionEvents[1]).toBe(event2);
         });
 
         test('should insert event in the middle of array', () => {
@@ -237,10 +237,10 @@ describe('Collaborative Events', () => {
             insertEvent(1, event2);
             insertEvent(1, event3);
 
-            expect(collaborativeEvents).toHaveLength(3);
-            expect(collaborativeEvents[0]).toBe(event1);
-            expect(collaborativeEvents[1]).toBe(event3);
-            expect(collaborativeEvents[2]).toBe(event2);
+            expect(sessionEvents).toHaveLength(3);
+            expect(sessionEvents[0]).toBe(event1);
+            expect(sessionEvents[1]).toBe(event3);
+            expect(sessionEvents[2]).toBe(event2);
         });
 
         test('should handle insertion at position equal to array length', () => {
@@ -248,20 +248,20 @@ describe('Collaborative Events', () => {
             const event2 = { sequenceNumber: 2, broadcasted: false };
 
             insertEvent(0, event1);
-            insertEvent(collaborativeEvents.length, event2);
+            insertEvent(sessionEvents.length, event2);
 
-            expect(collaborativeEvents).toHaveLength(2);
-            expect(collaborativeEvents[0]).toBe(event1);
-            expect(collaborativeEvents[1]).toBe(event2);
+            expect(sessionEvents).toHaveLength(2);
+            expect(sessionEvents[0]).toBe(event1);
+            expect(sessionEvents[1]).toBe(event2);
         });
 
         test('should maintain original array reference', () => {
-            const originalArray = collaborativeEvents;
+            const originalArray = sessionEvents;
             const event = { sequenceNumber: 1, broadcasted: true };
 
             insertEvent(0, event);
 
-            expect(collaborativeEvents).toBe(originalArray);
+            expect(sessionEvents).toBe(originalArray);
         });
 
         test('should insert multiple events maintaining order', () => {
@@ -276,9 +276,9 @@ describe('Collaborative Events', () => {
                 insertEvent(index, event);
             });
 
-            expect(collaborativeEvents).toHaveLength(4);
+            expect(sessionEvents).toHaveLength(4);
             events.forEach((event, index) => {
-                expect(collaborativeEvents[index]).toBe(event);
+                expect(sessionEvents[index]).toBe(event);
             });
         });
     });
