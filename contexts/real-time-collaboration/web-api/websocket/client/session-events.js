@@ -111,6 +111,26 @@ function processSessionEvent(event) {
     }
 
     if(isRemote) {
+        let insertionPosition = findInsertionPosition(eventSequenceNumber);
+        insertEvent(insertionPosition, event);
+
+        // Si este es el primer evento remoto y aún no estamos suscritos al session-state, suscribirse ahora
+        const hasRemoteEvents = sessionEvents.some(e => eventIsRemote(e));
+        if (hasRemoteEvents && subscriptionToSessionState === null && stompClient && currentDocumentId) {
+            subscriptionToSessionState = stompClient.subscribe(`/user/${myUserId}/queue/session-state/${currentDocumentId}`, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/session-state/${currentDocumentId}) Message received: ${message.body}`);
+                sessionStateSnapshot = JSON.parse(message.body);
+                let myWriterState = sessionStateSnapshot.writerStates.find((writerState) => (writerState.userId === myUserId))
+                if (myWriterState) {
+                    myWriterId = myWriterState.writerId;
+                }
+                addMessage('Received session state update', 'success');
+                setInitialDocumentContent();
+                updateUI();
+            });
+            addMessage('First remote event received, subscribing to session-state', 'info');
+        }
+
         const existingRemoteEvent = sessionEvents.some(e =>
             eventIsRemote(e) && e.sequenceNumber === eventSequenceNumber
         );
@@ -123,17 +143,9 @@ function processSessionEvent(event) {
 
     if(isRemote) return;
 
-
-    /*            if(isLocal && eventSequenceNumber !== lastCollaborativeEventSequenceNumber + 1) {
-                    throw new Error('Local Event Sequence Number must be lastCollaborativeEventSequenceNumber + 1')
-                }*/
-
     if(isLocal) {
 
     }
-
-    let insertionPosition = findInsertionPosition(eventSequenceNumber);
-    insertEvent(insertionPosition, event);
 
     if(event.type === cursorPositionChangedType) {
         const request = {
@@ -327,8 +339,8 @@ function joinDocument(options) {
     currentDocumentId = docId;
 
     // Subscribe to updates for this document
-    subscriptionToUpdates = stompClient.subscribe('/topic/updates/' + docId, function (message) {
-        console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/topic/updates/${docId}) Message received: ${message.body}`);
+    subscriptionToUpdates = stompClient.subscribe('/topic/updates/' + currentDocumentId, function (message) {
+        console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/topic/updates/${currentDocumentId}) Message received: ${message.body}`);
 
         try {
             const sessionEvent = JSON.parse(message.body);
@@ -341,21 +353,6 @@ function joinDocument(options) {
             console.error('Error parsing session event:', error);
             addMessage('Error parsing session event: ' + error.message, 'error');
         }
-    });
-    // Subscribe to session state
-    subscriptionToSessionState = stompClient.subscribe(`/user/${myUserId}/queue/session-state/${docId}`, function (message) {
-        console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/session-state/${docId}) Message received: ${message.body}`);
-        sessionStateSnapshot = JSON.parse(message.body);
-        sessionStateSnapshot = JSON.parse(message.body);
-        let myWriterState = sessionStateSnapshot.writerStates.find((writerState) => (writerState.userId === myUserId))
-        if (myWriterState) {
-            myWriterId = myWriterState.writerId;
-        }
-        // updateLastCollaborativeEventSequenceNumber(sessionStateSnapshot.lastCollaborativeEventSequenceNumber)
-        addMessage('Received session state update', 'success');
-        setInitialDocumentContent();
-        //si en este momento
-        updateUI();
     });
 
     if (!stompClient) throw new Error('Client not connected');
