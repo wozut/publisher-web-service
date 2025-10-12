@@ -18,7 +18,7 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @Component
-class CollaborativeRequestProcessor(
+class SessionRequestProcessor(
     private val sessionRequestRepository: SessionRequestRepository,
     private val changeCursorPosition: ChangeCursorPosition,
     private val selectText: SelectText,
