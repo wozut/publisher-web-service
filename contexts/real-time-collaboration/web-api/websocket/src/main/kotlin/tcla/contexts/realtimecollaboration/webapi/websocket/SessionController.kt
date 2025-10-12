@@ -196,10 +196,9 @@ class SessionController(
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
             val documentId = destination.removePrefix("/topic/updates/")
 
-            //TODO: el cliente envia un mensaje para leave session a parte?
-
-            //TODO: removeSubscriptionCommandHandler
-
+            //TODO: removeSubscriptionCommandHandler (reconvertir leaveSessionCommandHandler)
+            //TODO: borrar suscripción del WriterState
+            //TODO: si la suscripción que se borra es la última (? o /topic/updates/?), quitar el WriterState de la sesión
             //TODO si ya no quedan writers borrar la sesión o "cerrarla"?
 
             val documentUuid = fromString(documentId)

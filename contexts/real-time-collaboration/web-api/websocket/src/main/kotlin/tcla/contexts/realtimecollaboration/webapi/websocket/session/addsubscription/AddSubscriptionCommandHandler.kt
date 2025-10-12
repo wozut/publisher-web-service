@@ -2,7 +2,6 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.session.addsubscrip
 
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.Subscription
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.CreateSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
@@ -17,11 +16,15 @@ class AddSubscriptionCommandHandler(
     private val addNewWriterStateToSession: AddNewWriterStateToSession,
 ) {
     fun execute(command: AddSubscriptionCommand) {
+        //TODO: Check if a started session exists
         if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
             createSession.execute(documentId = command.documentId)
         }
 
         var session: Session = sessionRepository.findByDocumentId(command.documentId)
+        //TODO: start session if not started
+
+        //TODO: find started session
 
         if(!session.writerExistsByUserId(userId = command.requesterId)) {
             session = addNewWriterStateToSession.execute(session = session, requesterId = command.requesterId)

@@ -16,8 +16,15 @@ data class Session(
     val documentState: DocumentState,
     val writerStates: MutableSet<WriterState>,
     val lastSessionEventSequenceNumber: Long,
-    val generatedSessionEvents: MutableList<SessionEvent> = mutableListOf()
+    val generatedSessionEvents: MutableList<SessionEvent> = mutableListOf(),
+    val status: Status = Status.NOT_STARTED
 ) : SessionEventGenerator {
+
+    enum class Status {
+        NOT_STARTED,
+        STARTED,
+        ENDED
+    }
 
     private fun nextSessionEventSequenceNumber(): Long = lastSessionEventSequenceNumber + 1
 
@@ -174,5 +181,9 @@ data class Session(
     fun addSubscription(writerId: UUID, subscription: Subscription): Session {
         writerStates.find { it.writerId == writerId }?.subscriptions?.add(subscription)
         return this
+    }
+
+    fun hasNotStarted(): Boolean {
+        return status == Status.NOT_STARTED
     }
 }
