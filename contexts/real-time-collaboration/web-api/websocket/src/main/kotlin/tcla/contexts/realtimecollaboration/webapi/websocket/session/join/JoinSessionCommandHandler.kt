@@ -33,7 +33,8 @@ class JoinSessionCommandHandler(
             userId = command.requesterId,
             writerId = writerId,
             cursorPosition = null,
-            selectedText = null
+            selectedText = null,
+            subscriptions = mutableSetOf(command.subscription)
         )
 
         var updatedSession = session

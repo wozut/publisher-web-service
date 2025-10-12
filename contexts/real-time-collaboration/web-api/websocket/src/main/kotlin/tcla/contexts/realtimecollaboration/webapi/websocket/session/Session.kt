@@ -3,6 +3,7 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.session
 import tcla.contexts.realtimecollaboration.webapi.websocket.WriterState
 import tcla.contexts.realtimecollaboration.webapi.websocket.DocumentState
 import tcla.contexts.realtimecollaboration.webapi.websocket.SelectedText
+import tcla.contexts.realtimecollaboration.webapi.websocket.Subscription
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.SessionEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
@@ -168,5 +169,10 @@ data class Session(
 
     override fun popAllGeneratedSessionEvents(): List<SessionEvent> {
         return generatedSessionEvents.toList().also { generatedSessionEvents.clear() }
+    }
+
+    fun addSubscription(writerId: UUID, subscription: Subscription): Session {
+        writerStates.find { it.writerId == writerId }?.subscriptions?.add(subscription)
+        return this
     }
 }

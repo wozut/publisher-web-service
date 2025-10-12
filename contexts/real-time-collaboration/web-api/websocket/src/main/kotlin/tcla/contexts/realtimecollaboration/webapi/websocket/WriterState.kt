@@ -5,6 +5,7 @@ import java.util.UUID
 data class WriterState(
     val userId: UUID,
     val writerId: UUID,
+    val subscriptions: MutableSet<Subscription>,
     val cursorPosition: Long?,
     val selectedText: SelectedText?
 ) {

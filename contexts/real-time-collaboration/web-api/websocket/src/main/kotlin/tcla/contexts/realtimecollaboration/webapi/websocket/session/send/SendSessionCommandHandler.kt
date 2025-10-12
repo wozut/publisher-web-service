@@ -14,10 +14,12 @@ class SendSessionCommandHandler(
         val session = sessionRepository.findByDocumentId(command.documentId)
         ensureRequesterIsWriter(session = session, requesterId = command.requesterId)
         val writerState = session.findWriterStateByUserId(userId = command.requesterId)
+        var updatedSession = session.addSubscription(writerState.writerId, command.subscription)
+        updatedSession = sessionRepository.saveChanges(updatedSession)
         simpMessagingTemplate.convertAndSendToUser(
             writerState.userId.toString(),
-            "/queue/session-state/${session.documentState.documentId}",
-            session
+            "/queue/session-state/${updatedSession.documentState.documentId}",
+            updatedSession
         )
     }
 }
