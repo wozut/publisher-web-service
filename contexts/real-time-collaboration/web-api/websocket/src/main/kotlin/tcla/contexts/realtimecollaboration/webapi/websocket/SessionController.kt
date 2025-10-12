@@ -176,6 +176,9 @@ class SessionController(
             val documentId = destination.removePrefix(topicUpdatesPrefix)
             val documentUuid = fromString(documentId)
 
+            //TODO: el cliente envia un mensaje para join session a parte? (recuperar commit anterior (/app/join-session/{documentId}))
+
+            //TODO si el writer ya está en la sesión no hacer nada o fallar?
             val joinSessionCommand =
                 JoinSessionCommand(requesterId = requesterUuid, documentId = documentUuid)
             joinSessionCommandHandler.execute(joinSessionCommand)
@@ -204,6 +207,12 @@ class SessionController(
         val topicUpdatesPrefix = "/topic/updates/"
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
             val documentId = destination.removePrefix("/topic/updates/")
+
+            //TODO: el cliente envia un mensaje para leave session a parte?
+
+            //TODO: removeSubscriptionCommandHandler
+
+            //TODO si ya no quedan writers borrar la sesión o "cerrarla"?
 
             val documentUuid = fromString(documentId)
             val command = LeaveSessionCommand(
