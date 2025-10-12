@@ -167,26 +167,23 @@ class SessionController(
     @EventListener
     fun onSessionSubscribe(event: SessionSubscribeEvent) {
         val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val requesterId = extractRequesterId(headerAccessor)
+        val requesterUuid = fromString(requesterId!!)
         val subscriptionId = headerAccessor.subscriptionId!!
         val destination = headerAccessor.destination
         val topicUpdatesPrefix = "/topic/updates/"
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
-            val requesterId = extractRequesterId(headerAccessor)
-            val uuid = fromString(requesterId!!)
-
             val documentId = destination.removePrefix(topicUpdatesPrefix)
             val documentUuid = fromString(documentId)
 
             val subscription = Subscription(id = subscriptionId, Subscription.Type.UPDATES)
             val command =
-                JoinSessionCommand(requesterId = uuid, documentId = documentUuid, subscription)
+                JoinSessionCommand(requesterId = requesterUuid, documentId = documentUuid, subscription)
             joinSessionCommandHandler.execute(command)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
             val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
             val documentUuid = fromString(documentId)
 
-            val requesterId = extractRequesterId(headerAccessor)
-            val requesterUuid = fromString(requesterId!!)
             val subscription = Subscription(id = subscriptionId, Subscription.Type.SESSION)
             val command = SendSessionCommand(requesterUuid, documentUuid, subscription)
             sendSessionCommandHandler.handle(command)
@@ -196,22 +193,23 @@ class SessionController(
     // common logic
     @EventListener
     fun onSessionUnsubscribe(event: SessionUnsubscribeEvent) {
-        // TODO: borrar suscripciones de CollaborativeSession
         val headerAccessor: SimpMessageHeaderAccessor = SimpMessageHeaderAccessor.wrap(event.message)
+        val requesterId = extractRequesterId(headerAccessor)
+        val requesterUuid = fromString(requesterId!!)
+        val subscriptionId = headerAccessor.subscriptionId!!
         val destination = headerAccessor.destination
-        val requesterUuid = fromString(extractRequesterId(headerAccessor))
-        println("SessionUnsubscribeEvent: destination=$destination, requesterUuid=$requesterUuid")
-
-        //TODO: aplicar mismo patrón que en CollaborativeSessionController.changeCursorPosition
-        if (destination != null && destination.startsWith("/topic/updates/") && requesterUuid != null) {
+        val topicUpdatesPrefix = "/topic/updates/"
+        if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
             val documentId = destination.removePrefix("/topic/updates/")
-            
+
             val documentUuid = fromString(documentId)
             val command = LeaveSessionCommand(
                 requesterId = requesterUuid,
                 documentId = documentUuid
             )
             leaveSessionCommandHandler.execute(command)
+        } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
+
         }
     }
 }
