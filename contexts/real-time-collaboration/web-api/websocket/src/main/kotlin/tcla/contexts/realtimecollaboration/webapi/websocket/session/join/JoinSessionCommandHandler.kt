@@ -1,14 +1,13 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.session.join
 
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.WriterState
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterJoined
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.CreateSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.CreateSession
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterJoined
-import java.util.UUID
+import java.util.*
 
 @Component
 class JoinSessionCommandHandler(
@@ -38,8 +37,6 @@ class JoinSessionCommandHandler(
 
         var updatedSession = session
             .addWriterState(writerState)
-
-        updatedSession = updatedSession.addSubscription(writerId, command.subscription)
 
         updatedSession = sessionRepository.saveChanges(updatedSession)
 

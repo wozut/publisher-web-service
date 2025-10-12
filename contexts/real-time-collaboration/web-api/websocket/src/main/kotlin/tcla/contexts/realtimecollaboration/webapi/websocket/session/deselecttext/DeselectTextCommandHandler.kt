@@ -5,7 +5,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.requests.DeselectTex
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.SessionRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionRequestRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterIsWriter
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterIsWriterInSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterOwnsWriterState
 import java.time.Instant
 
@@ -17,7 +17,7 @@ class DeselectTextCommandHandler(
     fun execute(command: DeselectTextCommand) {
         println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. DeselectTextCommandHandler: $command")
         val session = sessionRepository.findById(command.sessionId)
-        ensureRequesterIsWriter(session = session, requesterId = command.requesterId)
+        ensureRequesterIsWriterInSession(session = session, requesterId = command.requesterId)
         val writerState =
             session.findWriterStateByWriterId(command.writerId)
         ensureRequesterOwnsWriterState(writerState, command.requesterId)

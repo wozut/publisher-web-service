@@ -3,7 +3,7 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.session.rules
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import java.util.UUID
 
-fun ensureRequesterIsWriter(
+fun ensureRequesterIsWriterInSession(
     session: Session,
     requesterId: UUID
 ) {

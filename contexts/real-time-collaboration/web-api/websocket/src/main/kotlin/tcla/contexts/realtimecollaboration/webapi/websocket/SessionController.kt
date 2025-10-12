@@ -10,6 +10,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import org.springframework.web.socket.messaging.SessionSubscribeEvent
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.messages.*
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.addsubscription.AddSubscriptionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.addsubscription.AddSubscriptionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.addtext.AddTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.addtext.AddTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommand
@@ -24,8 +26,6 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.R
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.selecttext.SelectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.selecttext.SelectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.send.SendSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.send.SendSessionCommandHandler
 import java.util.UUID.fromString
 
 @Controller
@@ -37,7 +37,7 @@ class SessionController(
     private val removeTextCommandHandler: RemoveTextCommandHandler,
     private val selectTextCommandHandler: SelectTextCommandHandler,
     private val deselectTextCommandHandler: DeselectTextCommandHandler,
-    private val sendSessionCommandHandler: SendSessionCommandHandler,
+    private val addSubscriptionCommandHandler: AddSubscriptionCommandHandler,
 ) {
 
     @Synchronized
@@ -176,17 +176,20 @@ class SessionController(
             val documentId = destination.removePrefix(topicUpdatesPrefix)
             val documentUuid = fromString(documentId)
 
+            val joinSessionCommand =
+                JoinSessionCommand(requesterId = requesterUuid, documentId = documentUuid)
+            joinSessionCommandHandler.execute(joinSessionCommand)
+
             val subscription = Subscription(id = subscriptionId, Subscription.Type.UPDATES)
-            val command =
-                JoinSessionCommand(requesterId = requesterUuid, documentId = documentUuid, subscription)
-            joinSessionCommandHandler.execute(command)
+            val addSubscriptionCommand = AddSubscriptionCommand(requesterUuid, documentUuid, subscription)
+            addSubscriptionCommandHandler.execute(addSubscriptionCommand)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
             val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
             val documentUuid = fromString(documentId)
 
             val subscription = Subscription(id = subscriptionId, Subscription.Type.SESSION)
-            val command = SendSessionCommand(requesterUuid, documentUuid, subscription)
-            sendSessionCommandHandler.handle(command)
+            val addSubscriptionCommand = AddSubscriptionCommand(requesterUuid, documentUuid, subscription)
+            addSubscriptionCommandHandler.execute(addSubscriptionCommand)
         }
     }
 

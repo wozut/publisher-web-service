@@ -5,7 +5,7 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.requests.RemoveTextR
 import tcla.contexts.realtimecollaboration.webapi.websocket.requests.SessionRequest
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionRequestRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterIsWriter
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterIsWriterInSession
 import java.time.Instant
 
 @Component
@@ -16,7 +16,7 @@ class RemoveTextCommandHandler(
     fun execute(command: RemoveTextCommand) {
         println("Time: ${Instant.now()}. Thread: ${Thread.currentThread().name}. RemoveTextCommandHandler: $command")
         val session = sessionRepository.findById(command.sessionId)
-        ensureRequesterIsWriter(session = session, requesterId = command.requesterId)
+        ensureRequesterIsWriterInSession(session = session, requesterId = command.requesterId)
 
         val sessionRequest = RemoveTextRequest(
             position = command.position,

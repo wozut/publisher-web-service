@@ -1,6 +1,5 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.session.join
 
-import tcla.contexts.realtimecollaboration.webapi.websocket.Subscription
-import java.util.UUID
+import java.util.*
 
-data class JoinSessionCommand(val requesterId: UUID, val documentId: UUID, val subscription: Subscription)
+data class JoinSessionCommand(val requesterId: UUID, val documentId: UUID)
