@@ -33,12 +33,13 @@ class JoinSessionCommandHandler(
             userId = command.requesterId,
             writerId = writerId,
             cursorPosition = null,
-            selectedText = null,
-            subscriptions = mutableSetOf(command.subscription)
+            selectedText = null
         )
 
         var updatedSession = session
             .addWriterState(writerState)
+
+        updatedSession = updatedSession.addSubscription(writerId, command.subscription)
 
         updatedSession = sessionRepository.saveChanges(updatedSession)
 
