@@ -18,8 +18,6 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursor
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.join.JoinSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommand
@@ -30,7 +28,6 @@ import java.util.UUID.fromString
 
 @Controller
 class SessionController(
-    private val joinSessionCommandHandler: JoinSessionCommandHandler,
     private val leaveSessionCommandHandler: LeaveSessionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
@@ -175,21 +172,12 @@ class SessionController(
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
             val documentId = destination.removePrefix(topicUpdatesPrefix)
             val documentUuid = fromString(documentId)
-
-            //TODO: el cliente envia un mensaje para join session a parte? (recuperar commit anterior (/app/join-session/{documentId}))
-
-            //TODO si el writer ya está en la sesión no hacer nada o fallar?
-            val joinSessionCommand =
-                JoinSessionCommand(requesterId = requesterUuid, documentId = documentUuid)
-            joinSessionCommandHandler.execute(joinSessionCommand)
-
             val subscription = Subscription(id = subscriptionId, Subscription.Type.UPDATES)
             val addSubscriptionCommand = AddSubscriptionCommand(requesterUuid, documentUuid, subscription)
             addSubscriptionCommandHandler.execute(addSubscriptionCommand)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
             val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
             val documentUuid = fromString(documentId)
-
             val subscription = Subscription(id = subscriptionId, Subscription.Type.SESSION)
             val addSubscriptionCommand = AddSubscriptionCommand(requesterUuid, documentUuid, subscription)
             addSubscriptionCommandHandler.execute(addSubscriptionCommand)

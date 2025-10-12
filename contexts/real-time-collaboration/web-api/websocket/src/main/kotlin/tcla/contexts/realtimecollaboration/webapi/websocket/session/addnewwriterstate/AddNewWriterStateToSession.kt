@@ -1,35 +1,22 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket.session.join
+package tcla.contexts.realtimecollaboration.webapi.websocket.session.addnewwriterstate
 
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.WriterState
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterJoined
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.CreateSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
 import java.util.*
 
-@Component
-class JoinSessionCommandHandler(
+@Service
+class AddNewWriterStateToSession(
     private val sessionRepository: SessionRepository,
     private val sessionEventRepository: SessionEventRepository,
-    private val createSession: CreateSession
 ) {
-    fun execute(command: JoinSessionCommand) {
-        if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
-            createSession.execute(documentId = command.documentId)
-        }
-
-        //TODO: aplicar mismo patrón que en ChangeCursorPositionCommandHandler
-        val session: Session =
-            sessionRepository.findByDocumentId(command.documentId)
-
-        //TODO: fallar si ya existe?
-        if(session.writerExistsByUserId(userId = command.requesterId)) return
-
+    fun execute(session: Session, requesterId: UUID): Session {
         val writerId = UUID.randomUUID()
         val writerState = WriterState(
-            userId = command.requesterId,
+            userId = requesterId,
             writerId = writerId,
             cursorPosition = null,
             selectedText = null
@@ -47,6 +34,6 @@ class JoinSessionCommandHandler(
             broadcasted = false,
         )
         sessionEventRepository.create(writerJoined)
+        return updatedSession
     }
-
 }

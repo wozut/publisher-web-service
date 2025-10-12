@@ -2,31 +2,42 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.session.addsubscrip
 
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
+import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.Subscription
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.CreateSession
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.rules.ensureRequesterIsWriterInSession
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.addnewwriterstate.AddNewWriterStateToSession
 
 @Component
 class AddSubscriptionCommandHandler(
     private val sessionRepository: SessionRepository,
     private val simpMessagingTemplate: SimpMessagingTemplate,
+    private val createSession: CreateSession,
+    private val addNewWriterStateToSession: AddNewWriterStateToSession,
 ) {
     fun execute(command: AddSubscriptionCommand) {
-        val session: Session = sessionRepository.findByDocumentId(command.documentId)
-        ensureRequesterIsWriterInSession(session = session, requesterId = command.requesterId)
+        if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
+            createSession.execute(documentId = command.documentId)
+        }
+
+        var session: Session = sessionRepository.findByDocumentId(command.documentId)
+
+        if(!session.writerExistsByUserId(userId = command.requesterId)) {
+            session = addNewWriterStateToSession.execute(session = session, requesterId = command.requesterId)
+        }
 
         val writerState = session.findWriterStateByUserId(command.requesterId)
 
-        var updatedSession = session.addSubscription(writerState.writerId, command.subscription)
+        session = session.addSubscription(writerState.writerId, command.subscription)
 
-        updatedSession = sessionRepository.saveChanges(updatedSession)
+        session = sessionRepository.saveChanges(session)
 
         if(command.subscription.type == Subscription.Type.SESSION) {
             simpMessagingTemplate.convertAndSendToUser(
                 writerState.userId.toString(),
-                "/queue/session-state/${updatedSession.documentState.documentId}",
-                updatedSession
+                "/queue/session-state/${session.documentState.documentId}",
+                session
             )
         }
     }
