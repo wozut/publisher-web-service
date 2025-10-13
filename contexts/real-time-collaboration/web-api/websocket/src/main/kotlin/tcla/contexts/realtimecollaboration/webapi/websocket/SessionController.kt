@@ -168,6 +168,7 @@ class SessionController(
         val requesterUuid = fromString(requesterId!!)
         val subscriptionId = headerAccessor.subscriptionId!!
         val destination = headerAccessor.destination
+
         val topicUpdatesPrefix = "/topic/updates/"
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
             val documentId = destination.removePrefix(topicUpdatesPrefix)
@@ -192,17 +193,16 @@ class SessionController(
         val requesterUuid = fromString(requesterId!!)
         val subscriptionId = headerAccessor.subscriptionId!!
         val destination = headerAccessor.destination
+
         val topicUpdatesPrefix = "/topic/updates/"
-        if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
-            val documentId = destination.removePrefix(topicUpdatesPrefix)
-            val documentUuid = fromString(documentId)
-            val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
-            removeSubscriptionCommandHandler.execute(command)
+        val documentId = if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
+            destination.removePrefix(topicUpdatesPrefix)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
-            val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
-            val documentUuid = fromString(documentId)
-            val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
-            removeSubscriptionCommandHandler.execute(command)
-        }
+            destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
+        } else throw IllegalArgumentException("Invalid destination: $destination")
+
+        val documentUuid = fromString(documentId)
+        val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
+        removeSubscriptionCommandHandler.execute(command)
     }
 }
