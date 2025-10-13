@@ -14,7 +14,7 @@ class ChangeCursorPosition(
         val session = sessionRepository.findById(request.sessionId)
 
         var updatedSession = session.changeCursorPosition(
-            collaboratorId = request.writerId,
+            writerId = request.writerId,
             newPosition = request.newPosition
         )
 

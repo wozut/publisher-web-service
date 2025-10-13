@@ -28,8 +28,8 @@ class AddSubscriptionCommandHandler(
                 -> sessionRepository.findByDocumentIdAndStatus(documentId, startedStatus)
 
             else -> {
-                val newSession = createSession.execute(documentId = documentId)
-                newSession.start()
+                var newSession = createSession.execute(documentId = documentId)
+                newSession = newSession.start()
                 sessionRepository.saveChanges(newSession)
             }
         }

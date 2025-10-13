@@ -60,8 +60,8 @@ data class Session(
         return copyWithEventSequenceNumberIncremented()
     }
 
-    fun changeCursorPosition(collaboratorId: UUID, newPosition: Long): Session {
-        val writerState: WriterState = writerStates.first { it.writerId == collaboratorId }
+    fun changeCursorPosition(writerId: UUID, newPosition: Long): Session {
+        val writerState: WriterState = writerStates.first { it.writerId == writerId }
         ensureCursorPositionConsistency(newPosition)
         if (!writerStates.remove(writerState)) throw IllegalStateException()
         val updatedWriterState = writerState.changeCursorPosition(newPosition)
@@ -69,7 +69,7 @@ data class Session(
 
         val cursorPositionChanged = CursorPositionChanged(
             sessionId = id,
-            writerId = collaboratorId,
+            writerId = writerId,
             sequenceNumber = nextSessionEventSequenceNumber(),
             broadcasted = false,
             newPosition = newPosition
