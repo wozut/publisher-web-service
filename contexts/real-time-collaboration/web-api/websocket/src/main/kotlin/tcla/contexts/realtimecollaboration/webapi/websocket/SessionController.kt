@@ -204,7 +204,8 @@ class SessionController(
             val documentUuid = fromString(documentId)
             val command = RemoveSubscriptionCommand(
                 requesterId = requesterUuid,
-                documentId = documentUuid
+                documentId = documentUuid,
+                subscriptionId = subscriptionId
             )
             removeSubscriptionCommandHandler.execute(command)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {

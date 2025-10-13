@@ -14,4 +14,6 @@ data class WriterState(
     fun selectText(position: Long, length: Long) = copy(selectedText = SelectedText(position, length))
 
     fun deselectText() = copy(selectedText = null)
+
+    fun hasSubscriptions() = !subscriptions.isEmpty()
 }

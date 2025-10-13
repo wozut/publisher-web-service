@@ -183,8 +183,22 @@ data class Session(
         return this
     }
 
+    fun removeSubscription(writerId: UUID, subscriptionId: String): Session {
+        writerStates.find { it.writerId == writerId }?.subscriptions?.removeIf { subscription -> subscription.id == subscriptionId }
+        return this
+    }
+
     fun start(): Session {
         if(status != Status.NOT_STARTED) throw IllegalStateException()
         return copy(status = Status.STARTED)
+    }
+
+    fun hasWriters(): Boolean {
+        return !writerStates.isEmpty()
+    }
+
+    fun end(): Session {
+        if(status != Status.STARTED) throw IllegalStateException()
+        return copy(status = Status.ENDED)
     }
 }

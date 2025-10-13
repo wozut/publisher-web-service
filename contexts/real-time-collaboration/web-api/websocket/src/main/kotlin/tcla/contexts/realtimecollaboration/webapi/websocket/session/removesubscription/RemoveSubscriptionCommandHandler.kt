@@ -1,39 +1,37 @@
 package tcla.contexts.realtimecollaboration.webapi.websocket.session.removesubscription
 
 import org.springframework.stereotype.Component
-import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterLeft
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.removewriterstate.RemoveWriterStateFromSession
 
 @Component
 class RemoveSubscriptionCommandHandler(
     private val sessionRepository: SessionRepository,
-    private val sessionEventRepository: SessionEventRepository
+    private val removeWriterStateFromSession: RemoveWriterStateFromSession,
 ) {
     fun execute(command: RemoveSubscriptionCommand) {
-        if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
+        if (!sessionRepository.existsByDocumentIdAndStatus(documentId = command.documentId, status = Session.Status.STARTED)) {
             throw IllegalArgumentException("Session not found for document: ${command.documentId}")
         }
 
-        val session: Session =
-            sessionRepository.findByDocumentId(command.documentId)
+        var session: Session =
+            sessionRepository.findByDocumentIdAndStatus(command.documentId, Session.Status.STARTED)
 
-        val writerState = session.findWriterStateByUserId(command.requesterId)
+        var writerState = session.findWriterStateByUserId(command.requesterId)
 
-        var updatedSession = session
-            .removeWriterState(command.requesterId)
+        session = session.removeSubscription(writerId = writerState.writerId, subscriptionId = command.subscriptionId)
 
-        updatedSession = sessionRepository.saveChanges(updatedSession)
+        writerState = session.findWriterStateByUserId(command.requesterId)
+        if(!writerState.hasSubscriptions()) {
+            session = removeWriterStateFromSession.execute(session, command.requesterId)
+        }
 
-        sessionEventRepository.create(
-            WriterLeft(
-                writerId = writerState.writerId,
-                sessionId = updatedSession.id,
-                sequenceNumber = updatedSession.lastSessionEventSequenceNumber,
-                broadcasted = false,
-            )
-        )
+        if(!session.hasWriters()) {
+            session = session.end()
+        }
+
+        sessionRepository.saveChanges(session)
     }
 
 }
