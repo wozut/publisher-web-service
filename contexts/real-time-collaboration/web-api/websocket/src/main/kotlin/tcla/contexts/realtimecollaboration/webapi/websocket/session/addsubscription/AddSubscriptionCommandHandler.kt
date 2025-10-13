@@ -19,15 +19,20 @@ class AddSubscriptionCommandHandler(
     fun execute(command: AddSubscriptionCommand) {
         val startedStatus = Session.Status.STARTED
         val documentId = command.documentId
-        var session: Session = if (!sessionRepository.existsByDocumentIdAndStatus(
-                documentId = documentId,
-                status = startedStatus
-            )
-        ) {
-            val newSession = createSession.execute(documentId = documentId)
-            newSession.start()
-            sessionRepository.saveChanges(newSession)
-        } else sessionRepository.findByDocumentIdAndStatus(documentId, startedStatus)
+        val startedSessionAlreadyExists = sessionRepository.existsByDocumentIdAndStatus(
+            documentId = documentId,
+            status = startedStatus
+        )
+        var session: Session = when {
+            startedSessionAlreadyExists
+                -> sessionRepository.findByDocumentIdAndStatus(documentId, startedStatus)
+
+            else -> {
+                val newSession = createSession.execute(documentId = documentId)
+                newSession.start()
+                sessionRepository.saveChanges(newSession)
+            }
+        }
 
 
         val requesterId = command.requesterId
