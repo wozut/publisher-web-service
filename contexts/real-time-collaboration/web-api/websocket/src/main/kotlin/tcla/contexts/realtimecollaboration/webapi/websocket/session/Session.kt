@@ -8,6 +8,8 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.events.SessionEvent
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.CursorPositionChanged
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextAdded
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.TextRemoved
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterJoined
+import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterLeft
 import java.util.*
 import kotlin.collections.toList
 
@@ -34,6 +36,13 @@ data class Session(
         if (writerState.cursorPosition != null) ensureCursorPositionConsistency(writerState.cursorPosition)
         if (writerState.selectedText != null) ensureSelectedTextConsistency(writerState.selectedText)
         if (!writerStates.add(writerState)) throw IllegalArgumentException()
+        val writerJoined = WriterJoined(
+            writerId = writerState.writerId,
+            sessionId = id,
+            sequenceNumber = nextSessionEventSequenceNumber(),
+            broadcasted = false,
+        )
+        generatedSessionEvents.add(writerJoined)
         return copyWithEventSequenceNumberIncremented()
     }
 
@@ -41,6 +50,13 @@ data class Session(
         val writerState: WriterState = writerStates.firstOrNull { it.userId == userId }
             ?: throw IllegalArgumentException("Writer not found. UserId: $userId")
         if (!writerStates.remove(writerState)) throw IllegalStateException()
+        val writerLeft = WriterLeft(
+            writerId = writerState.writerId,
+            sessionId = id,
+            sequenceNumber = nextSessionEventSequenceNumber(),
+            broadcasted = false,
+        )
+        generatedSessionEvents.add(writerLeft)
         return copyWithEventSequenceNumberIncremented()
     }
 

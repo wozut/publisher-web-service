@@ -2,10 +2,9 @@ package tcla.contexts.realtimecollaboration.webapi.websocket.session.removewrite
 
 import org.springframework.stereotype.Service
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
-import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterLeft
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.Session
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepository
-import java.util.UUID
+import java.util.*
 
 @Service
 class RemoveWriterStateFromSession(
@@ -13,20 +12,11 @@ class RemoveWriterStateFromSession(
     private val sessionEventRepository: SessionEventRepository,
 ) {
     fun execute(session: Session, requesterId: UUID): Session {
-        var updatedSession = session
-            .removeWriterState(requesterId)
+        var updatedSession = session.removeWriterState(requesterId)
 
         updatedSession = sessionRepository.saveChanges(updatedSession)
 
-        val writerState = session.findWriterStateByUserId(requesterId)
-
-        val writerLeft = WriterLeft(
-            writerId = writerState.writerId,
-            sessionId = updatedSession.id,
-            sequenceNumber = updatedSession.lastSessionEventSequenceNumber,
-            broadcasted = false,
-        )
-        sessionEventRepository.create(writerLeft)
+        sessionEventRepository.createAll(updatedSession.popAllGeneratedSessionEvents())
         return updatedSession
     }
 }

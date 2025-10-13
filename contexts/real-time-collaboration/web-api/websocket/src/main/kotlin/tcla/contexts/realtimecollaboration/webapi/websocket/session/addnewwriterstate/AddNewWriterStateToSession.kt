@@ -22,18 +22,11 @@ class AddNewWriterStateToSession(
             selectedText = null
         )
 
-        var updatedSession = session
-            .addWriterState(writerState)
+        var updatedSession = session.addWriterState(writerState)
 
         updatedSession = sessionRepository.saveChanges(updatedSession)
 
-        val writerJoined = WriterJoined(
-            writerId = writerId,
-            sessionId = updatedSession.id,
-            sequenceNumber = updatedSession.lastSessionEventSequenceNumber,
-            broadcasted = false,
-        )
-        sessionEventRepository.create(writerJoined)
+        sessionEventRepository.createAll(updatedSession.popAllGeneratedSessionEvents())
         return updatedSession
     }
 }

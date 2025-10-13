@@ -194,22 +194,15 @@ class SessionController(
         val destination = headerAccessor.destination
         val topicUpdatesPrefix = "/topic/updates/"
         if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
-            val documentId = destination.removePrefix("/topic/updates/")
-
-            //TODO: removeSubscriptionCommandHandler (reconvertir leaveSessionCommandHandler)
-            //TODO: borrar suscripción del WriterState
-            //TODO: si la suscripción que se borra es la última (? o /topic/updates/?), quitar el WriterState de la sesión
-            //TODO si ya no quedan writers borrar la sesión o "cerrarla"?
-
+            val documentId = destination.removePrefix(topicUpdatesPrefix)
             val documentUuid = fromString(documentId)
-            val command = RemoveSubscriptionCommand(
-                requesterId = requesterUuid,
-                documentId = documentUuid,
-                subscriptionId = subscriptionId
-            )
+            val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
             removeSubscriptionCommandHandler.execute(command)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
-
+            val documentId = destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
+            val documentUuid = fromString(documentId)
+            val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
+            removeSubscriptionCommandHandler.execute(command)
         }
     }
 }
