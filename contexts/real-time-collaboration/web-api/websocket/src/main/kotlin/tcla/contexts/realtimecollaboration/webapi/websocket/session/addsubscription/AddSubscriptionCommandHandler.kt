@@ -15,28 +15,34 @@ class AddSubscriptionCommandHandler(
     private val createSession: CreateSession,
     private val addNewWriterStateToSession: AddNewWriterStateToSession,
 ) {
+    @Synchronized
     fun execute(command: AddSubscriptionCommand) {
-        //TODO: Check if a started session exists
-        if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
-            createSession.execute(documentId = command.documentId)
+        val startedStatus = Session.Status.STARTED
+        val documentId = command.documentId
+        var session: Session = if (!sessionRepository.existsByDocumentIdAndStatus(
+                documentId = documentId,
+                status = startedStatus
+            )
+        ) {
+            val newSession = createSession.execute(documentId = documentId)
+            newSession.start()
+            sessionRepository.saveChanges(newSession)
+        } else sessionRepository.findByDocumentIdAndStatus(documentId, startedStatus)
+
+
+        val requesterId = command.requesterId
+        if (!session.writerExistsByUserId(userId = requesterId)) {
+            session = addNewWriterStateToSession.execute(session = session, requesterId = requesterId)
         }
 
-        var session: Session = sessionRepository.findByDocumentId(command.documentId)
-        //TODO: start session if not started
+        val writerState = session.findWriterStateByUserId(requesterId)
 
-        //TODO: find started session
-
-        if(!session.writerExistsByUserId(userId = command.requesterId)) {
-            session = addNewWriterStateToSession.execute(session = session, requesterId = command.requesterId)
-        }
-
-        val writerState = session.findWriterStateByUserId(command.requesterId)
-
-        session = session.addSubscription(writerState.writerId, command.subscription)
+        val subscription = command.subscription
+        session = session.addSubscription(writerState.writerId, subscription)
 
         session = sessionRepository.saveChanges(session)
 
-        if(command.subscription.type == Subscription.Type.SESSION) {
+        if (subscription.type == Subscription.Type.SESSION) {
             simpMessagingTemplate.convertAndSendToUser(
                 writerState.userId.toString(),
                 "/queue/session-state/${session.documentState.documentId}",

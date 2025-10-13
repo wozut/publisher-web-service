@@ -8,7 +8,7 @@ import java.util.UUID
 class CreateSession(
     private val sessionRepository: SessionRepository
 ) {
-    fun execute(documentId: UUID) {
+    fun execute(documentId: UUID): Session {
         val session = Session(
             id = UUID.randomUUID(),
             documentState = DocumentState(documentId = documentId, content = ""),
@@ -16,6 +16,6 @@ class CreateSession(
             lastSessionEventSequenceNumber = -1L,
             status = Session.Status.NOT_STARTED
         )
-        sessionRepository.create(session)
+        return sessionRepository.create(session)
     }
 }

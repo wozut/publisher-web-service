@@ -10,6 +10,9 @@ class SessionRepository {
     fun findByDocumentId(documentId: UUID): Session =
         sessions.first { it.documentState.documentId == documentId }
 
+    fun findByDocumentIdAndStatus(documentId: UUID, status: Session.Status): Session =
+        sessions.first { it.documentState.documentId == documentId && it.status == status }
+
     fun findById(id: UUID): Session = sessions.first { it.id == id }
 
     @Synchronized
@@ -21,14 +24,19 @@ class SessionRepository {
         return session
     }
 
+    fun existsByDocumentIdAndStatus(documentId: UUID, status: Session.Status): Boolean {
+        return sessions.any { it.documentState.documentId == documentId && it.status == status}
+    }
+
     fun existsByDocumentId(documentId: UUID): Boolean {
         return sessions.any { it.documentState.documentId == documentId }
     }
 
     @Synchronized
-    fun create(session: Session) {
+    fun create(session: Session): Session {
         if (sessions.any { it.id == session.id }) throw IllegalArgumentException("CollaborativeSession already exists")
 
         if (!sessions.add(session)) throw IllegalStateException("Failed to create CollaborativeSession")
+        return session
     }
 }

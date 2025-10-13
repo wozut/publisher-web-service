@@ -183,7 +183,8 @@ data class Session(
         return this
     }
 
-    fun hasNotStarted(): Boolean {
-        return status == Status.NOT_STARTED
+    fun start(): Session {
+        if(status != Status.NOT_STARTED) throw IllegalStateException()
+        return copy(status = Status.STARTED)
     }
 }
