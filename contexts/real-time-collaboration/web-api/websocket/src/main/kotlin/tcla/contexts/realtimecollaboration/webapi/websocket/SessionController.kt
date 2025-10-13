@@ -18,8 +18,8 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursor
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.changecursorposition.ChangeCursorPositionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.deselecttext.DeselectTextCommandHandler
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommand
-import tcla.contexts.realtimecollaboration.webapi.websocket.session.leave.LeaveSessionCommandHandler
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.removesubscription.RemoveSubscriptionCommand
+import tcla.contexts.realtimecollaboration.webapi.websocket.session.removesubscription.RemoveSubscriptionCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommand
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.removetext.RemoveTextCommandHandler
 import tcla.contexts.realtimecollaboration.webapi.websocket.session.selecttext.SelectTextCommand
@@ -28,7 +28,7 @@ import java.util.UUID.fromString
 
 @Controller
 class SessionController(
-    private val leaveSessionCommandHandler: LeaveSessionCommandHandler,
+    private val removeSubscriptionCommandHandler: RemoveSubscriptionCommandHandler,
     private val changeCursorPositionCommandHandler: ChangeCursorPositionCommandHandler,
     private val addTextCommandHandler: AddTextCommandHandler,
     private val removeTextCommandHandler: RemoveTextCommandHandler,
@@ -202,11 +202,11 @@ class SessionController(
             //TODO si ya no quedan writers borrar la sesión o "cerrarla"?
 
             val documentUuid = fromString(documentId)
-            val command = LeaveSessionCommand(
+            val command = RemoveSubscriptionCommand(
                 requesterId = requesterUuid,
                 documentId = documentUuid
             )
-            leaveSessionCommandHandler.execute(command)
+            removeSubscriptionCommandHandler.execute(command)
         } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
 
         }

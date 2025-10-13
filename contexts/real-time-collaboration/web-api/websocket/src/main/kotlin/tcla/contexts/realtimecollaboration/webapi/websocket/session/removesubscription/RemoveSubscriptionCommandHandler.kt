@@ -1,4 +1,4 @@
-package tcla.contexts.realtimecollaboration.webapi.websocket.session.leave
+package tcla.contexts.realtimecollaboration.webapi.websocket.session.removesubscription
 
 import org.springframework.stereotype.Component
 import tcla.contexts.realtimecollaboration.webapi.websocket.SessionEventRepository
@@ -7,11 +7,11 @@ import tcla.contexts.realtimecollaboration.webapi.websocket.session.SessionRepos
 import tcla.contexts.realtimecollaboration.webapi.websocket.events.WriterLeft
 
 @Component
-class LeaveSessionCommandHandler(
+class RemoveSubscriptionCommandHandler(
     private val sessionRepository: SessionRepository,
     private val sessionEventRepository: SessionEventRepository
 ) {
-    fun execute(command: LeaveSessionCommand) {
+    fun execute(command: RemoveSubscriptionCommand) {
         if (!sessionRepository.existsByDocumentId(documentId = command.documentId)) {
             throw IllegalArgumentException("Session not found for document: ${command.documentId}")
         }
