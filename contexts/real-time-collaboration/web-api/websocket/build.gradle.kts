@@ -1,8 +1,8 @@
 plugins {
     id("kotlin-library-conventions")
-    id("org.springframework.boot") version "3.5.4" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version Versions.SPRING_BOOT apply false
+    id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
+    kotlin("plugin.spring") version Versions.KOTLIN
 }
 
 dependencyManagement {
@@ -26,6 +26,8 @@ dependencies {
     }
 
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("com.auth0:java-jwt:${Versions.AUTH0_JWT}")
+    implementation("com.auth0:jwks-rsa:${Versions.AUTH0_JWKS_RSA}")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")

@@ -1,8 +1,8 @@
 plugins {
     id("kotlin-library-conventions")
-    id("org.springframework.boot") version "3.5.4" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version Versions.SPRING_BOOT apply false
+    id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
+    kotlin("plugin.spring") version Versions.KOTLIN
 }
 
 dependencyManagement {
@@ -37,7 +37,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("com.ninja-squad:springmockk:${Versions.SPRING_MOCKK}")
     testImplementation(testFixtures(project(":contexts:tcla:core")))
     testImplementation(testFixtures(project(":libraries:time")))
 }

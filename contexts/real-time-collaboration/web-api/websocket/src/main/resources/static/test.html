@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.2.0/bundles/stomp.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .col {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 400px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.danger {
+            background-color: #dc3545;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        .writer {
+            padding: 5px;
+            margin: 2px 0;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .messages {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            border: 1px solid #dee2e6;
+        }
+        .session-info {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .cursor-position {
+            background-color: #fff3cd;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .events {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            border: 1px solid #dee2e6;
+        }
+        .event-item {
+            padding: 5px;
+            margin: 2px 0;
+            border-left: 3px solid #007bff;
+            background-color: #e7f1ff;
+            border-radius: 3px;
+        }
+        .event-timestamp {
+            color: #666;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Document Editor</h1>
+
+    <div id="status" class="status disconnected">Disconnected</div>
+
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <label for="userId">User ID:</label>
+                <input type="text" id="userId" value="0fc5d24f-90ac-47df-8fe1-b3477d82e709">
+            </div>
+
+            <div class="container">
+                <label for="documentId">Document ID:</label>
+                <input type="text" id="documentId" value="ed973e41-d119-4eb4-8207-bca742bbcc43">
+            </div>
+
+            <div class="container">
+                <button id="connectBtn" onclick="connect()">Connect</button>
+                <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+                <button id="joinBtn" onclick="joinDocument()" disabled>Join Document</button>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="panel">
+                <h4>Session State</h4>
+                <div id="sessionInfo" class="session-info">Not connected</div>
+                <div id="writersList">
+                    <strong>Writers:</strong>
+                    <div id="writers">None</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <label for="documentContent">Document Content:</label>
+                <div class="cursor-position" id="cursorInfo">Cursor: position 0</div>
+                <textarea id="documentContent" placeholder="Start typing to collaborate..."></textarea>
+
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="container">
+                <label>Messages Log:</label>
+                <div id="messages" class="messages"></div>
+                <button onclick="clearMessages()" class="secondary">Clear Messages</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <label>Session Events:</label>
+                <div id="eventsContainer" class="events"></div>
+                <button onclick="clearEvents()" class="secondary">Clear Events</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let isConnected = false;
+        let currentDocumentId = null;
+        let sessionStateSnapshot = null;
+        let myUserId = null;
+        let myWriterId = null;
+        let subscriptionToUpdates = null;
+        let subscriptionToSessionState = null;
+        let myCursorPosition = null;
+        let requestSequenceNumber = 0;
+        let sessionEvents = [];
+        let lastSessionEventSequenceNumber = null;
+
+        // Utility functions
+        function addMessage(message, type = 'info') {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<span style="color: #666">${timestamp}</span> [${type.toUpperCase()}] ${message}`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        function updateEventsDisplay() {
+            const eventsContainer = document.getElementById('eventsContainer');
+            if (sessionEvents.length === 0) {
+                eventsContainer.innerHTML = '<div style="color: #666; padding: 10px; text-align: center;">No events received yet</div>';
+                return;
+            }
+
+            eventsContainer.innerHTML = sessionEvents.map(event => `
+                <div class="event-item">
+                    <div><strong>Type:</strong> ${event.type}</div>
+                    <div><strong>Seq:</strong> ${event.sequenceNumber || 'N/A'}</div>
+                    <div><strong>Writer:</strong> ${event.writerId || 'N/A'}</div>
+                    ${event.position !== undefined ? `<div><strong>Position:</strong> ${event.position}</div>` : ''}
+                    ${event.text ? `<div><strong>Text:</strong> "${event.text}"</div>` : ''}
+                    ${event.length ? `<div><strong>Length:</strong> ${event.length}</div>` : ''}
+                    ${event.newPosition !== undefined ? `<div><strong>New Position:</strong> ${event.newPosition}</div>` : ''}
+                </div>
+            `).join('');
+
+            eventsContainer.scrollTop = eventsContainer.scrollHeight;
+        }
+
+        function clearEvents() {
+            sessionEvents = [];
+            updateEventsDisplay();
+        }
+
+        function eventIsRemote(event) {
+            return event.broadcasted !== undefined && event.broadcasted !== null ? event.broadcasted : throw new Error("event.broadcasted is undefined or null");
+        }
+
+        function eventIsLocal(event) {
+            return !eventIsRemote(event);
+        }
+
+        function findInsertionPosition(eventSequenceNumber) {
+            let left = 0;
+            let right = sessionEvents.length;
+
+            while (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                const midSequenceNumber = sessionEvents[mid].sequenceNumber;
+
+                if (midSequenceNumber < eventSequenceNumber) {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+            return left;
+        }
+
+        function insertEvent(insertionPosition, event) {
+            sessionEvents.splice(insertionPosition, 0, event);
+        }
+
+        function processSessionEvent(event) {
+            /* TODO crear evento y pasar a processSessionEvent
+ * processSessionEvent decide todo. Es decir, si hay que enviar un mensaje o no, si hay que deshacer cambios o no, etc.
+ */
+
+/*            document.getElementById('cursorInfo').textContent = `Cursor: position ${newPosition}`;
+
+            const request = {
+                collaborativeSessionId: sessionStateSnapshot.id,
+                collaboratorId: myWriterId,
+                newPosition: newPosition,
+                sequenceNumber: requestSequenceNumber++
+            };
+
+            stompClient.publish({
+                destination: '/app/change-cursor-position',
+                body: JSON.stringify(request)
+            })*/
+            const isRemote = eventIsRemote(event);
+            const isLocal = eventIsLocal(event);
+            const eventSequenceNumber = event.sequenceNumber;
+
+            if (isRemote && (eventSequenceNumber === undefined || eventSequenceNumber === null ||
+                typeof eventSequenceNumber !== 'number' || eventSequenceNumber < 0)) {
+                throw new Error('Event sequence number must be a number greater than or equal to 0');
+            }
+
+            if(isRemote) {
+                const existingRemoteEvent = sessionEvents.some(e =>
+                    eventIsRemote(e) && e.sequenceNumber === eventSequenceNumber
+                );
+
+                if (existingRemoteEvent) {
+                    console.log(`Remote event with sequence number ${eventSequenceNumber} already exists, skipping insertion`);
+                    return;
+                }
+            }
+
+
+/*            if(isLocal && eventSequenceNumber !== lastSessionEventSequenceNumber + 1) {
+                throw new Error('Local Event Sequence Number must be lastSessionEventSequenceNumber + 1')
+            }*/
+
+            if(isLocal) {
+
+            }
+            let insertionPosition = findInsertionPosition(eventSequenceNumber);
+            insertEvent(insertionPosition, event);
+        }
+
+        function updateUI() {
+            const connected = isConnected;
+            const joined = connected && sessionStateSnapshot !== null;
+
+            document.getElementById('connectBtn').disabled = connected;
+            document.getElementById('disconnectBtn').disabled = !connected;
+            document.getElementById('joinBtn').disabled = !connected || joined;
+
+            const status = document.getElementById('status');
+            if (connected) {
+                status.textContent = joined ? `Connected and joined to ${currentDocumentId}` : 'Connected';
+                status.className = 'status connected';
+            } else {
+                status.textContent = 'Disconnected';
+                status.className = 'status disconnected';
+            }
+
+            updateSessionInfo();
+            updateWritersList();
+        }
+
+        function updateSessionInfo() {
+            const info = document.getElementById('sessionInfo');
+            if (sessionStateSnapshot) {
+                info.innerHTML = `
+                    <div><strong>Session ID:</strong> ${sessionStateSnapshot.id}</div>
+                    <div><strong>Document ID:</strong> ${currentDocumentId}</div>
+                    <div><strong>Document Length:</strong> ${sessionStateSnapshot.documentState.content.length} chars</div>
+                    <div><strong>Sequence:</strong> ${lastSessionEventSequenceNumber}</div>
+                `;
+            } else {
+                info.textContent = isConnected ? 'Connected but not joined' : 'Not connected';
+            }
+        }
+
+        function updateWritersList() {
+            const writersDiv = document.getElementById('writers');
+            if (sessionStateSnapshot && sessionStateSnapshot.writerStates) {
+                const writers = sessionStateSnapshot.writerStates;
+                if (writers.length > 0) {
+                    writersDiv.innerHTML = writers.map(writer => `
+                        <div class="writer">
+                            <strong>User:</strong> ${writer.userId}<br>
+                            <strong>Cursor:</strong> ${writer.cursorPosition || 'N/A'}<br>
+                            <strong>Selected:</strong> ${writer.selectedText ?
+                                `pos ${writer.selectedText.position}, len ${writer.selectedText.length}` : 'None'}
+                        </div>
+                    `).join('');
+                } else {
+                    writersDiv.innerHTML = 'None';
+                }
+            } else {
+                writersDiv.innerHTML = 'Not joined';
+            }
+        }
+
+        function setInitialDocumentContent() {
+            if (sessionStateSnapshot && sessionStateSnapshot.documentState) {
+                const textarea = document.getElementById('documentContent');
+                const currentCursor = textarea.selectionStart;
+                textarea.value = sessionStateSnapshot.documentState.content;
+
+                // Restore cursor if possible
+                if (currentCursor <= textarea.value.length) {
+                    textarea.setSelectionRange(currentCursor, currentCursor);
+                }
+            }
+        }
+
+        // WebSocket connection management
+        function connect() {
+            myUserId = document.getElementById('userId').value.trim();
+            if (!myUserId) {
+                alert('Please enter a User ID');
+                return;
+            }
+
+            stompClient = new StompJs.Client({
+                brokerURL: 'ws://localhost:8080/ession',
+                connectHeaders: {
+                    'UserId': myUserId
+                },
+                onConnect: function (frame) {
+                    isConnected = true;
+                    addMessage('Connected to server: ' + frame, 'success');
+                    updateUI();
+                },
+                onStompError: function (frame) {
+                    isConnected = false;
+                    addMessage('Connection error: ' + frame.headers['message'], 'error');
+                    updateUI();
+                },
+                onWebSocketError: function (error) {
+                    isConnected = false;
+                    addMessage('WebSocket error: ' + error, 'error');
+                    updateUI();
+                }
+            });
+
+            stompClient.activate();
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                if (subscriptionToUpdates) {
+                    subscriptionToUpdates.unsubscribe();
+                    subscriptionToUpdates = null;
+                }
+                if (subscriptionToSessionState) {
+                    subscriptionToSessionState.unsubscribe();
+                    subscriptionToSessionState = null;
+                }
+                stompClient.deactivate();
+            }
+            isConnected = false;
+            currentDocumentId = null;
+            sessionStateSnapshot = null;
+            addMessage('Disconnected from server', 'info');
+            updateUI();
+        }
+
+        function joinDocument(options) {
+            const docId = document.getElementById('documentId').value.trim();
+            if (!stompClient || !docId) {
+                alert('Please connect first and enter a document ID');
+                return;
+            }
+
+            currentDocumentId = docId;
+
+            // Subscribe to updates for this document
+            subscriptionToUpdates = stompClient.subscribe('/topic/updates/' + docId, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/topic/updates/${docId}) Message received: ${message.body}`);
+
+                try {
+                    const sessionEvent = JSON.parse(message.body);
+
+                    processSessionEvent(sessionEvent);
+
+                    addMessage(`Received event: ${sessionEvent.type} (seq: ${sessionEvent.sequenceNumber})`, 'event');
+                    updateEventsDisplay();
+                } catch (error) {
+                    console.error('Error parsing session event:', error);
+                    addMessage('Error parsing session event: ' + error.message, 'error');
+                }
+            });
+
+            // Subscribe to collaborative session state
+            subscriptionToSessionState = stompClient.subscribe(`/user/${myUserId}/queue/session-state/${docId}`, function (message) {
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}. (/user/${myUserId}/queue/session-state/${docId}) Message received: ${message.body}`);
+                sessionStateSnapshot = JSON.parse(message.body);
+                let myWriterState = sessionStateSnapshot.writerStates.find((writerState) => (writerState.userId === myUserId))
+                if (myWriterState) {
+                    myWriterId = myWriterState.writerId;
+                }
+                // updateLastCollaborativeEventSequenceNumber(sessionStateSnapshot.lastSessionEventSequenceNumber)
+                addMessage('Received session state update', 'success');
+                setInitialDocumentContent();
+                //si en este momento
+                updateUI();
+            });
+
+            if (!stompClient) throw new Error('Client not connected');
+            stompClient.publish({
+                destination: '/app/join-session/' + docId,
+                body: JSON.stringify({})
+            })
+
+            addMessage('Joined document: ' + docId, 'success');
+            updateUI();
+        }
+
+/*        function updateLastCollaborativeEventSequenceNumber(sequenceNumber) {
+            if(lastSessionEventSequenceNumber === undefined || sequenceNumber > lastSessionEventSequenceNumber) {
+                lastSessionEventSequenceNumber = sequenceNumber
+            }
+        }*/
+
+        function updateMyCursorPosition(newPosition) {
+            myCursorPosition = newPosition;
+        }
+
+        function sentChangeCursorPosition(newPosition) {
+            if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
+
+            addCursorPositionChangedEvent(newPosition);
+
+            updateEventsDisplay();
+            console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent change-cursor-position: ' + newPosition + ` (seq: ${request.sequenceNumber})`);
+        }
+
+        function incrementAndGetLastSessionEventSequenceNumber() {
+            return ++lastSessionEventSequenceNumber
+        }
+
+        function addCursorPositionChangedEvent(newPosition) {
+            const cursorEvent = {
+                type: "CursorPositionChanged",
+                sessionId: sessionStateSnapshot.id,
+                writerId: myWriterId,
+                sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
+                newPosition: newPosition,
+                broadcasted: false
+            };
+            processSessionEvent(cursorEvent);
+        }
+
+        // Event listeners
+/*        document.getElementById('documentContent').addEventListener('input', function() {
+            changeCursorPosition();
+        });*/
+
+/*        document.getElementById('documentContent').addEventListener('selectionchange', function() {
+            changeCursorPosition();
+        });*/
+
+        document.getElementById('documentContent').addEventListener('click', function() {
+            const textarea = document.getElementById('documentContent');
+            const newPosition = textarea.selectionStart;
+            if(myCursorPosition === newPosition) return;
+            updateMyCursorPosition(newPosition);
+            sentChangeCursorPosition(newPosition);
+        });
+
+/*        document.getElementById('documentContent').addEventListener('keyup', function() {
+            changeCursorPosition();
+        });*/
+
+        // Auto-detect text operations from textarea
+        let lastContent = '';
+        document.getElementById('documentContent').addEventListener('input', function(e) {
+            const currentContent = e.target.value;
+            const cursorPos = e.target.selectionStart;
+
+            if (currentContent.length > lastContent.length) {
+                const addedTextLength = currentContent.length - lastContent.length;
+                const position = cursorPos - addedTextLength;
+                const addedText = currentContent.substring(position, position + addedTextLength);
+
+                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
+                const request = {
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    position: position,
+                    text: addedText,
+                    sequenceNumber: requestSequenceNumber++
+                };
+
+                stompClient.publish({
+                    destination: '/app/add-text',
+                    body: JSON.stringify(request)
+                })
+
+                // Add client-side collaborative event for text addition
+                const addTextEvent = {
+                    type: "TextAdded",
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
+                    position: position,
+                    text: addedText,
+                    broadcasted: false
+                };
+                processSessionEvent(addTextEvent);
+                updateEventsDisplay();
+
+                console.log(`Time: ${(new Date(Date.now())).toISOString()}`,'Sent add-text: ' + request);
+                addMessage(`Auto-sent add-text: "${addedText}" at position ${position} (seq: ${request.sequenceNumber})`, 'auto');
+                // updateMyCursorPosition();
+            } else if (currentContent.length < lastContent.length) {
+                if (!stompClient || !sessionStateSnapshot || !sessionStateSnapshot.id || !myWriterId) throw new Error('Client not connected or session data does not exist');
+                const removedLength = lastContent.length - currentContent.length;
+                const position = cursorPos;
+
+                const request = {
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    position: position,
+                    length: removedLength,
+                    sequenceNumber: requestSequenceNumber++
+                };
+
+                stompClient.publish({
+                    destination: '/app/remove-text',
+                    body: JSON.stringify(request)
+                })
+
+                // Add client-side collaborative event for text removal
+                const removeTextEvent = {
+                    type: "TextRemoved",
+                    sessionId: sessionStateSnapshot.id,
+                    writerId: myWriterId,
+                    sequenceNumber: incrementAndGetLastSessionEventSequenceNumber(),
+                    position: position,
+                    length: removedLength,
+                    broadcasted: false
+                };
+                processSessionEvent(removeTextEvent);
+                updateEventsDisplay();
+
+                addMessage(`Auto-sent remove-text: ${removedLength} chars from position ${position} (seq: ${request.sequenceNumber})`, 'auto');
+                // updateMyCursorPosition();
+            }
+
+            lastContent = currentContent;
+        });
+
+        // Initialize
+        updateUI();
+        updateEventsDisplay();
+        addMessage('Application initialized. Enter User ID and Document ID, then connect.', 'info');
+    </script>
+</body>
+</html>

@@ -25,20 +25,20 @@ if [ "$current_branch" = "$protected_branch" ]; then
     fi
 
     echo "📝 Found $commits_to_push commit(s) to push. Continuing with checks..."
-    
+
     # Check if branch is up-to-date with remote
     echo "🌐 Checking if branch is up-to-date with remote..."
     git fetch origin "$protected_branch" --quiet
-    
+
     # Check if there are commits on remote that we don't have locally
     behind_count=$(git rev-list --count HEAD..origin/"$protected_branch")
-    
+
     if [ "$behind_count" -gt 0 ]; then
         echo "❌ Branch is $behind_count commit(s) behind origin/$protected_branch. Please pull latest changes first."
         exit 1
     fi
     echo "✅ Branch is up-to-date with remote"
-    
+
     # Run build
     echo "🔨 Building project with Gradle..."
     if ! ./gradlew build; then
@@ -46,7 +46,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
         exit 1
     fi
     echo "✅ Build successful"
-    
+
     # Build Docker image
     echo "🐳 Building Docker image..."
     if ! docker build \
@@ -58,7 +58,7 @@ if [ "$current_branch" = "$protected_branch" ]; then
         exit 1
     fi
     echo "✅ Docker build successful"
-    
+
     echo "🎉 All pre-push checks passed! Push to main allowed."
 else
     echo "ℹ️  Skipping pre-push checks (not pushing to main branch)"

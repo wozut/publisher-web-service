@@ -1,9 +1,9 @@
 plugins {
     id("kotlin-library-conventions")
-    id("org.springframework.boot") version "3.5.4" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "1.9.25"
-    kotlin("plugin.jpa") version "1.9.25"
+    id("org.springframework.boot") version Versions.SPRING_BOOT apply false
+    id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
+    kotlin("plugin.spring") version Versions.KOTLIN
+    kotlin("plugin.jpa") version Versions.KOTLIN
 }
 
 dependencyManagement {

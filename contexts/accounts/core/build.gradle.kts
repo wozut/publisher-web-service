@@ -1,8 +1,8 @@
 plugins {
     id("kotlin-library-conventions")
-    id("org.springframework.boot") version "3.5.4" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version Versions.SPRING_BOOT apply false
+    id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
+    kotlin("plugin.spring") version Versions.KOTLIN
 }
 
 dependencyManagement {
@@ -22,6 +22,6 @@ dependencies {
     implementation(project(":contexts:authentication:core"))
 
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
-    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:2.1.2"))
+    testFixturesImplementation(platform("io.arrow-kt:arrow-stack:${Versions.ARROW}"))
     testFixturesImplementation("io.arrow-kt:arrow-core")
 }

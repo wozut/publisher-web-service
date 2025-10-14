@@ -5,17 +5,17 @@ plugins {
 javaPlatform.allowDependencies()
 
 dependencies {
-    api(platform("io.arrow-kt:arrow-stack:2.1.2"))
+    api(platform("io.arrow-kt:arrow-stack:${Versions.ARROW}"))
 
     constraints {
         api("io.arrow-kt:arrow-core")
-        api("com.google.code.gson:gson:2.13.1")
-        api("jakarta.inject:jakarta.inject-api:2.0.1")
-        api("org.slf4j:slf4j-api:2.0.9")
+        api("com.google.code.gson:gson:${Versions.GSON}")
+        api("jakarta.inject:jakarta.inject-api:${Versions.JAKARTA_INJECT}")
+        api("org.slf4j:slf4j-api:${Versions.SLF4J}")
 
-        api("org.junit.jupiter:junit-jupiter:5.9.1")
-        api("org.junit.platform:junit-platform-suite:1.13.4")
-        api("org.assertj:assertj-core:3.27.4")
-        api("io.mockk:mockk:1.14.5")
+        api("org.junit.jupiter:junit-jupiter:${Versions.JUNIT}")
+        api("org.junit.platform:junit-platform-suite:${Versions.JUNIT_PLATFORM}")
+        api("org.assertj:assertj-core:${Versions.ASSERTJ}")
+        api("io.mockk:mockk:${Versions.MOCKK}")
     }
 }
