@@ -49,7 +49,7 @@ data class Session(
     fun removeWriterState(userId: UUID): Session {
         val writerState: WriterState = writerStates.firstOrNull { it.userId == userId }
             ?: throw IllegalArgumentException("Writer not found. UserId: $userId")
-        if (!writerStates.remove(writerState)) throw IllegalStateException()
+        if (!writerStates.removeIf { it.userId == userId  }) throw IllegalStateException()
         val writerLeft = WriterLeft(
             writerId = writerState.writerId,
             sessionId = id,
@@ -61,9 +61,9 @@ data class Session(
     }
 
     fun changeCursorPosition(writerId: UUID, newPosition: Long): Session {
-        val writerState: WriterState = writerStates.first { it.writerId == writerId }
         ensureCursorPositionConsistency(newPosition)
-        if (!writerStates.remove(writerState)) throw IllegalStateException()
+        val writerState: WriterState = writerStates.first { it.writerId == writerId }
+        if (!writerStates.removeIf { it.writerId == writerId }) throw IllegalStateException()
         val updatedWriterState = writerState.changeCursorPosition(newPosition)
         if (!writerStates.add(updatedWriterState)) throw IllegalStateException()
 

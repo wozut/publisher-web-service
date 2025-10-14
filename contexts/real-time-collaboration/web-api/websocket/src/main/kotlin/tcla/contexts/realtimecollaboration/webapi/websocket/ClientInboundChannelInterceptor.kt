@@ -8,6 +8,7 @@ import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.messaging.support.MessageHeaderAccessor
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.util.UUID.fromString
 
 @Component
 class ClientInboundChannelInterceptor : ChannelInterceptor {
@@ -40,9 +41,18 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
 //            }
         }
 
+        val destination: String? = accessor?.destination
+
         if(StompCommand.SUBSCRIBE == accessor?.command) {
             println("inbound preSend SUBSCRIBE")
             println("sessionAttributes userId ${accessor.sessionAttributes["userId"]}")
+
+
+            val topicUpdatesPrefix = "/topic/updates/"
+            if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
+                val documentId = destination.removePrefix(topicUpdatesPrefix)
+                accessor.sessionAttributes["documentId"] = documentId
+            }
         }
 
         if(StompCommand.SEND == accessor?.command) {
@@ -64,7 +74,6 @@ class ClientInboundChannelInterceptor : ChannelInterceptor {
             // Ejecutar lógica cuando se desconecta
         }
 
-        val destination: String? = accessor?.getNativeHeader("destination")?.firstOrNull()
         println("inbound preSend getNativeHeader(\"destination\"): $destination")
 
         return message

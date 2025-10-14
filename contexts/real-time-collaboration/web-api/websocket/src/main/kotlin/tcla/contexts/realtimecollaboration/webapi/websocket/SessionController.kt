@@ -192,16 +192,16 @@ class SessionController(
         val requesterId = extractRequesterId(headerAccessor)
         val requesterUuid = fromString(requesterId!!)
         val subscriptionId = headerAccessor.subscriptionId!!
-        val destination = headerAccessor.destination
-
-        val topicUpdatesPrefix = "/topic/updates/"
-        val documentId = if(destination != null && destination.startsWith(topicUpdatesPrefix)) {
-            destination.removePrefix(topicUpdatesPrefix)
-        } else if (destination != null && destination.matches(Regex("/user/.*/queue/session-state/.*"))) {
-            destination.removePrefix("/user/").dropWhile { char -> char != '/' }.removePrefix("/queue/session-state/")
-        } else throw IllegalArgumentException("Invalid destination: $destination")
-
+        val documentId = headerAccessor.sessionAttributes["documentId"]!! as String
         val documentUuid = fromString(documentId)
+
+        /*TODO como se puede saber a qué session pertenece el subscriptionId si el mensaje es
+         * UNSUBSCRIBE
+         * id:sub-0
+         *
+         * //guardando el docId en la sesion?
+         */
+
         val command = RemoveSubscriptionCommand(requesterId = requesterUuid, documentId = documentUuid, subscriptionId = subscriptionId)
         removeSubscriptionCommandHandler.execute(command)
     }
